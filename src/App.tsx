@@ -10,6 +10,7 @@ import InTheSpotlight from './components/InTheSpotlight'
 import SelectedForYou from './components/SelectedForYou'
 import DailyWheel from './components/DailyWheel'
 import VirtualBets from './components/VirtualBets'
+import PromoBanners from './components/PromoBanners'
 import BottomNav from './components/BottomNav'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
       </div>
       <main className="px-4 pb-24">
         <div className="mt-2"><QuickFilters /></div>
+        <div className="mt-3"><PromoBanners /></div>
         <div className="mt-4"><LiveBets /></div>
         <div className="mt-3"><TopPreMatch /></div>
         <div className="mt-3"><TopTournaments /></div>
