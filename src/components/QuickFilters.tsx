@@ -141,7 +141,7 @@ export default function QuickFilters() {
   const [active, setActive] = useState(0)
 
   return (
-    <div className="flex gap-[8px] overflow-x-auto scrollbar-hide -mx-4 px-4">
+    <div className="flex gap-[5px] overflow-x-auto scrollbar-hide -mx-4 px-4">
       {filters.map((f, i) => (
         <button
           key={f.label}
