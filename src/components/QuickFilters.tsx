@@ -146,7 +146,7 @@ export default function QuickFilters() {
         <button
           key={f.label}
           onClick={() => setActive(i)}
-          className={`flex flex-col items-center justify-center gap-[5px] w-[58px] min-h-[60px] py-[6px] rounded-[10px] shrink-0 transition-all ${
+          className={`flex flex-col items-center justify-center gap-[5px] w-[60px] min-h-[60px] py-[6px] rounded-[10px] shrink-0 transition-all ${
             active === i ? 'bg-[#0E8FCF]' : 'bg-white'
           }`}
         >
