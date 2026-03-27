@@ -21,15 +21,15 @@ function App() {
       </div>
       <main className="px-4 pb-24">
         <div className="mt-2"><QuickFilters /></div>
-        <div className="mt-6"><LiveBets /></div>
-        <div className="mt-6"><TopPreMatch /></div>
-        <div className="mt-6"><TopTournaments /></div>
-        <div className="mt-6"><TopProviders /></div>
-        <div className="mt-6"><CasinoCategories /></div>
-        <div className="mt-6"><InTheSpotlight /></div>
-        <div className="mt-6"><SelectedForYou /></div>
-        <div className="mt-6"><DailyWheel /></div>
-        <div className="mt-6"><VirtualBets /></div>
+        <div className="mt-3"><LiveBets /></div>
+        <div className="mt-3"><TopPreMatch /></div>
+        <div className="mt-3"><TopTournaments /></div>
+        <div className="mt-3"><TopProviders /></div>
+        <div className="mt-3"><CasinoCategories /></div>
+        <div className="mt-3"><InTheSpotlight /></div>
+        <div className="mt-3"><SelectedForYou /></div>
+        <div className="mt-3"><DailyWheel /></div>
+        <div className="mt-3"><VirtualBets /></div>
       </main>
       <BottomNav />
     </div>
