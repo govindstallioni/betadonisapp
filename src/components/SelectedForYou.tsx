@@ -30,12 +30,12 @@ export default function SelectedForYou() {
           <div
             key={game.name}
             className="w-full h-[200px] rounded-2xl cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-transform relative overflow-hidden"
-            style={{
-              backgroundImage: `url(${game.image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
           >
+            <img
+              src={game.image}
+              alt={game.name}
+              className="absolute inset-0 w-full h-full object-cover object-top"
+            />
             {/* Dark overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
