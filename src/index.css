@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+  --color-bg: #eef1f5;
+  --color-card: #ffffff;
+  --color-input-bg: #eceef3;
+  --color-border: #e4e6ed;
+  --color-border-light: #f0f1f5;
+  --color-text-primary: #374957;
+  --color-text-secondary: #737B8C;
+  --color-text-muted: #737B8C;
+  --color-accent-blue: #0E8FCF;
+  --color-accent-green: #27ae60;
+  --color-accent-red: #e74c3c;
+  --color-accent-orange: #f39c12;
+  --color-pill-active: #0E8FCF;
+  --color-badge-sport: #27ae60;
+  --color-badge-casino: #7c3aed;
+  --color-badge-esports: #e67e22;
+  --color-nav-active: #0E8FCF;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@layer utilities {
+  .animate-pulse-dot {
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+}
