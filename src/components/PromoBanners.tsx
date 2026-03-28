@@ -15,6 +15,10 @@ const promos = [
     title: 'Poker Lobby',
     image: '/banners/8_2729.png',
   },
+  {
+    title: 'VIP Blackjack',
+    image: '/banners/8_2731.png',
+  },
 ]
 
 export default function PromoBanners() {

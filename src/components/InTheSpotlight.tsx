@@ -2,7 +2,7 @@ import SectionHeader from './SectionHeader'
 
 const spotlightGames = [
   {
-    name: 'ŞAMPİYONLAR LİGİ',
+    name: 'Son of Egypt',
     provider: 'Pragmatic Play',
     tag: 'CANLI',
     image: '/spotlight/1.png',
@@ -20,7 +20,7 @@ const spotlightGames = [
     ),
   },
   {
-    name: 'Avrupa Ligi',
+    name: 'Las Vegas',
     provider: 'Pragmatic Play',
     tag: 'HİT',
     image: '/spotlight/2.png',
@@ -37,7 +37,7 @@ const spotlightGames = [
     ),
   },
   {
-    name: 'Türkiye Süper Ligi',
+    name: 'Scratch Cards',
     provider: 'Spribe',
     tag: 'TREND',
     image: '/spotlight/3.png',
@@ -65,35 +65,6 @@ const spotlightGames = [
         <circle cx="11" cy="13" r="1" fill="white" />
         <circle cx="9" cy="11" r="1" fill="white" />
         <path d="M13 3l-2 5h4l-3 6" stroke="#fbbf24" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Fransa Ligi',
-    provider: 'Ligue 1',
-    tag: 'CANLI',
-    image: '/spotlight/5.png',
-    accent: '#1e40af',
-    icon: (
-      <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="1.5" fill="rgba(255,255,255,0.1)" />
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10" stroke="white" strokeWidth="1" strokeDasharray="3 2" />
-        <path d="M8 6l4 6-4 6" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <path d="M14 8l4 4-4 4" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Dünya Kupası',
-    provider: 'FIFA',
-    tag: 'HİT',
-    image: '/spotlight/6.png',
-    accent: '#d4a017',
-    icon: (
-      <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
-        <path d="M8 21h8M12 17v4M6 3h12l-1.5 6H7.5L6 3z" stroke="#d4a017" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <path d="M7.5 9v2a4.5 4.5 0 009 0V9" stroke="#d4a017" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        <path d="M4 5h2M18 5h2M4 5l2.5 4M20 5l-2.5 4" stroke="white" strokeWidth="1" strokeLinecap="round" />
       </svg>
     ),
   },

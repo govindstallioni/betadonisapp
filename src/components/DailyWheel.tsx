@@ -34,7 +34,7 @@ export default function DailyWheel() {
           ))}
         </div>
 
-        <div className="relative z-10 flex gap-[16px] px-[20px] py-[20px]">
+        <div className="relative z-10 flex gap-[24px] px-[20px] py-[20px]">
           {/* Wheel - left side */}
           <div className="flex-shrink-0 flex items-center justify-center relative w-[130px] h-[130px]">
             {/* Outer ring glow */}
