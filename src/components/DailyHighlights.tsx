@@ -22,7 +22,7 @@ export default function DailyHighlights() {
             <div className="w-[40px] h-[40px] rounded-full bg-[#f0f5fa] flex items-center justify-center">
               <span className="text-[20px] leading-none">{item.emoji}</span>
             </div>
-            <div className="text-[11px] font-semibold text-[#374957] leading-tight text-center">{item.name}</div>
+            <div className="text-[11px] font-medium text-[#1a2332] leading-tight text-center">{item.name}</div>
             <div className="text-[10px] text-[#0E8FCF] font-semibold bg-[#eef7fc] rounded-full px-[8px] py-[2px]">{item.count} maç</div>
           </button>
         ))}

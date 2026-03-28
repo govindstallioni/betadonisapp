@@ -26,8 +26,8 @@ export default function CategoryTabs() {
             className="w-[24px] h-[24px] object-contain"
           />
           <span
-            className={`text-[11px] font-semibold leading-none transition-colors duration-200 ${
-              tab.id === active ? 'text-[#0E8FCF]' : 'text-[#374957]'
+            className={`text-[10px] font-medium leading-none transition-colors duration-200 ${
+              tab.id === active ? 'text-[#0E8FCF]' : 'text-[#1a2332]'
             }`}
           >
             {tab.label}

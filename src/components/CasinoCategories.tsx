@@ -104,7 +104,7 @@ const categories = [
 export default function CasinoCategories() {
   return (
     <div>
-      <SectionHeader title="Kategoriler" badge="Casino Oyunları" gamesCount={categories.length} />
+      <SectionHeader title="Kategoriler" badge="Casino Oyunları" showAll />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {categories.map((cat) => (
           <div
@@ -117,7 +117,7 @@ export default function CasinoCategories() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
             <div className="relative z-10 h-[100px] flex flex-col justify-end px-[8px] pb-[8px]">
-              <span className="text-[10px] font-bold text-white leading-tight text-center w-full"
+              <span className="text-[10px] font-medium text-white leading-tight text-center w-full"
                 style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
                 {cat.name}
               </span>

@@ -23,7 +23,7 @@ export default function PromoBanners() {
       {promos.map((promo) => (
         <div
           key={promo.title}
-          className="flex-shrink-0 w-[100px] cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
+          className="flex-shrink-0 w-[80px] cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
         >
           <div className="w-full aspect-square rounded-2xl overflow-hidden bg-gray-100">
             <img
@@ -32,7 +32,7 @@ export default function PromoBanners() {
               className="w-full h-full object-cover"
             />
           </div>
-          <p className="text-[12px] font-semibold text-gray-800 mt-[6px] leading-tight text-center line-clamp-2">
+          <p className="text-[9px] font-medium text-[#1a2332] mt-[6px] leading-tight text-center line-clamp-2">
             {promo.title}
           </p>
         </div>

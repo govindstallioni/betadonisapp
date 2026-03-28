@@ -102,7 +102,7 @@ const spotlightGames = [
 export default function InTheSpotlight() {
   return (
     <div>
-      <SectionHeader title="Günün Öne Çıkanları" badge="Casino Oyunları" gamesCount={spotlightGames.length} />
+      <SectionHeader title="Günün Öne Çıkanları" badge="Casino Oyunları" showAll />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {spotlightGames.map((game) => (
           <div
@@ -112,7 +112,7 @@ export default function InTheSpotlight() {
             <img src={game.image} alt={game.name} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="relative z-10 h-[160px] flex items-end px-[12px] pb-[12px]">
-              <span className="text-[13px] font-bold text-white leading-tight" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+              <span className="text-[13px] font-medium text-white leading-tight" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
                 {game.name}
               </span>
             </div>

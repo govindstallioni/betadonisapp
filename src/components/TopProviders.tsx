@@ -24,7 +24,7 @@ const providers = [
 export default function TopProviders() {
   return (
     <div>
-      <SectionHeader title="Bu Ayın En İyi Sağlayıcısı" badge="Casino" />
+      <SectionHeader title="Bu Ayın En İyi Sağlayıcısı" badge="Casino" showAll />
       <div className="flex gap-[10px]">
         {providers.map((p) => (
           <div
@@ -41,7 +41,7 @@ export default function TopProviders() {
 
             {/* Bottom bar */}
             <div className="relative z-10 px-[8px] py-[8px] bg-black/40 backdrop-blur-sm flex flex-col gap-[2px]">
-              <div className="text-[10px] font-bold text-white leading-tight truncate">{p.name}</div>
+              <div className="text-[10px] font-medium text-white leading-tight truncate">{p.name}</div>
               <div className="text-[9px] font-semibold" style={{ color: p.accent }}>{p.games} oyun</div>
             </div>
           </div>

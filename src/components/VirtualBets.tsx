@@ -9,7 +9,7 @@ const virtualSports = [
 export default function VirtualBets() {
   return (
     <div>
-      <SectionHeader title="Sanal Bahisler" badge="Spor" />
+      <SectionHeader title="Sanal Bahisler" badge="Spor" showAll />
       <div className="flex flex-col gap-[10px]">
         {virtualSports.map((sport) => (
           <div
@@ -26,15 +26,15 @@ export default function VirtualBets() {
               <span className="flex items-center gap-[4px] bg-black/60 backdrop-blur-sm rounded-full px-[8px] py-[3px] text-[10px] font-bold text-white">
                 🔥 Dota
               </span>
-              <span className="flex items-center gap-[4px] bg-red-600 rounded-full px-[8px] py-[3px] text-[10px] font-bold text-white">
+              <span className="flex items-center gap-[4px] bg-red-600 rounded-full px-[8px] py-[3px] text-[10px] font-medium text-white">
                 <span className="w-[5px] h-[5px] rounded-full bg-white animate-pulse" />
-                Live
+                Canli
               </span>
             </div>
             {/* Gradient overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             {/* Sport name */}
-            <span className="absolute bottom-[12px] left-[14px] text-[16px] font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+            <span className="absolute bottom-[12px] left-[14px] text-[16px] font-medium text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
               {sport.name}
             </span>
           </div>

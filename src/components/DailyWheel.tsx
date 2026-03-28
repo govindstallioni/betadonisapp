@@ -154,21 +154,21 @@ export default function DailyWheel() {
 
           {/* Content - right side */}
           <div className="flex-1 flex flex-col justify-center">
-            <h3 className="text-[16px] font-black text-white leading-tight drop-shadow-md">
+            <h3 className="text-[11px] font-medium text-white leading-tight drop-shadow-md">
               🎡 ŞANS ÇARKI AKTİF! 💰
             </h3>
             <div className="flex flex-col gap-[5px] mt-[10px]">
-              <span className="text-[12px] text-white font-semibold drop-shadow-sm">🔥 Gerçek para ödülleri</span>
-              <span className="text-[12px] text-white font-semibold drop-shadow-sm">🔥 Çevrimsiz bonus</span>
-              <span className="text-[12px] text-white font-semibold drop-shadow-sm">🔥 Tamamen çekilebilir kazanç</span>
+              <span className="text-[9px] text-white font-medium drop-shadow-sm">🔥 Gerçek para ödülleri</span>
+              <span className="text-[9px] text-white font-medium drop-shadow-sm">🔥 Çevrimsiz bonus</span>
+              <span className="text-[9px] text-white font-medium drop-shadow-sm">🔥 Tamamen çekilebilir kazanç</span>
             </div>
-            <p className="text-[12px] text-white/80 font-semibold mt-[12px] drop-shadow-sm">
+            <p className="text-[9px] text-white/80 font-medium mt-[12px] drop-shadow-sm">
               Şans Çarkı'nda kazandığın ödüller
             </p>
             <div className="flex flex-col gap-[5px] mt-[6px]">
-              <span className="text-[12px] text-white font-semibold drop-shadow-sm">✅ Çevrim şartı yok</span>
-              <span className="text-[12px] text-white font-semibold drop-shadow-sm">✅ Bonus değil, çekilebilir bakiye</span>
-              <span className="text-[12px] text-white font-semibold drop-shadow-sm">✅ Anında hesabına tanımlanır</span>
+              <span className="text-[9px] text-white font-medium drop-shadow-sm">✅ Çevrim şartı yok</span>
+              <span className="text-[9px] text-white font-medium drop-shadow-sm">✅ Bonus değil, çekilebilir bakiye</span>
+              <span className="text-[9px] text-white font-medium drop-shadow-sm">✅ Anında hesabına tanımlanır</span>
             </div>
           </div>
         </div>

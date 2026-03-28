@@ -24,7 +24,7 @@ const games = [
 export default function SelectedForYou() {
   return (
     <div>
-      <SectionHeader title="Sizin İçin Seçtiklerimiz" badge="Casino" />
+      <SectionHeader title="Sizin İçin Seçtiklerimiz" badge="Casino" showAll />
       <div className="space-y-[10px]">
         {games.map((game) => (
           <div
@@ -42,8 +42,8 @@ export default function SelectedForYou() {
             <div className="relative z-10 flex flex-col justify-end h-full px-[18px] pb-[14px]">
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
-                  <div className="text-[15px] font-bold text-white leading-tight">{game.name}</div>
-                  <div className="text-[12px] text-white/70 font-medium mt-[3px]">{game.provider}</div>
+                  <div className="text-[15px] font-medium text-white leading-tight">{game.name}</div>
+                  <div className="text-[10px] text-white/70 font-medium mt-[3px]">{game.provider}</div>
                 </div>
               </div>
             </div>

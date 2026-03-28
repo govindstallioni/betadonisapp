@@ -35,13 +35,13 @@ export default function TopTournaments() {
                 {/* Left: flag + league */}
                 <div className="flex items-center gap-[10px] flex-1 min-w-0">
                   <img src={t.flag} alt="" className="w-[20px] h-[20px] rounded-full object-cover flex-shrink-0" />
-                  <span className="text-[12px] text-[#374957] font-medium truncate">{t.league}</span>
+                  <span className="text-[11px] text-[#1a2332] font-medium truncate">{t.league}</span>
                   {t.hasStream && (
-                    <div className="flex items-center gap-[3px] bg-[#eef7fc] rounded-full px-[6px] py-[2px] flex-shrink-0">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#0E8FCF">
+                    <div className="flex items-center gap-[3px] bg-[#fde8e8] rounded-full px-[6px] py-[2px] flex-shrink-0">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="#e74c3c">
                         <path d="M8 5v14l11-7z" />
                       </svg>
-                      <span className="text-[9px] text-[#0E8FCF] font-semibold">CANLI</span>
+                      <span className="text-[9px] text-[#e74c3c] font-semibold">CANLI</span>
                     </div>
                   )}
                 </div>
@@ -50,7 +50,7 @@ export default function TopTournaments() {
                 <div className="flex items-center gap-[6px] flex-shrink-0 mx-[10px]">
                   {/* Sport + Fire icon */}
                   <div className="relative flex-shrink-0 w-[20px] h-[20px]">
-                    <svg width="16" height="16" viewBox="0 0 512 512" fill="#374957" className="absolute bottom-0 left-0">
+                    <svg width="20" height="20" viewBox="0 0 512 512" fill="#1a2332" className="absolute bottom-0 left-0">
                       <path d="M256 48C141.137 48 48 141.136 48 256s93.137 208 208 208c114.872 0 208-93.138 208-208S370.87 48 256 48zm41.151 394.179c-13.514 2.657-30.327 4.187-44 4.45a190.525 190.525 0 0 1-38.5-4.493 978.146 978.146 0 0 1-6.805-1.777l-24.417-65.435L203.074 336h105.854l.57 1.076 19.34 38.852-23.618 64.282a189.782 189.782 0 0 1-8.069 1.969zM189.578 77.28 247 116.576v58.147l-70.997 60.067-49.403-22.51-4.167-1.899-22.332-64.019c22.009-31.204 53.138-55.532 89.477-69.082zm221.986 68.787-22.432 64.483-53.992 24.388L264 174.723v-58.147l57.596-39.415c36.362 13.483 67.905 37.752 89.968 68.906zM66.144 273.414l53.756-46.518 49.539 22.599.559.255 19.718 77.287-20.433 38.529-69.86-.915c-18.348-26.36-30.214-57.546-33.279-91.237zm276.575 92.151-20.434-38.529 19.752-77.416 49.997-22.781 53.822 46.575c-3.065 33.691-14.932 64.877-33.277 91.236l-69.86.915z" />
                     </svg>
                     <svg width="10" height="10" viewBox="0 0 32 32" fill="none" className="absolute top-0 right-0">
@@ -58,7 +58,7 @@ export default function TopTournaments() {
                       <path fill="#FFB02E" d="M23 21.8512C23 25.893 19.4812 29.142 15.2011 28.9952C10.5815 28.8386 7.41254 24.6109 8.09159 20.256C9.06903 14.0124 15.4789 10 15.4789 10C15.4789 10 23 14.7072 23 21.8512Z" />
                     </svg>
                   </div>
-                  <span className="text-[10px] text-[#374957] font-bold bg-[#eef1f5] rounded-full w-[20px] h-[20px] flex items-center justify-center">{t.matches}</span>
+                  <span className="text-[10px] text-[#1a2332] font-medium bg-[#edf5ff] rounded-full w-[20px] h-[20px] flex items-center justify-center">{t.matches}</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>

@@ -6,7 +6,7 @@ export default function Header() {
         <div className="w-8" />
         <img src="/logo.png" alt="BetAdonis" className="h-[20px] object-contain" />
         <button className="w-8 h-8 flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#374957" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
           </svg>

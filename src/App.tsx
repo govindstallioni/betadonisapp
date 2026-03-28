@@ -11,6 +11,7 @@ import SelectedForYou from './components/SelectedForYou'
 import DailyWheel from './components/DailyWheel'
 import VirtualBets from './components/VirtualBets'
 import PromoBanners from './components/PromoBanners'
+import TopEvents from './components/TopEvents'
 import BottomNav from './components/BottomNav'
 
 function App() {
@@ -23,7 +24,8 @@ function App() {
       <main className="px-4 pb-24">
         <div className="mt-2"><QuickFilters /></div>
         <div className="mt-3"><PromoBanners /></div>
-        <div className="mt-4"><LiveBets /></div>
+        <div className="mt-4"><TopEvents /></div>
+        <div className="mt-5"><LiveBets /></div>
         <div className="mt-3"><TopPreMatch /></div>
         <div className="mt-3"><TopTournaments /></div>
         <div className="mt-3"><TopProviders /></div>

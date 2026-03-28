@@ -153,8 +153,8 @@ export default function QuickFilters() {
           <div className={active === i ? '[&_svg]:brightness-0 [&_svg]:invert' : ''}>
             {f.icon}
           </div>
-          <span className={`text-[10px] font-semibold text-center leading-tight w-full px-[4px] break-words ${
-            active === i ? 'text-white' : 'text-[#374957]'
+          <span className={`text-[9px] font-medium text-center leading-tight w-full px-[4px] break-words ${
+            active === i ? 'text-white' : 'text-[#1a2332]'
           }`}>
             {f.label}
           </span>

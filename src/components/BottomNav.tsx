@@ -205,7 +205,7 @@ export default function BottomNav() {
                     {item.icon}
                   </div>
                   <div className="text-left">
-                    <div className="text-[#0a1628] text-[13px] font-bold leading-tight">{item.title}</div>
+                    <div className="text-[#0a1628] text-[13px] font-medium leading-tight">{item.title}</div>
                     <div className="text-[#0a1628]/50 text-[11px] mt-0.5 leading-tight">{item.desc}</div>
                   </div>
                   <svg className="ml-auto shrink-0 opacity-30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0a1628" strokeWidth="2" strokeLinecap="round">
