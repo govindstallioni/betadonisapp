@@ -1,23 +1,23 @@
 const promos = [
   {
     title: 'Cuma Gün Bonusu',
-    image: '/banners/123434.jpg',
+    image: '/promotions/123434.jpg',
   },
   {
     title: 'Spor Kayıp Bonusu',
-    image: '/banners/123435.jpg',
+    image: '/promotions/123435.jpg',
   },
   {
     title: 'Özel Kayıp Bonusu',
-    image: '/banners/34545.png',
+    image: '/promotions/34545.png',
   },
   {
     title: 'Poker Lobby',
-    image: '/banners/8_2729.png',
+    image: '/promotions/8_2729.png',
   },
   {
     title: 'VIP Blackjack',
-    image: '/banners/8_2731.png',
+    image: '/promotions/8_2731.png',
   },
 ]
 
