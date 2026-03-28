@@ -15,10 +15,10 @@ export default function Header() {
 
       {/* Auth buttons row */}
       <div className="flex items-center gap-3 px-4 pb-3">
-        <button className="flex-1 h-[40px] rounded-full border-2 border-[#0E8FCF] text-[#0E8FCF] text-[13px] font-bold tracking-wide">
+        <button className="flex-1 h-[40px] rounded-full border-2 border-[#0E8FCF] text-[#0E8FCF] text-[12px] font-medium tracking-wide">
           Giriş Yap
         </button>
-        <button className="flex-1 h-[40px] rounded-full bg-[#0E8FCF] text-white text-[13px] font-bold tracking-wide">
+        <button className="flex-1 h-[40px] rounded-full bg-[#0E8FCF] text-white text-[12px] font-medium tracking-wide">
           Kayıt Ol
         </button>
       </div>
