@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Header from './components/Header'
 import CategoryTabs from './components/CategoryTabs'
 import QuickFilters from './components/QuickFilters'
@@ -12,9 +13,24 @@ import DailyWheel from './components/DailyWheel'
 import VirtualBets from './components/VirtualBets'
 import PromoBanners from './components/PromoBanners'
 import TopEvents from './components/TopEvents'
+import EventDetail from './components/EventDetail'
 import BottomNav from './components/BottomNav'
 
 function App() {
+  const [selectedEvent, setSelectedEvent] = useState<{ title: string; color: string } | null>(null)
+
+  if (selectedEvent) {
+    return (
+      <>
+        <EventDetail
+          event={selectedEvent}
+          onBack={() => setSelectedEvent(null)}
+        />
+        <BottomNav />
+      </>
+    )
+  }
+
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative" style={{ overflowX: 'clip' }}>
       <div className="sticky top-0 z-50">
@@ -24,7 +40,7 @@ function App() {
       <main className="px-4 pb-24">
         <div className="mt-2"><QuickFilters /></div>
         <div className="mt-3"><PromoBanners /></div>
-        <div className="mt-4"><TopEvents /></div>
+        <div className="mt-4"><TopEvents onEventClick={(event) => setSelectedEvent(event)} /></div>
         <div className="mt-5"><LiveBets /></div>
         <div className="mt-3"><TopPreMatch /></div>
         <div className="mt-3"><TopTournaments /></div>

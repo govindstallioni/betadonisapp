@@ -51,7 +51,11 @@ const events = [
   },*/
 ]
 
-export default function TopEvents() {
+interface TopEventsProps {
+  onEventClick?: (event: { title: string; color: string }) => void
+}
+
+export default function TopEvents({ onEventClick }: TopEventsProps) {
   return (
     <div>
       <SectionHeader title="Öne Çıkan Etkinlikler" showAll />
@@ -59,6 +63,7 @@ export default function TopEvents() {
         {events.map((event, i) => (
           <div
             key={i}
+            onClick={() => onEventClick?.({ title: event.title, color: event.color })}
             className="flex items-center gap-2.5 bg-white rounded-xl px-2.5 py-2 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden shadow-sm"
           >
             <div
