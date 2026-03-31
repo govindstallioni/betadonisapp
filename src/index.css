@@ -53,8 +53,16 @@
   50% { opacity: 0.4; }
 }
 
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 @layer utilities {
   .animate-pulse-dot {
     animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
   }
 }

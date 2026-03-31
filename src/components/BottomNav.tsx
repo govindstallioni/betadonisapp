@@ -142,7 +142,12 @@ const menuItems = [
   },
 ]
 
-export default function BottomNav() {
+interface BottomNavProps {
+  onTabChange?: (tab: string) => void
+  onMenuItemClick?: (title: string) => void
+}
+
+export default function BottomNav({ onTabChange, onMenuItemClick }: BottomNavProps) {
   const [active, setActive] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -152,6 +157,7 @@ export default function BottomNav() {
     } else {
       setMenuOpen(false)
       setActive(i)
+      onTabChange?.(navItems[i].label)
     }
   }
 
@@ -191,6 +197,7 @@ export default function BottomNav() {
               {menuItems.map((item, i) => (
                 <button
                   key={item.title}
+                  onClick={() => { onMenuItemClick?.(item.title); setMenuOpen(false) }}
                   className={`flex items-center gap-4 w-full p-3.5 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] active:scale-[0.98] transition-all duration-200`}
                   style={{
                     transitionDelay: menuOpen ? `${i * 30}ms` : '0ms',

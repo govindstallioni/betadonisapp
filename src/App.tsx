@@ -14,10 +14,30 @@ import VirtualBets from './components/VirtualBets'
 import PromoBanners from './components/PromoBanners'
 import TopEvents from './components/TopEvents'
 import EventDetail from './components/EventDetail'
+import BetHistory from './components/BetHistory'
+import PreMatchScreen from './components/PreMatchScreen'
 import BottomNav from './components/BottomNav'
 
 function App() {
   const [selectedEvent, setSelectedEvent] = useState<{ title: string; color: string } | null>(null)
+  const [activeScreen, setActiveScreen] = useState('home')
+
+  const handleTabChange = (tab: string) => {
+    if (tab === 'Geçmiş') {
+      setActiveScreen('history')
+      setSelectedEvent(null)
+    } else {
+      setActiveScreen('home')
+      setSelectedEvent(null)
+    }
+  }
+
+  const handleMenuItemClick = (title: string) => {
+    if (title === 'MAÇ ÖNCESİ') {
+      setActiveScreen('prematch')
+      setSelectedEvent(null)
+    }
+  }
 
   if (selectedEvent) {
     return (
@@ -26,7 +46,25 @@ function App() {
           event={selectedEvent}
           onBack={() => setSelectedEvent(null)}
         />
-        <BottomNav />
+        <BottomNav onTabChange={handleTabChange} onMenuItemClick={handleMenuItemClick} />
+      </>
+    )
+  }
+
+  if (activeScreen === 'prematch') {
+    return (
+      <>
+        <PreMatchScreen onBack={() => setActiveScreen('home')} />
+        <BottomNav onTabChange={handleTabChange} onMenuItemClick={handleMenuItemClick} />
+      </>
+    )
+  }
+
+  if (activeScreen === 'history') {
+    return (
+      <>
+        <BetHistory />
+        <BottomNav onTabChange={handleTabChange} onMenuItemClick={handleMenuItemClick} />
       </>
     )
   }
@@ -51,7 +89,7 @@ function App() {
         <div className="mt-3"><DailyWheel /></div>
         <div className="mt-3"><VirtualBets /></div>
       </main>
-      <BottomNav />
+      <BottomNav onTabChange={handleTabChange} onMenuItemClick={handleMenuItemClick} />
     </div>
   )
 }
