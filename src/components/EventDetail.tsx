@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface EventDetailProps {
   event: {
@@ -197,7 +198,7 @@ export default function EventDetail({ event }: EventDetailProps) {
 
             <div className="flex flex-col gap-3">
               {preMatchEvents.map((match, i) => (
-                <div key={i} className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1]">
+                <Link key={i} href={`/match?id=${i === 0 ? 'gs-bay' : 'rma-mci'}`} className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1]">
                   {/* League header */}
                   <div className="flex items-center justify-between px-3 py-[8px] border-b border-[#f0f2f5]">
                     <div className="flex items-center gap-[6px]">
@@ -253,19 +254,19 @@ export default function EventDetail({ event }: EventDetailProps) {
                   <div className="px-3 py-2 pb-3">
                     <div className="flex gap-[5px]">
                       {match.odds.map((odd, j) => (
-                        <button
+                        <span
                           key={j}
-                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between hover:bg-[#e0eeff] transition-all"
+                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between"
                         >
                           <span className="text-[9px] text-[#737B8C] font-medium uppercase">{odd.label}</span>
                           <span className={`text-[10px] font-medium ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
                             {odd.value}
                           </span>
-                        </button>
+                        </span>
                       ))}
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -351,7 +352,7 @@ export default function EventDetail({ event }: EventDetailProps) {
 
             <div className="flex flex-col gap-3">
               {teamMatches.map((match, i) => (
-                <div key={i} className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1]">
+                <Link key={i} href={`/match?id=${i === 0 ? 'gs-bay' : 'rma-mci'}`} className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1]">
                   {/* League header */}
                   <div className="flex items-center justify-between px-3 py-[8px] border-b border-[#f0f2f5]">
                     <div className="flex items-center gap-[6px]">
@@ -407,19 +408,19 @@ export default function EventDetail({ event }: EventDetailProps) {
                   <div className="px-3 py-2 pb-3">
                     <div className="flex gap-[5px]">
                       {match.odds.map((odd, j) => (
-                        <button
+                        <span
                           key={j}
-                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between hover:bg-[#e0eeff] transition-all"
+                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between"
                         >
                           <span className="text-[9px] text-[#737B8C] font-medium uppercase">{odd.label}</span>
                           <span className={`text-[10px] font-medium ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
                             {odd.value}
                           </span>
-                        </button>
+                        </span>
                       ))}
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 

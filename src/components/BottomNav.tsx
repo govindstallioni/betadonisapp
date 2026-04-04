@@ -224,8 +224,11 @@ export default function BottomNav() {
                 <button
                   key={item.title}
                   onClick={() => handleMenuItemClick(item.href)}
-                  className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg bg-black/[0.04] hover:bg-black/[0.08] active:scale-[0.98] transition-all duration-200`}
+                  className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg bg-black/[0.04] hover:bg-black/[0.08] active:scale-[0.98]`}
                   style={{
+                    transitionProperty: 'all',
+                    transitionDuration: '200ms',
+                    transitionTimingFunction: 'ease',
                     transitionDelay: menuOpen ? `${i * 30}ms` : '0ms',
                     opacity: menuOpen ? 1 : 0,
                     transform: menuOpen ? 'translateX(0)' : 'translateX(-20px)',

@@ -1,3 +1,6 @@
+'use client'
+
+import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 
 interface LiveMatch {
@@ -72,14 +75,17 @@ const liveMatches: LiveMatch[] = [
   },
 ]
 
+const matchIds = ['gal-fen', 'mci-ars', 'rma-bar']
+
 export default function LiveBets() {
   return (
     <div>
       <SectionHeader title="En iyi CANLI BAHİS" badge="Spor" showAll />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {liveMatches.map((match, i) => (
-          <div
+          <Link
             key={i}
+            href={`/match?id=${matchIds[i]}`}
             className="flex-shrink-0 w-[85%] bg-white rounded-xl overflow-hidden border border-[#e8ecf1]"
           >
             {/* League header */}
@@ -140,17 +146,17 @@ export default function LiveBets() {
             <div className="px-[10px] pb-[10px]">
               <div className="flex gap-[5px]">
                 {match.odds.map((odd, j) => (
-                  <button
+                  <span
                     key={j}
-                    className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[6px] px-[8px] flex items-center justify-between hover:bg-[#edf0f5] transition-all"
+                    className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[6px] px-[8px] flex items-center justify-between"
                   >
                     <span className="text-[9px] text-[#737B8C] font-semibold uppercase">{odd.label}</span>
                     <span className={`text-[10px] font-medium ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>{odd.value}</span>
-                  </button>
+                  </span>
                 ))}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
