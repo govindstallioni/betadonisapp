@@ -117,21 +117,20 @@ const defaultMatch = matchesData[0]
 
 // ── Static market data ─────────────────────────────────────────
 
-interface MarketRow {
-  label: string
-  value: string
-}
+interface MarketRow { label: string; value: string }
 
-interface MarketGroup {
+interface Market {
   title: string
+  tabs: number[]
   pinned?: boolean
   subCount?: number
   rows: MarketRow[][]
 }
 
-const markets: MarketGroup[] = [
+const allMarkets: Market[] = [
   {
     title: '1X2',
+    tabs: [0, 1],
     pinned: true,
     rows: [
       [
@@ -143,6 +142,7 @@ const markets: MarketGroup[] = [
   },
   {
     title: 'Toss Kazananı',
+    tabs: [0],
     pinned: true,
     rows: [
       [
@@ -153,6 +153,7 @@ const markets: MarketGroup[] = [
   },
   {
     title: 'Toss / Maç',
+    tabs: [0],
     pinned: true,
     rows: [
       [
@@ -166,27 +167,64 @@ const markets: MarketGroup[] = [
     ],
   },
   {
+    title: 'Toplam',
+    tabs: [0, 1, 2],
+    pinned: true,
+    rows: [
+      [
+        { label: 'Üst (389.5)', value: '2.4' },
+        { label: 'Alt (379.5)', value: '1.85' },
+      ],
+      [
+        { label: 'Üst (399.5)', value: '2.8' },
+      ],
+    ],
+  },
+  {
+    title: 'Toplam 1',
+    tabs: [0, 1, 2],
+    subCount: 42,
+    rows: [
+      [
+        { label: '(185.5) Üst', value: '1.92' },
+        { label: '(185.5) Alt', value: '1.92' },
+      ],
+    ],
+  },
+  {
+    title: 'Toplam 2',
+    tabs: [0, 1, 2],
+    subCount: 42,
+    rows: [
+      [
+        { label: '(193.5) Üst', value: '1.92' },
+        { label: '(193.5) Alt', value: '1.92' },
+      ],
+    ],
+  },
+  {
+    title: 'Beraberlik',
+    tabs: [0, 1],
+    rows: [
+      [
+        { label: 'Evet', value: '55' },
+        { label: 'Hayır', value: '1.003' },
+      ],
+    ],
+  },
+  {
     title: 'Takım Galibiyetleri',
-    subCount: 2,
-    rows: [],
-  },
-  {
-    title: 'Toplam Skor 1',
-    subCount: 42,
-    rows: [],
-  },
-  {
-    title: 'Toplam Skor 2',
-    subCount: 42,
-    rows: [],
-  },
-  {
-    title: 'Handikap',
-    subCount: 6,
-    rows: [],
+    tabs: [0],
+    rows: [
+      [
+        { label: 'Takım 1', value: '1.85' },
+        { label: 'Takım 2', value: '1.95' },
+      ],
+    ],
   },
   {
     title: 'Çifte Şans',
+    tabs: [0],
     pinned: true,
     rows: [
       [
@@ -197,31 +235,23 @@ const markets: MarketGroup[] = [
     ],
   },
   {
-    title: 'İlk Yarı Sonucu',
-    subCount: 9,
-    rows: [],
-  },
-  {
-    title: 'Toplam Goller',
-    pinned: true,
+    title: 'Handikap',
+    tabs: [0],
+    subCount: 6,
     rows: [
       [
-        { label: 'Alt 1.5', value: '1.40' },
-        { label: 'Üst 1.5', value: '2.85' },
+        { label: 'Takım 1 (-1.5)', value: '3.20' },
+        { label: 'Takım 2 (+1.5)', value: '1.32' },
       ],
       [
-        { label: 'Alt 2.5', value: '1.95' },
-        { label: 'Üst 2.5', value: '1.85' },
-      ],
-      [
-        { label: 'Alt 3.5', value: '2.60' },
-        { label: 'Üst 3.5', value: '1.50' },
+        { label: 'Takım 1 (+1.5)', value: '1.35' },
+        { label: 'Takım 2 (-1.5)', value: '3.10' },
       ],
     ],
   },
   {
     title: 'Karşılıklı Gol',
-    pinned: true,
+    tabs: [0],
     rows: [
       [
         { label: 'Evet', value: '1.72' },
@@ -230,9 +260,32 @@ const markets: MarketGroup[] = [
     ],
   },
   {
+    title: 'İlk Yarı Sonucu',
+    tabs: [0],
+    rows: [
+      [
+        { label: 'W1', value: '3.40' },
+        { label: 'X', value: '2.10' },
+        { label: 'W2', value: '2.60' },
+      ],
+    ],
+  },
+  {
     title: 'Doğru Skor',
+    tabs: [0],
     subCount: 28,
-    rows: [],
+    rows: [
+      [
+        { label: '1-0', value: '7.50' },
+        { label: '0-1', value: '6.00' },
+        { label: '1-1', value: '5.50' },
+      ],
+      [
+        { label: '2-0', value: '12.00' },
+        { label: '0-2', value: '10.00' },
+        { label: '2-1', value: '9.00' },
+      ],
+    ],
   },
 ]
 
@@ -257,10 +310,13 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
 
   const [activeFilter, setActiveFilter] = useState(0)
   const [activeSubTab, setActiveSubTab] = useState(0)
+  const [sectionOpen, setSectionOpen] = useState(true)
   const [expandedMarkets, setExpandedMarkets] = useState<Set<number>>(
-    new Set(markets.map((m, i) => (m.rows.length > 0 ? i : -1)).filter(i => i >= 0))
+    new Set(allMarkets.map((m, i) => (m.rows.length > 0 ? i : -1)).filter(i => i >= 0))
   )
   const [selectedOdds, setSelectedOdds] = useState<Set<string>>(new Set())
+
+  const visibleMarkets = allMarkets.filter(m => m.tabs.includes(activeFilter))
 
   const toggleMarket = (i: number) => {
     setExpandedMarkets(prev => {
@@ -456,72 +512,128 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
       </div>
 
       {/* ── Markets ── */}
-      <div className="px-4 pt-2 bg-white">
-        {markets.map((market, mi) => {
-          const isOpen = expandedMarkets.has(mi)
-          const hasContent = market.rows.length > 0
-
-          return (
-            <div key={mi} className="border-b border-[#f0f2f5] last:border-b-0">
-              {/* Header */}
-              <button
-                onClick={() => toggleMarket(mi)}
-                className="w-full flex items-center justify-between py-3.5"
-              >
-                <span className="text-[12px] font-bold text-[#1a2332]">{market.title}</span>
-                <div className="flex items-center gap-2">
-                  {market.subCount !== undefined && (
-                    <span className="text-[11px] text-[#737B8C] font-medium">({market.subCount})</span>
-                  )}
-                  <svg
-                    width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke={market.pinned ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      <div className="bg-white">
+        {activeFilter === 0 ? (
+          /* ─── All Markets: collapsible per-market sections ─── */
+          <div className="px-4 pt-2">
+            {visibleMarkets.map((market) => {
+              const globalIdx = allMarkets.indexOf(market)
+              const isOpen = expandedMarkets.has(globalIdx)
+              return (
+                <div key={market.title} className="border-b border-[#f0f2f5] last:border-b-0">
+                  <button
+                    onClick={() => toggleMarket(globalIdx)}
+                    className="w-full flex items-center justify-between py-3.5"
                   >
-                    <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
-                  </svg>
-                  <svg
-                    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                    className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                  >
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </div>
-              </button>
-
-              {/* Odds grid */}
-              {isOpen && hasContent && (
-                <div className="pb-3 flex flex-col gap-[6px]">
-                  {market.rows.map((row, ri) => (
-                    <div key={ri} className="flex gap-[6px]">
-                      {row.map((odd, oi) => {
-                        const key = `${mi}-${ri}-${oi}`
-                        const sel = selectedOdds.has(key)
-                        return (
-                          <button
-                            key={oi}
-                            onClick={() => toggleOdd(key)}
-                            className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all active:scale-[0.97] ${
-                              sel
-                                ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)]'
-                                : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8]'
-                            }`}
-                          >
-                            <span className={`text-[9px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
-                              {odd.label}
-                            </span>
-                            <span className={`text-[11px] font-bold leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
-                              {odd.value}
-                            </span>
-                          </button>
-                        )
-                      })}
+                    <span className="text-[12px] font-bold text-[#1a2332]">{market.title}</span>
+                    <div className="flex items-center gap-2">
+                      {market.subCount !== undefined && (
+                        <span className="text-[11px] text-[#737B8C] font-medium">({market.subCount})</span>
+                      )}
+                      <svg
+                        width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke={market.pinned ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      >
+                        <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
+                      </svg>
+                      <svg
+                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                        className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
                     </div>
-                  ))}
+                  </button>
+
+                  {isOpen && market.rows.length > 0 && (
+                    <div className="pb-3 flex flex-col gap-[6px]">
+                      {market.rows.map((row, ri) => (
+                        <div key={ri} className="flex gap-[6px]">
+                          {row.map((odd, oi) => {
+                            const key = `${globalIdx}-${ri}-${oi}`
+                            const sel = selectedOdds.has(key)
+                            return (
+                              <button
+                                key={oi}
+                                onClick={() => toggleOdd(key)}
+                                className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all active:scale-[0.97] ${
+                                  sel
+                                    ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)]'
+                                    : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8]'
+                                }`}
+                              >
+                                <span className={`text-[9px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
+                                  {odd.label}
+                                </span>
+                                <span className={`text-[11px] font-bold leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
+                                  {odd.value}
+                                </span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )
-        })}
+              )
+            })}
+          </div>
+        ) : (
+          /* ─── Popular / Total: "Regular time" collapsible group with flat market labels ─── */
+          <>
+            <button
+              onClick={() => setSectionOpen(!sectionOpen)}
+              className="w-full flex items-center justify-between px-4 py-3 border-b border-[#f0f2f5]"
+            >
+              <span className="text-[13px] font-bold text-[#1a2332]">Normal Süre</span>
+              <svg
+                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                className={`transition-transform duration-200 ${sectionOpen ? 'rotate-180' : ''}`}
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {sectionOpen && (
+              <div className="px-4 pt-1 pb-3">
+                {visibleMarkets.map((market, mi) => (
+                  <div key={market.title} className="mt-3 first:mt-2">
+                    <p className="text-[12px] font-bold text-[#1a2332] mb-2">{market.title}</p>
+                    <div className="flex flex-col gap-[6px]">
+                      {market.rows.map((row, ri) => (
+                        <div key={ri} className="flex gap-[6px]">
+                          {row.map((odd, oi) => {
+                            const key = `p-${activeFilter}-${mi}-${ri}-${oi}`
+                            const sel = selectedOdds.has(key)
+                            return (
+                              <button
+                                key={oi}
+                                onClick={() => toggleOdd(key)}
+                                className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all active:scale-[0.97] ${
+                                  sel
+                                    ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)]'
+                                    : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8]'
+                                }`}
+                              >
+                                <span className={`text-[9px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
+                                  {odd.label}
+                                </span>
+                                <span className={`text-[11px] font-bold leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
+                                  {odd.value}
+                                </span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
     </div>
