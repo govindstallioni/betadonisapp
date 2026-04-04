@@ -4,24 +4,22 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const promoBanners = [
-  { title: 'Hoşgeldin Paketi 150.000 TRY', image: '/spotlight/1.png' },
-  { title: 'VIP CASHBACK', image: '/spotlight/2.png' },
-  { title: 'Promosyon kodu mu var?', image: '/spotlight/3.png' },
-  { title: 'Hafta Sonu Bonusu', image: '/spotlight/4.png' },
-  { title: 'Günlük Kayıp Bonusu', image: '/spotlight/5.png' },
+  { title: 'Diamond Roulette', image: '/canli-casino/10.png' },
+  { title: 'VIP Blackjack', image: '/canli-casino/11.png' },
+  { title: 'Poker Lobby', image: '/canli-casino/9.png' },
 ]
 
 const categories = ['Rulet', 'Blackjack', 'Poker', 'Bakara', 'Dragon Tiger', 'SIC BO', 'Diğerleri']
 
 const games = [
-  { name: 'Live - Lobby Roulette', provider: 'Rulet', image: '/spotlight/1.png', promo: true },
-  { name: 'Roulette Lobby', provider: 'Rulet', image: '/spotlight/2.png', promo: true },
-  { name: 'Instant Roulette', provider: 'Rulet', image: '/spotlight/3.png', promo: true },
-  { name: 'Blackjack Lobby', provider: 'Blackjack', image: '/spotlight/4.png', promo: false },
-  { name: 'Blackjack 16', provider: 'Blackjack', image: '/spotlight/5.png', promo: true },
-  { name: 'Live - Lobby Blackjack', provider: 'Blackjack', image: '/spotlight/6.png', promo: true },
-  { name: 'Poker Lobby', provider: 'Poker', image: '/spotlight/1.png', promo: false },
-  { name: 'Jacks or Better Draw Poker', provider: 'Poker', image: '/spotlight/2.png', promo: true },
+  { name: 'Live - Lobby Roulette', provider: 'Rulet', image: '/canli-casino/1.jpg', promo: true },
+  { name: 'Roulette Lobby', provider: 'Rulet', image: '/canli-casino/2.jpg', promo: true },
+  { name: 'Instant Roulette', provider: 'Rulet', image: '/canli-casino/3.jpg', promo: true },
+  { name: 'Blackjack Lobby', provider: 'Blackjack', image: '/canli-casino/4.jpg', promo: false },
+  { name: 'Blackjack 16', provider: 'Blackjack', image: '/canli-casino/5.jpg', promo: true },
+  { name: 'Live - Lobby Blackjack', provider: 'Blackjack', image: '/canli-casino/6.jpg', promo: true },
+  { name: 'Poker Lobby', provider: 'Poker', image: '/canli-casino/7.jpg', promo: false },
+  { name: 'Jacks or Better Draw Poker', provider: 'Poker', image: '/canli-casino/8.jpg', promo: true },
 ]
 
 export default function LiveCasinoScreen() {
@@ -72,7 +70,7 @@ export default function LiveCasinoScreen() {
       </div>
 
       {/* Category filters */}
-      <div className="flex gap-[6px] overflow-x-auto scrollbar-hide px-4 pb-3 items-center">
+      <div className="flex gap-[3px] overflow-x-auto scrollbar-hide px-4 pb-3 items-center">
         {categories.map((cat, i) => (
           <button
             key={cat}
