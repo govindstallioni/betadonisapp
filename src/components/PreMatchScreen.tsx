@@ -1,4 +1,7 @@
+'use client'
+
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 const tabs = ['CANLI', 'Maç Öncesi', 'Espor']
 
@@ -138,29 +141,39 @@ const sports = [
 ]
 
 interface PreMatchScreenProps {
-  onBack: () => void
+  initialTab?: number
 }
 
-export default function PreMatchScreen({ onBack }: PreMatchScreenProps) {
-  const [activeTab, setActiveTab] = useState(1)
+export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) {
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [activeTime, setActiveTime] = useState(0)
+  const router = useRouter()
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
       {/* Header */}
       <div className="bg-white px-4 pt-4 pb-3">
         <div className="flex items-center justify-between">
-          <button onClick={onBack} className="w-8 h-8 flex items-center justify-center">
+          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6" />
             </svg>
           </button>
           <h1 className="text-[16px] font-bold text-[#1a2332]">Sporlar</h1>
-          <button className="w-8 h-8 flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            <button className="w-8 h-8 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+              </svg>
+            </button>
+            {activeTab === 0 && (
+              <button className="w-8 h-8 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -183,22 +196,27 @@ export default function PreMatchScreen({ onBack }: PreMatchScreenProps) {
         </div>
       </div>
 
-      {/* Time filters */}
-      <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 py-3">
-        {timeFilters.map((filter, i) => (
-          <button
-            key={filter}
-            onClick={() => setActiveTime(i)}
-            className={`flex-shrink-0 rounded-full px-[14px] py-[7px] text-[10px] font-medium transition-all ${
-              activeTime === i
-                ? 'bg-[#0E8FCF] text-white'
-                : 'bg-white text-[#1a2332] border border-[#e8ecf1]'
-            }`}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
+      {/* Spacer for live tab */}
+      {activeTab === 0 && <div className="h-3" />}
+
+      {/* Time filters - only for Pre-match and Esports */}
+      {activeTab !== 0 && (
+        <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 py-3">
+          {timeFilters.map((filter, i) => (
+            <button
+              key={filter}
+              onClick={() => setActiveTime(i)}
+              className={`flex-shrink-0 rounded-full px-[14px] py-[7px] text-[10px] font-medium transition-all ${
+                activeTime === i
+                  ? 'bg-[#0E8FCF] text-white'
+                  : 'bg-white text-[#1a2332] border border-[#e8ecf1]'
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Sports list */}
       <div className="px-4 pb-24">
@@ -206,16 +224,16 @@ export default function PreMatchScreen({ onBack }: PreMatchScreenProps) {
           {sports.map((sport, i) => (
             <button
               key={sport.label}
-              className={`w-full flex items-center gap-3 px-4 py-[14px] hover:bg-[#f8fafc] transition-colors ${
+              className={`w-full flex items-center gap-2.5 px-3 py-[8px] hover:bg-[#f8fafc] transition-colors ${
                 i < sports.length - 1 ? 'border-b border-[#f0f2f5]' : ''
               }`}
             >
-              <div className="w-9 h-9 rounded-full bg-[#edf5ff] flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-full bg-[#edf5ff] flex items-center justify-center flex-shrink-0">
                 {sport.icon}
               </div>
-              <span className="text-[12px] font-medium text-[#1a2332] flex-1 text-left">{sport.label}</span>
-              <span className="text-[12px] font-medium text-[#737B8C] mr-1">{sport.count}</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+              <span className="text-[11px] font-medium text-[#1a2332] flex-1 text-left">{sport.label}</span>
+              <span className="text-[11px] font-medium text-[#737B8C] mr-1">{sport.count}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </button>

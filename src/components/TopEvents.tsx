@@ -1,3 +1,6 @@
+'use client'
+
+import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 
 const events = [
@@ -25,45 +28,17 @@ const events = [
     color: '#e11d48',
     bg: '#fff1f2',
   },
-  /*{
-    title: 'İtalya Serie A',
-    icon: (
-      <img src="/events/italy-series-a.png" alt="İtalya Serie A" className="w-full h-full object-cover rounded-full" />
-    ),
-    color: '#16a34a',
-    bg: '#f0fdf4',
-  },
-  {
-    title: 'Fransa Ligi',
-    icon: (
-      <img src="/events/french-league.png" alt="Fransa Ligi" className="w-full h-full object-cover rounded-full" />
-    ),
-    color: '#2563eb',
-    bg: '#eff6ff',
-  },
-  {
-    title: 'Dünya Kupası',
-    icon: (
-      <img src="/events/worldcup.png" alt="Dünya Kupası" className="w-full h-full object-cover rounded-full" />
-    ),
-    color: '#7c3aed',
-    bg: '#f5f3ff',
-  },*/
 ]
 
-interface TopEventsProps {
-  onEventClick?: (event: { title: string; color: string }) => void
-}
-
-export default function TopEvents({ onEventClick }: TopEventsProps) {
+export default function TopEvents() {
   return (
     <div>
       <SectionHeader title="Öne Çıkan Etkinlikler" showAll />
       <div className="flex flex-col gap-[6px]">
         {events.map((event, i) => (
-          <div
+          <Link
             key={i}
-            onClick={() => onEventClick?.({ title: event.title, color: event.color })}
+            href={`/event?title=${encodeURIComponent(event.title)}&color=${encodeURIComponent(event.color)}`}
             className="flex items-center gap-2.5 bg-white rounded-xl px-2.5 py-2 cursor-pointer hover:shadow-md transition-shadow relative overflow-hidden shadow-sm"
           >
             <div
@@ -94,7 +69,7 @@ export default function TopEvents({ onEventClick }: TopEventsProps) {
                 <path d="M105,0 C100,10 96,20 93,30 C90,40 85,46 80,52 L112,52 L112,0 Z" fill={event.color} opacity="0.4" />
               </svg>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

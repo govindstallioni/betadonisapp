@@ -1,8 +1,13 @@
+'use client'
+
 import { useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 
 const navItems = [
   {
     label: 'KEŞFET',
+    href: '/',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 24 24">
         <g fillRule="evenodd" strokeLinecap="round" strokeLinejoin="round" transform="translate(2 2)">
@@ -14,6 +19,7 @@ const navItems = [
   },
   {
     label: 'CANLI',
+    href: '/live',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 128 128" fill={active ? '#fff' : '#737B8C'}>
         <path d="M64,48c-8.82,0-16,7.18-16,16s7.18,16,16,16s16-7.18,16-16S72.82,48,64,48z M64,72c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8S68.41,72,64,72z M30.83,97.17c1.56,1.56,1.56,4.09,0,5.66c-0.78,0.78-1.8,1.17-2.83,1.17s-2.05-0.39-2.83-1.17C14.8,92.46,9.09,78.67,9.09,64s5.71-28.46,16.08-38.83c1.56-1.56,4.1-1.56,5.66,0c1.56,1.56,1.56,4.09,0,5.66C12.54,49.12,12.54,78.88,30.83,97.17z M44.83,44.83c-10.57,10.57-10.57,27.77,0,38.34c1.56,1.56,1.56,4.09,0,5.66C44.05,89.61,43.02,90,42,90s-2.05-0.39-2.83-1.17c-13.69-13.69-13.69-35.97,0-49.66c1.56-1.56,4.1-1.56,5.66,0C46.39,40.73,46.39,43.27,44.83,44.83z M118.91,64c0,14.67-5.71,28.46-16.08,38.83c-0.78,0.78-1.8,1.17-2.83,1.17s-2.05-0.39-2.83-1.17c-1.56-1.56-1.56-4.09,0-5.66c18.29-18.29,18.29-48.05,0-66.34c-1.56-1.56-1.56-4.09,0-5.66c1.56-1.56,4.1-1.56,5.66,0C113.2,35.54,118.91,49.33,118.91,64z M88.83,88.83C88.05,89.61,87.02,90,86,90s-2.05-0.39-2.83-1.17c-1.56-1.56-1.56-4.09,0-5.66c10.57-10.57,10.57-27.77,0-38.34c-1.56-1.56-1.56-4.09,0-5.66c1.56-1.56,4.1-1.56,5.66,0C102.52,52.86,102.52,75.14,88.83,88.83z" />
@@ -22,6 +28,7 @@ const navItems = [
   },
   {
     label: 'KUPON',
+    href: '#',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 25 25" fill={active ? '#fff' : '#737B8C'} fillRule="evenodd" style={{ transform: 'rotate(225deg)' }}>
         <path d="M15.4260044,2 L18.9974329,2 C19.5497177,2 19.9974329,2.44771525 19.9974329,3 L19.9974329,12.34 L19.9974329,22 C19.9974329,22.5522847 19.5497177,23 18.9974329,23 L15.4260044,23 C15.4260044,21.3431458 14.0828586,20 12.4260044,20 C10.7691501,20 9.42600437,21.3431458 9.42600437,23 L6,23 C5.44771525,23 5,22.5522847 5,22 C5,21.9991454 5.0000011,21.9982908 5.00000329,21.9974362 L5.0244807,12.45 L5.00002795,3.00258829 C4.99859847,2.45030539 5.4451534,2.00143282 5.9974363,2.00000335 C5.99829907,2.00000112 5.99916183,2 6.0000246,2 L9.42600437,2 C9.42600437,3.65685425 10.7691501,5 12.4260044,5 C14.0828586,5 15.4260044,3.65685425 15.4260044,2 Z M5.99183676,9 L7.49743295,9 C7.77357532,9 7.99743295,8.77614237 7.99743295,8.5 C7.99743295,8.22385763 7.77357532,8 7.49743295,8 L5.99183676,8 C5.71569439,8 5.49183676,8.22385763 5.49183676,8.5 C5.49183676,8.77614237 5.71569439,9 5.99183676,9 Z M18.9974329,8 L17.4974329,8 C17.2212906,8 16.9974329,8.22385763 16.9974329,8.5 C16.9974329,8.77614237 17.2212906,9 17.4974329,9 L18.9974329,9 C19.2735753,9 19.4974329,8.77614237 19.4974329,8.5 C19.4974329,8.22385763 19.2735753,8 18.9974329,8 Z M9.49743295,9 L11.4974329,9 C11.7735753,9 11.9974329,8.77614237 11.9974329,8.5 C11.9974329,8.22385763 11.7735753,8 11.4974329,8 L9.49743295,8 C9.22129057,8 8.99743295,8.22385763 8.99743295,8.5 C8.99743295,8.77614237 9.22129057,9 9.49743295,9 Z M13.4974329,9 L15.4974329,9 C15.7735753,9 15.9974329,8.77614237 15.9974329,8.5 C15.9974329,8.22385763 15.7735753,8 15.4974329,8 L13.4974329,8 C13.2212906,8 12.9974329,8.22385763 12.9974329,8.5 C12.9974329,8.77614237 13.2212906,9 13.4974329,9 Z" />
@@ -30,6 +37,7 @@ const navItems = [
   },
   {
     label: 'Geçmiş',
+    href: '/history',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 4.233 4.233">
         <g transform="matrix(.9291 0 0 .9291 -17.842 -2.3)">
@@ -41,6 +49,7 @@ const navItems = [
   },
   {
     label: 'Menü',
+    href: '#menu',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 24 24" fill={active ? '#fff' : '#737B8C'}>
         <path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zm0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1z" />
@@ -54,6 +63,7 @@ const menuItems = [
     title: 'CANLI BAHİS',
     desc: 'Canlı etkinliklere bahis yapın',
     color: '#0E8FCF',
+    href: '/live',
     icon: (
       <svg width="24" height="24" viewBox="0 0 128 128" fill="#fff">
         <path d="M64,48c-8.82,0-16,7.18-16,16s7.18,16,16,16s16-7.18,16-16S72.82,48,64,48z M64,72c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8S68.41,72,64,72z M30.83,97.17c1.56,1.56,1.56,4.09,0,5.66c-0.78,0.78-1.8,1.17-2.83,1.17s-2.05-0.39-2.83-1.17C14.8,92.46,9.09,78.67,9.09,64s5.71-28.46,16.08-38.83c1.56-1.56,4.1-1.56,5.66,0c1.56,1.56,1.56,4.09,0,5.66C12.54,49.12,12.54,78.88,30.83,97.17z M44.83,44.83c-10.57,10.57-10.57,27.77,0,38.34c1.56,1.56,1.56,4.09,0,5.66C44.05,89.61,43.02,90,42,90s-2.05-0.39-2.83-1.17c-13.69-13.69-13.69-35.97,0-49.66c1.56-1.56,4.1-1.56,5.66,0C46.39,40.73,46.39,43.27,44.83,44.83z" />
@@ -64,6 +74,7 @@ const menuItems = [
     title: 'MAÇ ÖNCESİ',
     desc: 'Yaklaşan etkinliklere bahis yapın',
     color: '#0E8FCF',
+    href: '/prematch',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -74,6 +85,7 @@ const menuItems = [
     title: 'SANAL BAHİS',
     desc: 'En iyi Sanal bahis etkinlikleri',
     color: '#0E8FCF',
+    href: '#',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15h14v3H5z" />
@@ -84,6 +96,7 @@ const menuItems = [
     title: 'SLOTLAR',
     desc: 'En iyi slot oyunları',
     color: '#0E8FCF',
+    href: '/slots',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z" />
@@ -94,6 +107,7 @@ const menuItems = [
     title: 'CANLI CASİNO',
     desc: 'Kendinizi casinodaymış gibi hissedin',
     color: '#0E8FCF',
+    href: '/live-casino',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm1-13h-2v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
@@ -104,6 +118,7 @@ const menuItems = [
     title: 'CANLI OYUNLAR',
     desc: 'Size özel canlı oyunlar ile kazan',
     color: '#0E8FCF',
+    href: '#',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z" />
@@ -114,6 +129,7 @@ const menuItems = [
     title: 'POKER',
     desc: 'Özel poker tavla okey canlı oyunlar',
     color: '#0E8FCF',
+    href: '#',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -124,6 +140,7 @@ const menuItems = [
     title: 'GOLDEN RACE',
     desc: 'Canlı oyunlar ile başla, hemen kazan.',
     color: '#0E8FCF',
+    href: '#',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
@@ -134,6 +151,7 @@ const menuItems = [
     title: 'ŞANS ÇARKI',
     desc: 'Ücretsiz çevirme hakkı ile her gün kazan!',
     color: '#0E8FCF',
+    href: '#',
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm-5-9h10v2H7z" />
@@ -142,23 +160,31 @@ const menuItems = [
   },
 ]
 
-interface BottomNavProps {
-  onTabChange?: (tab: string) => void
-  onMenuItemClick?: (title: string) => void
-}
-
-export default function BottomNav({ onTabChange, onMenuItemClick }: BottomNavProps) {
-  const [active, setActive] = useState(0)
+export default function BottomNav() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const getActiveIndex = () => {
+    if (pathname === '/') return 0
+    if (pathname === '/live') return 1
+    if (pathname === '/history') return 3
+    return -1
+  }
+
+  const activeIndex = getActiveIndex()
 
   const handleNavClick = (i: number) => {
     if (i === 4) {
       setMenuOpen(!menuOpen)
     } else {
       setMenuOpen(false)
-      setActive(i)
-      onTabChange?.(navItems[i].label)
     }
+  }
+
+  const handleMenuItemClick = (href: string) => {
+    setMenuOpen(false)
+    router.push(href)
   }
 
   return (
@@ -197,8 +223,8 @@ export default function BottomNav({ onTabChange, onMenuItemClick }: BottomNavPro
               {menuItems.map((item, i) => (
                 <button
                   key={item.title}
-                  onClick={() => { onMenuItemClick?.(item.title); setMenuOpen(false) }}
-                  className={`flex items-center gap-4 w-full p-3.5 rounded-xl bg-black/[0.04] hover:bg-black/[0.08] active:scale-[0.98] transition-all duration-200`}
+                  onClick={() => handleMenuItemClick(item.href)}
+                  className={`flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg bg-black/[0.04] hover:bg-black/[0.08] active:scale-[0.98] transition-all duration-200`}
                   style={{
                     transitionDelay: menuOpen ? `${i * 30}ms` : '0ms',
                     opacity: menuOpen ? 1 : 0,
@@ -206,16 +232,16 @@ export default function BottomNav({ onTabChange, onMenuItemClick }: BottomNavPro
                   }}
                 >
                   <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 [&>svg]:w-[18px] [&>svg]:h-[18px]"
                     style={{ backgroundColor: item.color }}
                   >
                     {item.icon}
                   </div>
-                  <div className="text-left">
-                    <div className="text-[#0a1628] text-[13px] font-medium leading-tight">{item.title}</div>
-                    <div className="text-[#0a1628]/50 text-[11px] mt-0.5 leading-tight">{item.desc}</div>
+                  <div className="text-left flex-1 min-w-0">
+                    <div className="text-[#0a1628] text-[11px] font-medium leading-tight">{item.title}</div>
+                    <div className="text-[#0a1628]/50 text-[9px] leading-tight truncate">{item.desc}</div>
                   </div>
-                  <svg className="ml-auto shrink-0 opacity-30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0a1628" strokeWidth="2" strokeLinecap="round">
+                  <svg className="shrink-0 opacity-30" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0a1628" strokeWidth="2" strokeLinecap="round">
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
@@ -225,10 +251,12 @@ export default function BottomNav({ onTabChange, onMenuItemClick }: BottomNavPro
             {/* Customer service */}
             <div className="mt-4 p-3.5 rounded-xl bg-[#0E8FCF]/20 border border-[#0E8FCF]/30 flex items-center gap-4"
               style={{
+                transitionProperty: 'all',
+                transitionDuration: '200ms',
+                transitionTimingFunction: 'ease',
                 transitionDelay: menuOpen ? `${menuItems.length * 30}ms` : '0ms',
                 opacity: menuOpen ? 1 : 0,
                 transform: menuOpen ? 'translateX(0)' : 'translateX(-20px)',
-                transition: 'all 200ms ease',
               }}
             >
               <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 bg-[#0E8FCF]">
@@ -251,8 +279,8 @@ export default function BottomNav({ onTabChange, onMenuItemClick }: BottomNavPro
           <div className="flex items-end justify-around px-1 pt-1 pb-2">
             {navItems.map((item, i) => {
               const isCenter = i === 2
-              const isActive = i === 4 ? menuOpen : i === active && !menuOpen
-              return (
+              const isActive = i === 4 ? menuOpen : i === activeIndex && !menuOpen
+              const navContent = (
                 <button
                   key={item.label}
                   onClick={() => handleNavClick(i)}
@@ -284,6 +312,17 @@ export default function BottomNav({ onTabChange, onMenuItemClick }: BottomNavPro
                     </>
                   )}
                 </button>
+              )
+
+              // For menu button and center button, don't wrap in Link
+              if (i === 4 || i === 2) {
+                return <span key={item.label}>{navContent}</span>
+              }
+
+              return (
+                <Link key={item.label} href={item.href}>
+                  {navContent}
+                </Link>
               )
             })}
           </div>

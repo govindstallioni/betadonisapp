@@ -1,4 +1,7 @@
+'use client'
+
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface EventDetailProps {
   event: {
@@ -6,7 +9,6 @@ interface EventDetailProps {
     color: string
     banner?: string
   }
-  onBack: () => void
 }
 
 const tabs = ['Takvim', 'Maçlarım', 'İstatistikler']
@@ -111,9 +113,10 @@ const playoffTeams = [
   { name: 'Barcelona', odds: '5.20', logo: '/teams/jersey1.png' },
 ]
 
-export default function EventDetail({ event, onBack }: EventDetailProps) {
+export default function EventDetail({ event }: EventDetailProps) {
   const [activeTab, setActiveTab] = useState(0)
   const [activeDate, setActiveDate] = useState(0)
+  const router = useRouter()
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
@@ -124,7 +127,7 @@ export default function EventDetail({ event, onBack }: EventDetailProps) {
 
         {/* Top bar */}
         <div className="relative z-10 flex items-center justify-between px-4 pt-4">
-          <button onClick={onBack} className="w-9 h-9 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm">
+          <button onClick={() => router.back()} className="w-9 h-9 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6" />
             </svg>
