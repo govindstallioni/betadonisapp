@@ -3,6 +3,7 @@
 import Header from '@/components/Header'
 import CategoryTabs from '@/components/CategoryTabs'
 import QuickFilters from '@/components/QuickFilters'
+import GameCategories from '@/components/GameCategories'
 import LiveBets from '@/components/LiveBets'
 import TopPreMatch from '@/components/TopPreMatch'
 import TopTournaments from '@/components/TopTournaments'
@@ -26,6 +27,7 @@ export default function HomePage() {
       <main className="px-4 pb-24">
         <div className="mt-2"><QuickFilters /></div>
         <div className="mt-3"><PromoBanners /></div>
+        <div className="mt-3"><GameCategories /></div>
         <div className="mt-4"><TopEvents /></div>
         <div className="mt-5"><LiveBets /></div>
         <div className="mt-3"><TopPreMatch /></div>
