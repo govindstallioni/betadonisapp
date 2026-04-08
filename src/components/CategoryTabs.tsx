@@ -5,7 +5,7 @@ import { useState } from 'react'
 const tabs = [
   { label: 'TOP', id: 'top', icon: '/icons/top.svg' },
   { label: 'Sporlar', id: 'sporlar', icon: '/icons/sporlar.svg' },
-  { label: 'Espor', id: 'espor', icon: '/icons/digerleri.svg' },
+  { label: 'Sanal Bahis', id: 'sanalbahis', icon: '/icons/digerleri.svg' },
   { label: 'Casino', id: 'casino', icon: '/icons/casino.svg' },
   { label: 'Slotlar', id: 'slotlar', icon: '/icons/slotlar.svg' },
   { label: 'Digerleri', id: 'digerleri', icon: '/icons/espor.svg' },

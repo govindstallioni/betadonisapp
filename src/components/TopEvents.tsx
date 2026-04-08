@@ -33,7 +33,7 @@ const events = [
 export default function TopEvents() {
   return (
     <div>
-      <SectionHeader title="Öne Çıkan Etkinlikler" showAll />
+      <SectionHeader title="Öne Çıkan Etkinlikler" />
       <div className="flex flex-col gap-[6px]">
         {events.map((event, i) => (
           <Link
