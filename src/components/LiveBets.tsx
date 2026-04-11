@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 
@@ -27,13 +28,13 @@ const liveMatches: LiveMatch[] = [
     logo2: '/teams/jersey1.png',
     score1: 2,
     score2: 1,
-    minute: "67'",
+    minute: "67",
     half: '2Y',
     hasStream: true,
     odds: [
-      { label: 'W1', value: '1.85', trend: 'up' },
+      { label: 'Ev1', value: '1.85', trend: 'up' },
       { label: 'X', value: '3.40' },
-      { label: 'W2', value: '4.20', trend: 'down' },
+      { label: 'Dep2', value: '4.20', trend: 'down' },
     ],
     totalOdds: 48,
   },
@@ -45,13 +46,13 @@ const liveMatches: LiveMatch[] = [
     logo2: '/teams/jersey2.png',
     score1: 0,
     score2: 0,
-    minute: "23'",
+    minute: "23",
     half: '1Y',
     hasStream: true,
     odds: [
-      { label: 'W1', value: '2.10' },
+      { label: 'Ev1', value: '2.10' },
       { label: 'X', value: '3.25', trend: 'up' },
-      { label: 'W2', value: '3.50' },
+      { label: 'Dep2', value: '3.50' },
     ],
     totalOdds: 52,
   },
@@ -63,13 +64,13 @@ const liveMatches: LiveMatch[] = [
     logo2: '/teams/jersey2.png',
     score1: 1,
     score2: 2,
-    minute: "78'",
+    minute: "78",
     half: '2Y',
     hasStream: false,
     odds: [
-      { label: 'W1', value: '3.10', trend: 'up' },
+      { label: 'Ev1', value: '3.10', trend: 'up' },
       { label: 'X', value: '3.60' },
-      { label: 'W2', value: '2.15', trend: 'down' },
+      { label: 'Dep2', value: '2.15', trend: 'down' },
     ],
     totalOdds: 61,
   },
@@ -77,11 +78,75 @@ const liveMatches: LiveMatch[] = [
 
 const matchIds = ['gal-fen', 'mci-ars', 'rma-bar']
 
+function getHalfText(half: string) {
+  if (half === '1Y') return '1. yarı'
+  if (half === '2Y') return '2. yarı'
+  return half
+}
+
 export default function LiveBets() {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isUserScrolling = useRef(false)
+
+  const scrollToNext = useCallback(() => {
+    const el = scrollRef.current
+    if (!el || isUserScrolling.current) return
+
+    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 10 : 0
+    if (!cardWidth) return
+
+    const maxScroll = el.scrollWidth - el.clientWidth
+    const nextScroll = el.scrollLeft + cardWidth
+
+    if (nextScroll >= maxScroll + 10) {
+      el.scrollTo({ left: 0, behavior: 'smooth' })
+    } else {
+      el.scrollTo({ left: nextScroll, behavior: 'smooth' })
+    }
+  }, [])
+
+  useEffect(() => {
+    const start = () => {
+      timerRef.current = setInterval(scrollToNext, 4000)
+    }
+    start()
+
+    const el = scrollRef.current
+    let touchTimeout: ReturnType<typeof setTimeout>
+
+    const onTouchStart = () => {
+      isUserScrolling.current = true
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+    const onTouchEnd = () => {
+      clearTimeout(touchTimeout)
+      touchTimeout = setTimeout(() => {
+        isUserScrolling.current = false
+        if (timerRef.current) clearInterval(timerRef.current)
+        start()
+      }, 3000)
+    }
+
+    el?.addEventListener('touchstart', onTouchStart, { passive: true })
+    el?.addEventListener('touchend', onTouchEnd, { passive: true })
+    el?.addEventListener('mousedown', onTouchStart)
+    el?.addEventListener('mouseup', onTouchEnd)
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+      clearTimeout(touchTimeout)
+      el?.removeEventListener('touchstart', onTouchStart)
+      el?.removeEventListener('touchend', onTouchEnd)
+      el?.removeEventListener('mousedown', onTouchStart)
+      el?.removeEventListener('mouseup', onTouchEnd)
+    }
+  }, [scrollToNext])
+
   return (
     <div>
-      <SectionHeader title="En iyi CANLI BAHİS" badge="Spor" showAll />
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
+      <SectionHeader title="En iyi CANLI BAHİS" badge="Spor" showAll count={161} />
+      <div ref={scrollRef} className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
         {liveMatches.map((match, i) => (
           <Link
             key={i}
@@ -97,6 +162,10 @@ export default function LiveBets() {
                 <span className="text-[10px] text-[#737B8C] font-medium truncate max-w-[110px]">{match.league}</span>
               </div>
               <div className="flex items-center gap-[6px]">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
                 {match.hasStream && (
                   <div className="flex items-center gap-[3px] bg-[#fde8e8] rounded-full px-[5px] py-[2px]">
                     <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c">
@@ -106,10 +175,6 @@ export default function LiveBets() {
                   </div>
                 )}
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
               </div>
@@ -118,13 +183,10 @@ export default function LiveBets() {
             {/* Match center: teams + score */}
             <div className="px-[10px] py-[10px]">
               <div className="flex items-center">
-                {/* Team 1 */}
                 <div className="flex-1 flex items-center justify-end gap-[6px]">
                   <span className="text-[11px] text-[#1a2332] font-medium leading-tight truncate text-right">{match.team1}</span>
                   <img src={match.logo1} alt={match.team1} className="w-[22px] h-[22px] object-contain flex-shrink-0" />
                 </div>
-
-                {/* Score center */}
                 <div className="flex flex-col items-center px-[16px]">
                   <div className="flex items-center gap-[4px]">
                     <span className="text-[13px] font-bold text-[#1a2332] leading-none">{match.score1}</span>
@@ -132,14 +194,14 @@ export default function LiveBets() {
                     <span className="text-[13px] font-bold text-[#1a2332] leading-none">{match.score2}</span>
                   </div>
                 </div>
-
-                {/* Team 2 */}
                 <div className="flex-1 flex items-center gap-[6px]">
                   <img src={match.logo2} alt={match.team2} className="w-[22px] h-[22px] object-contain flex-shrink-0" />
                   <span className="text-[11px] text-[#1a2332] font-medium leading-tight truncate">{match.team2}</span>
                 </div>
               </div>
-              <p className="text-[9px] text-[#737B8C] text-center mt-[6px]">1st half, time elapsed: {match.minute}({match.score1}-{match.score2})</p>
+              <p className="text-[9px] text-[#737B8C] text-center mt-[6px]">
+                {getHalfText(match.half)}, geçen süre: {match.minute}<span className="animate-pulse-dot">&apos;</span> ({match.score1}-{match.score2})
+              </p>
             </div>
 
             {/* Odds */}
@@ -148,10 +210,14 @@ export default function LiveBets() {
                 {match.odds.map((odd, j) => (
                   <span
                     key={j}
-                    className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[6px] px-[8px] flex items-center justify-between"
+                    className={`flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[6px] px-[8px] flex items-center justify-between ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}
                   >
                     <span className="text-[9px] text-[#737B8C] font-semibold uppercase">{odd.label}</span>
-                    <span className={`text-[10px] font-medium ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>{odd.value}</span>
+                    <span className={`text-[10px] font-medium flex items-center gap-[2px] ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                      {odd.value}
+                      {odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
+                      {odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
+                    </span>
                   </span>
                 ))}
               </div>

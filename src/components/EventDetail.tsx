@@ -42,9 +42,9 @@ const preMatchEvents = [
     countdown: { hours: '03', minutes: '34', seconds: '24' },
     dateTime: '28.03.26 07:30 pm',
     odds: [
-      { label: 'W1', value: '2.45', trend: 'up' as const },
+      { label: 'Ev1', value: '2.45', trend: 'up' as const },
       { label: 'X', value: '3.25' },
-      { label: 'W2', value: '2.80', trend: 'down' as const },
+      { label: 'Dep2', value: '2.80', trend: 'down' as const },
     ],
   },
   {
@@ -57,9 +57,9 @@ const preMatchEvents = [
     countdown: { hours: '05', minutes: '12', seconds: '48' },
     dateTime: '28.03.26 10:00 pm',
     odds: [
-      { label: 'W1', value: '1.95' },
+      { label: 'Ev1', value: '1.95' },
       { label: 'X', value: '3.60', trend: 'up' as const },
-      { label: 'W2', value: '3.10', trend: 'down' as const },
+      { label: 'Dep2', value: '3.10', trend: 'down' as const },
     ],
   },
 ]
@@ -84,9 +84,9 @@ const teamMatches = [
     countdown: { hours: '01', minutes: '08', seconds: '59' },
     dateTime: '28.03.26 07:30 pm',
     odds: [
-      { label: 'W1', value: '1.927' },
+      { label: 'Ev1', value: '1.927' },
       { label: 'X', value: '50', trend: 'up' as const },
-      { label: 'W2', value: '1.924', trend: 'down' as const },
+      { label: 'Dep2', value: '1.924', trend: 'down' as const },
     ],
   },
   {
@@ -99,9 +99,9 @@ const teamMatches = [
     countdown: { hours: '03', minutes: '22', seconds: '15' },
     dateTime: '28.03.26 10:00 pm',
     odds: [
-      { label: 'W1', value: '2.10', trend: 'up' as const },
+      { label: 'Ev1', value: '2.10', trend: 'up' as const },
       { label: 'X', value: '3.40' },
-      { label: 'W2', value: '2.85', trend: 'down' as const },
+      { label: 'Dep2', value: '2.85', trend: 'down' as const },
     ],
   },
 ]
@@ -256,11 +256,13 @@ export default function EventDetail({ event }: EventDetailProps) {
                       {match.odds.map((odd, j) => (
                         <span
                           key={j}
-                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between"
+                          className={`flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}
                         >
                           <span className="text-[9px] text-[#737B8C] font-medium uppercase">{odd.label}</span>
-                          <span className={`text-[10px] font-medium ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                          <span className={`text-[10px] font-medium flex items-center gap-[2px] ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
                             {odd.value}
+                            {odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
+                            {odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
                           </span>
                         </span>
                       ))}
@@ -410,11 +412,13 @@ export default function EventDetail({ event }: EventDetailProps) {
                       {match.odds.map((odd, j) => (
                         <span
                           key={j}
-                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between"
+                          className={`flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}
                         >
                           <span className="text-[9px] text-[#737B8C] font-medium uppercase">{odd.label}</span>
-                          <span className={`text-[10px] font-medium ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                          <span className={`text-[10px] font-medium flex items-center gap-[2px] ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
                             {odd.value}
+                            {odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
+                            {odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
                           </span>
                         </span>
                       ))}

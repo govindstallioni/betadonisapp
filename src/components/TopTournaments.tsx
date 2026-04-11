@@ -18,7 +18,7 @@ for (let i = 0; i < tournaments.length; i += 3) {
 export default function TopTournaments() {
   return (
     <div>
-      <SectionHeader title="CANLI Turnuvalar" badge="Spor" showAll />
+      <SectionHeader title="CANLI Turnuvalar" badge="Spor" showAll count={38} />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {chunks.map((chunk, ci) => (
           <div

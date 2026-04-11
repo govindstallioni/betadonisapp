@@ -2,8 +2,8 @@ import SectionHeader from './SectionHeader'
 
 const categories = [
   {
-    name: 'Favori Oyunlarim',
-    image: '/categories/1.png',
+    name: 'En Popüler',
+    image: '/categories/01.png',
     bg: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
@@ -13,8 +13,8 @@ const categories = [
     ),
   },
   {
-    name: 'Video Slots',
-    image: '/categories/2.png',
+    name: 'Masa Oyunları',
+    image: '/categories/02.png',
     bg: 'linear-gradient(135deg, #a855f7 0%, #6b21a8 100%)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -26,8 +26,8 @@ const categories = [
     ),
   },
   {
-    name: 'Masa Oyunları',
-    image: '/categories/3.png',
+    name: 'Video Slots',
+    image: '/categories/03.png',
     bg: 'linear-gradient(135deg, #059669 0%, #064e3b 100%)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -41,7 +41,7 @@ const categories = [
   },
   {
     name: 'Blackjack',
-    image: '/categories/4.png',
+    image: '/categories/04.png',
     bg: 'linear-gradient(135deg, #0E8FCF 0%, #1e40af 100%)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -50,8 +50,8 @@ const categories = [
     ),
   },
   {
-    name: 'Kazi Kazan',
-    image: '/categories/1.png',
+    name: 'Video Poker',
+    image: '/categories/05.png',
     bg: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -61,8 +61,8 @@ const categories = [
     ),
   },
   {
-    name: 'Video Poker',
-    image: '/categories/2.png',
+    name: 'Kazı Kazan',
+    image: '/categories/06.png',
     bg: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -75,8 +75,8 @@ const categories = [
     ),
   },
   {
-    name: 'Kazı Kazan',
-    image: '/categories/3.png',
+    name: 'Diğer Oyunlar',
+    image: '/categories/07.png',
     bg: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
@@ -85,20 +85,7 @@ const categories = [
         <path d="M10 12h4M12 10v4" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
-  },
-  {
-    name: 'Spor Slotları',
-    image: '/categories/4.png',
-    bg: 'linear-gradient(135deg, #22c55e 0%, #15803d 100%)',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
-        <circle cx="12" cy="12" r="9" fillOpacity="0.3" />
-        <path d="M12 3v18M3 12h18" stroke="white" strokeWidth="1.5" />
-        <path d="M5.6 5.6c3.5 2 5.4 3.9 6.4 6.4c1-2.5 2.9-4.4 6.4-6.4" stroke="white" strokeWidth="1.5" fill="none" />
-        <path d="M5.6 18.4c3.5-2 5.4-3.9 6.4-6.4c1 2.5 2.9 4.4 6.4 6.4" stroke="white" strokeWidth="1.5" fill="none" />
-      </svg>
-    ),
-  },
+  }
 ]
 
 export default function CasinoCategories() {
@@ -109,14 +96,14 @@ export default function CasinoCategories() {
         {categories.map((cat) => (
           <div
             key={cat.name}
-            className="flex-shrink-0 w-[100px] rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform relative overflow-hidden"
+            className="flex-shrink-0 w-[80px] rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform relative overflow-hidden"
             style={!cat.image ? { background: cat.bg } : undefined}
           >
             {cat.image && (
               <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-            <div className="relative z-10 h-[100px] flex flex-col justify-end px-[8px] pb-[8px]">
+            <div className="relative z-10 h-[120px] flex flex-col justify-end px-[6px] pb-[8px]">
               <span className="text-[10px] font-medium text-white leading-tight text-center w-full"
                 style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
                 {cat.name}

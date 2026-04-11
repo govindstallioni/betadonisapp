@@ -14,6 +14,7 @@ import SelectedForYou from '@/components/SelectedForYou'
 import DailyWheel from '@/components/DailyWheel'
 import VirtualBets from '@/components/VirtualBets'
 import PromoBanners from '@/components/PromoBanners'
+import MegaJackpot from '@/components/MegaJackpot'
 import TopEvents from '@/components/TopEvents'
 import BottomNav from '@/components/BottomNav'
 
@@ -28,6 +29,7 @@ export default function HomePage() {
         <div className="mt-2"><QuickFilters /></div>
         <div className="mt-3"><PromoBanners /></div>
         <div className="mt-3"><GameCategories /></div>
+        <div className="mt-4"><MegaJackpot /></div>
         <div className="mt-4"><TopEvents /></div>
         <div className="mt-5"><LiveBets /></div>
         <div className="mt-3"><TopPreMatch /></div>

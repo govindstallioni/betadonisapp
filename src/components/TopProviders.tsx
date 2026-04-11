@@ -1,51 +1,14 @@
-import SectionHeader from './SectionHeader'
-
-const providers = [
-  {
-    name: 'Pragmatic',
-    games: 285,
-    image: '/providers/provider1.png',
-    accent: '#f5c518',
-  },
-  {
-    name: '3 Oaks Gaming',
-    games: 192,
-    image: '/providers/provider2.png',
-    accent: '#ff6b35',
-  },
-  {
-    name: 'Abracadabra',
-    games: 214,
-    image: '/providers/provider3.png',
-    accent: '#76ff03',
-  },
-]
-
 export default function TopProviders() {
   return (
     <div>
-      <SectionHeader title="Bu Ayın En İyi Sağlayıcısı" badge="Casino" showAll />
-      <div className="flex gap-[10px]">
-        {providers.map((p) => (
-          <div
-            key={p.name}
-            className="flex-1 rounded-2xl overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-transform relative"
-          >
-            {/* Background image */}
-            <img src={p.image} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-
-            {/* Spacer to push bottom bar down */}
-            <div className="relative z-10 pt-[70px]" />
-
-            {/* Bottom bar */}
-            <div className="relative z-10 px-[8px] py-[8px] bg-black/40 backdrop-blur-sm flex flex-col gap-[2px]">
-              <div className="text-[10px] font-medium text-white leading-tight truncate">{p.name}</div>
-              <div className="text-[9px] font-semibold" style={{ color: p.accent }}>{p.games} oyun</div>
-            </div>
-          </div>
-        ))}
+      <div className="rounded-xl overflow-hidden cursor-pointer hover:scale-[1.005] active:scale-[0.99] transition-transform relative h-[95px]">
+        <img src="/providers/01.png" alt="Pragmatic Play" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+        <img src="/providers/pragmatic.png" alt="Pragmatic Play" className="absolute top-2.5 right-3 h-[14px] object-contain brightness-0 invert drop-shadow-lg" />
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-2.5">
+          <span className="text-[14px] font-medium text-white leading-none drop-shadow-lg block">Pragmatic</span>
+          <span className="text-[9px] font-medium text-white/90 mt-0.5 block drop-shadow-lg">Ayın Sağlayıcısı</span>
+        </div>
       </div>
     </div>
   )

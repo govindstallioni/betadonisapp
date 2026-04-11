@@ -2,6 +2,7 @@ interface SectionHeaderProps {
   title: string
   badge?: 'Sport' | 'Spor' | 'Casino' | 'Casino Oyunları' | 'Esports'
   showAll?: boolean
+  count?: number
   gamesCount?: number
 }
 
@@ -13,7 +14,7 @@ const badgeStyles = {
   Esports: { bg: '#fff3e0', color: '#e67e22' },
 }
 
-export default function SectionHeader({ title, badge, showAll, gamesCount }: SectionHeaderProps) {
+export default function SectionHeader({ title, badge, showAll, count, gamesCount }: SectionHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-[12px]">
       <div className="flex items-center gap-[8px]">
@@ -31,8 +32,11 @@ export default function SectionHeader({ title, badge, showAll, gamesCount }: Sec
         )}
       </div>
       {showAll && (
-        <button className="text-[11px] text-[#0E8FCF] font-semibold bg-white rounded-full px-[12px] py-[4px] hover:bg-[#f0f7ff] transition-colors">
+        <button className="text-[11px] text-[#0E8FCF] font-semibold bg-white rounded-full px-[12px] py-[4px] hover:bg-[#f0f7ff] transition-colors flex items-center gap-[4px]">
           Tümü
+          {count !== undefined && (
+            <span className="text-[9px] bg-[#0E8FCF] text-white rounded-full px-[5px] py-[1px] leading-none font-bold">{count}</span>
+          )}
         </button>
       )}
       {gamesCount && (

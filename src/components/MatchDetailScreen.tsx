@@ -134,9 +134,9 @@ const allMarkets: Market[] = [
     pinned: true,
     rows: [
       [
-        { label: 'W1', value: '2.515' },
+        { label: 'Ev1', value: '2.515' },
         { label: 'X', value: '55' },
-        { label: 'W2', value: '1.558' },
+        { label: 'Dep2', value: '1.558' },
       ],
     ],
   },
@@ -264,9 +264,9 @@ const allMarkets: Market[] = [
     tabs: [0],
     rows: [
       [
-        { label: 'W1', value: '3.40' },
+        { label: 'Ev1', value: '3.40' },
         { label: 'X', value: '2.10' },
-        { label: 'W2', value: '2.60' },
+        { label: 'Dep2', value: '2.60' },
       ],
     ],
   },

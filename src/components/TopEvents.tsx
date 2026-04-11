@@ -6,6 +6,7 @@ import SectionHeader from './SectionHeader'
 const events = [
   {
     title: 'ŞAMPİYONLAR LİGİ',
+    count: 48,
     icon: (
       <img src="/events/champions-league.png" alt="Champions League" className="w-full h-full object-cover rounded-full" />
     ),
@@ -14,6 +15,7 @@ const events = [
   },
   {
     title: 'Avrupa Ligi',
+    count: 32,
     icon: (
       <img src="/events/europa-league.png" alt="Europa League" className="w-full h-full object-cover rounded-full" />
     ),
@@ -22,6 +24,7 @@ const events = [
   },
   {
     title: 'Türkiye Süper Ligi',
+    count: 44,
     icon: (
       <img src="/events/turkey-league.png" alt="Türkiye Süper Ligi" className="w-full h-full object-cover rounded-full" />
     ),
@@ -33,7 +36,7 @@ const events = [
 export default function TopEvents() {
   return (
     <div>
-      <SectionHeader title="Öne Çıkan Etkinlikler" />
+      <SectionHeader title="Öne Çıkan Etkinlikler" showAll count={124} />
       <div className="flex flex-col gap-[6px]">
         {events.map((event, i) => (
           <Link
@@ -47,7 +50,10 @@ export default function TopEvents() {
             >
               {event.icon}
             </div>
-            <span className="text-[11px] font-medium text-[#1a2332] flex-1">{event.title}</span>
+            <div className="flex-1 flex items-center gap-[6px]">
+              <span className="text-[11px] font-medium text-[#1a2332]">{event.title}</span>
+              <span className="text-[9px] bg-[#edf5ff] text-[#0E8FCF] rounded-full px-[6px] py-[2px] leading-none font-bold">{event.count}</span>
+            </div>
             <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 z-10" style={{ backgroundColor: event.color }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="m9 18 6-6-6-6" />
