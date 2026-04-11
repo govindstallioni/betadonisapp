@@ -14,19 +14,19 @@ const categories = [
   },
   {
     name: 'Crash',
-    image: '/categories/1.png',
+    image: '/gamecategory/01.png',
   },
   {
     name: 'Crystal',
-    image: '/categories/2.png',
+    image: '/gamecategory/02.png',
   },
   {
     name: 'Burning Hot',
-    image: '/categories/3.png',
+    image: '/gamecategory/03.png',
   },
   {
     name: 'Mayan Tomb',
-    image: '/categories/4.png',
+    image: '/gamecategory/04.png',
   },
   {
     name: 'Western slot',
