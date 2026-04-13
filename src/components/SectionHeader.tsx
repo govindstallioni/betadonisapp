@@ -1,6 +1,6 @@
 interface SectionHeaderProps {
   title: string
-  badge?: 'Sport' | 'Spor' | 'Casino' | 'Casino Oyunları' | 'Esports'
+  badge?: 'Sport' | 'Spor' | 'Casino' | 'Casino Oyunları' | 'Canli Casino' | 'Esports'
   showAll?: boolean
   count?: number
   gamesCount?: number
@@ -9,6 +9,7 @@ interface SectionHeaderProps {
 const badgeStyles = {
   Sport: { bg: '#e3f4eb', color: '#1a9d54' },
   Spor: { bg: '#e3f4eb', color: '#1a9d54' },
+  'Canli Casino': { bg: '#ede9fe', color: '#7c3aed' },
   Casino: { bg: '#ede9fe', color: '#7c3aed' },
   'Casino Oyunları': { bg: '#ede9fe', color: '#7c3aed' },
   Esports: { bg: '#fff3e0', color: '#e67e22' },

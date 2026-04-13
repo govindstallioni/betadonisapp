@@ -8,23 +8,23 @@ const games = [
     accent: '#fbbf24',
   },
   {
-    name: 'Book of Dead',
-    provider: 'Play\'n GO',
-    image: '/for%20you/2.png',
-    accent: '#f59e0b',
-  },
-  {
     name: 'Big Bass Bonanza',
     provider: 'Pragmatic Play',
     image: '/for%20you/3.png',
     accent: '#38bdf8',
+  },
+  {
+    name: 'Saray Rüyası',
+    provider: 'Pragmatic Play',
+    image: '/for%20you/2.png',
+    accent: '#a855f7',
   },
 ]
 
 export default function SelectedForYou() {
   return (
     <div>
-      <SectionHeader title="Sizin İçin Seçtiklerimiz" badge="Casino" showAll />
+      <SectionHeader title="Sizin İçin Seçtiklerimiz" badge="Casino Oyunları" showAll />
       <div className="space-y-[10px]">
         {games.map((game) => (
           <div

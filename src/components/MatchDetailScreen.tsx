@@ -350,11 +350,6 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
           <h1 className="text-[13px] font-semibold text-white truncate max-w-[220px] text-center">{match.league}</h1>
           <div className="flex items-center gap-1">
             <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-              </svg>
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
                 <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
               </svg>

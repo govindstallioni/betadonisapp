@@ -35,7 +35,115 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+}
+
+/* Dark mode overrides */
+html.dark {
+  --color-bg: #0f1419;
+  --color-card: #1a2332;
+  --color-input-bg: #1e2a3a;
+  --color-border: #2a3a4a;
+  --color-border-light: #253040;
+  --color-text-primary: #e4e8ec;
+  --color-text-secondary: #8899aa;
+  --color-text-muted: #8899aa;
+}
+
+html.dark body {
+  background-color: #0f1419;
+  color: #e4e8ec;
+}
+
+html.dark .bg-white {
+  background-color: #1a2332 !important;
+}
+
+html.dark .bg-bg {
+  background-color: #0f1419 !important;
+}
+
+html.dark .bg-\[\#f5f7fa\] {
+  background-color: #0f1419 !important;
+}
+
+html.dark .text-\[\#1a2332\] {
+  color: #e4e8ec !important;
+}
+
+html.dark .text-\[\#0a1628\] {
+  color: #e4e8ec !important;
+}
+
+html.dark .text-\[\#374957\] {
+  color: #c0cad4 !important;
+}
+
+html.dark .text-\[\#737B8C\] {
+  color: #8899aa !important;
+}
+
+html.dark .border-\[\#e8ecf1\] {
+  border-color: #2a3a4a !important;
+}
+
+html.dark .border-\[\#f0f2f5\] {
+  border-color: #253040 !important;
+}
+
+html.dark .border-\[\#e0e5ec\] {
+  border-color: #2a3a4a !important;
+}
+
+html.dark .bg-\[\#edf5ff\] {
+  background-color: #1e2a3a !important;
+}
+
+html.dark .bg-\[\#f0f2f5\] {
+  background-color: #1e2a3a !important;
+}
+
+html.dark .bg-black\/\[0\.04\] {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+html.dark .shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .shadow-\[0_-2px_16px_rgba\(0\,0\,0\,0\.08\)\] {
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.dark .border-\[\#e8ecf1\]\/60 {
+  border-color: rgba(42, 58, 74, 0.6) !important;
+}
+
+html.dark .bg-\[\#fde8e8\] {
+  background-color: rgba(231, 76, 60, 0.15) !important;
+}
+
+html.dark .placeholder-\[\#b0b8c4\]::placeholder {
+  color: #556677 !important;
+}
+
+html.dark .bg-\[\#dce8f5\] {
+  background-color: #1a2332 !important;
+}
+
+html.dark .border-border,
+html.dark .bg-border {
+  border-color: #2a3a4a !important;
+  background-color: #2a3a4a !important;
+}
+
+html.dark .stroke-\[\#1a2332\] {
+  stroke: #e4e8ec !important;
+}
+
+html.dark input {
+  color: #e4e8ec !important;
 }
 
 @layer utilities {

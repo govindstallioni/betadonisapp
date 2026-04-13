@@ -2,8 +2,8 @@ import SectionHeader from './SectionHeader'
 
 const spotlightGames = [
   {
-    name: 'Son of Egypt',
-    provider: 'Pragmatic Play',
+    name: 'Immersive Roulette',
+    provider: 'evolutionGH',
     tag: 'CANLI',
     image: '/spotlight/1.png',
     accent: '#e74c3c',
@@ -20,8 +20,8 @@ const spotlightGames = [
     ),
   },
   {
-    name: 'Las Vegas',
-    provider: 'Pragmatic Play',
+    name: 'Fortune Roulette',
+    provider: 'pragmatic',
     tag: 'HİT',
     image: '/spotlight/2.png',
     accent: '#f472b6',
@@ -37,8 +37,8 @@ const spotlightGames = [
     ),
   },
   {
-    name: 'Scratch Cards',
-    provider: 'Spribe',
+    name: 'Türkçe Rulet',
+    provider: 'evolutionGH',
     tag: 'TREND',
     image: '/spotlight/3.png',
     accent: '#ef4444',
@@ -52,8 +52,8 @@ const spotlightGames = [
     ),
   },
   {
-    name: 'Lightning Dice',
-    provider: 'Evolution',
+    name: 'Lightning Roulette',
+    provider: 'evolutionGH',
     tag: 'CANLI',
     image: '/spotlight/4.png',
     accent: '#fbbf24',
@@ -68,12 +68,28 @@ const spotlightGames = [
       </svg>
     ),
   },
+  {
+    name: 'Unlimited Blackjack',
+    provider: 'ezugi',
+    tag: 'CANLI',
+    image: '/spotlight/5.png',
+    accent: '#0E8FCF',
+    icon: null,
+  },
+  {
+    name: 'Bet on Poker',
+    provider: 'creedroomz',
+    tag: 'HİT',
+    image: '/spotlight/6.png',
+    accent: '#a855f7',
+    icon: null,
+  },
 ]
 
 export default function InTheSpotlight() {
   return (
     <div>
-      <SectionHeader title="Günün Öne Çıkanları" badge="Casino Oyunları" showAll />
+      <SectionHeader title="Günün Öne Çıkanları" badge="Canli Casino" showAll />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {spotlightGames.map((game) => (
           <div
@@ -82,10 +98,11 @@ export default function InTheSpotlight() {
           >
             <img src={game.image} alt={game.name} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-            <div className="relative z-10 h-[160px] flex items-end px-[12px] pb-[12px]">
+            <div className="relative z-10 h-[160px] flex flex-col justify-end px-[12px] pb-[12px]">
               <span className="text-[13px] font-medium text-white leading-tight" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
                 {game.name}
               </span>
+              <span className="text-[9px] font-medium text-white/60 mt-[2px]">{game.provider}</span>
             </div>
           </div>
         ))}
