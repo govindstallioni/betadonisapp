@@ -3,20 +3,20 @@ import SectionHeader from './SectionHeader'
 const games = [
   {
     name: 'Gates of Olympus',
-    provider: 'Pragmatic Play',
+    provider: 'Diğer oyunlar',
     image: '/for%20you/1.png',
     accent: '#fbbf24',
   },
   {
     name: 'Big Bass Bonanza',
-    provider: 'Pragmatic Play',
-    image: '/for%20you/3.png',
+    provider: 'Diğer oyunlar',
+    image: '/for%20you/2.png',
     accent: '#38bdf8',
   },
   {
     name: 'Saray Rüyası',
-    provider: 'Pragmatic Play',
-    image: '/for%20you/2.png',
+    provider: 'Diğer oyunlar',
+    image: '/for%20you/3.png',
     accent: '#a855f7',
   },
 ]

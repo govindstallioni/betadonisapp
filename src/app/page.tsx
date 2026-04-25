@@ -16,6 +16,9 @@ import VirtualBets from '@/components/VirtualBets'
 import PromoBanners from '@/components/PromoBanners'
 import MegaJackpot from '@/components/MegaJackpot'
 import TopEvents from '@/components/TopEvents'
+import SonKazananlar from '@/components/SonKazananlar'
+import EnsonKazananlar from '@/components/EnsonKazananlar'
+import CarkiKazananlar from '@/components/CarkiKazananlar'
 import BottomNav from '@/components/BottomNav'
 
 export default function HomePage() {
@@ -31,13 +34,16 @@ export default function HomePage() {
         <div className="mt-3"><GameCategories /></div>
         <div className="mt-4"><MegaJackpot /></div>
         <div className="mt-4"><TopEvents /></div>
+        <div className="mt-4"><SonKazananlar /></div>
         <div className="mt-5"><LiveBets /></div>
         <div className="mt-3"><TopPreMatch /></div>
+        <div className="mt-3"><CarkiKazananlar /></div>
         <div className="mt-3"><TopTournaments /></div>
         <div className="mt-3"><TopProviders /></div>
-        <div className="mt-3"><CasinoCategories /></div>
-        <div className="mt-3"><InTheSpotlight /></div>
-        <div className="mt-3"><SelectedForYou /></div>
+        <div className="mt-3"><EnsonKazananlar /></div>
+        <div className="mt-4"><CasinoCategories /></div>
+        <div className="mt-4"><InTheSpotlight /></div>
+        <div className="mt-4"><SelectedForYou /></div>
         <div className="mt-3"><DailyWheel /></div>
         <div className="mt-3"><VirtualBets /></div>
       </main>

@@ -11,11 +11,10 @@ const navItems = [
     label: 'KEŞFET',
     href: '/',
     icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 24 24">
-        <g fillRule="evenodd" strokeLinecap="round" strokeLinejoin="round" transform="translate(2 2)">
-          <polygon points="6.27 12.952 7.863 7.863 12.952 6.27 11.359 11.359" fill={active ? '#fff' : 'none'} stroke={active ? '#fff' : '#737B8C'} strokeWidth="1.5" />
-          <circle cx="9.611" cy="9.611" r="9.611" fill="none" stroke={active ? '#fff' : '#737B8C'} strokeWidth="1.5" />
-        </g>
+      // Home icon
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#fff' : '#737B8C'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 12L12 3l9 9" />
+        <path d="M5 10v9a1 1 0 001 1h4v-4h4v4h4a1 1 0 001-1v-9" />
       </svg>
     ),
   },
@@ -23,29 +22,29 @@ const navItems = [
     label: 'CANLI',
     href: '/live',
     icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 128 128" fill={active ? '#fff' : '#737B8C'}>
-        <path d="M64,48c-8.82,0-16,7.18-16,16s7.18,16,16,16s16-7.18,16-16S72.82,48,64,48z M64,72c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8S68.41,72,64,72z M30.83,97.17c1.56,1.56,1.56,4.09,0,5.66c-0.78,0.78-1.8,1.17-2.83,1.17s-2.05-0.39-2.83-1.17C14.8,92.46,9.09,78.67,9.09,64s5.71-28.46,16.08-38.83c1.56-1.56,4.1-1.56,5.66,0c1.56,1.56,1.56,4.09,0,5.66C12.54,49.12,12.54,78.88,30.83,97.17z M44.83,44.83c-10.57,10.57-10.57,27.77,0,38.34c1.56,1.56,1.56,4.09,0,5.66C44.05,89.61,43.02,90,42,90s-2.05-0.39-2.83-1.17c-13.69-13.69-13.69-35.97,0-49.66c1.56-1.56,4.1-1.56,5.66,0C46.39,40.73,46.39,43.27,44.83,44.83z" />
+      // Play button with live dot
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9.5" stroke={active ? '#fff' : '#737B8C'} strokeWidth="1.6" />
+        <polygon points="10,8.5 16.5,12 10,15.5" fill={active ? '#fff' : '#737B8C'} />
+        <circle cx="18" cy="6" r="3" fill="#e74c3c" />
       </svg>
     ),
   },
   {
     label: 'KUPON',
     href: '#',
-    icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 25 25" fill={active ? '#fff' : '#737B8C'} fillRule="evenodd" style={{ transform: 'rotate(225deg)' }}>
-        <path d="M15.4260044,2 L18.9974329,2 C19.5497177,2 19.9974329,2.44771525 19.9974329,3 L19.9974329,12.34 L19.9974329,22 C19.9974329,22.5522847 19.5497177,23 18.9974329,23 L15.4260044,23 C15.4260044,21.3431458 14.0828586,20 12.4260044,20 C10.7691501,20 9.42600437,21.3431458 9.42600437,23 L6,23 C5.44771525,23 5,22.5522847 5,22 C5,21.9991454 5.0000011,21.9982908 5.00000329,21.9974362 L5.0244807,12.45 L5.00002795,3.00258829 C4.99859847,2.45030539 5.4451534,2.00143282 5.9974363,2.00000335 C5.99829907,2.00000112 5.99916183,2 6.0000246,2 L9.42600437,2 C9.42600437,3.65685425 10.7691501,5 12.4260044,5 C14.0828586,5 15.4260044,3.65685425 15.4260044,2 Z" />
-      </svg>
+    icon: (_active: boolean) => (
+      <img src="/icons/coupon.png" alt="Kupon" width={20} height={20} style={{ objectFit: 'contain', transform: 'rotate(120deg)' }} />
     ),
   },
   {
     label: 'Geçmiş',
     href: '/history',
     icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 4.233 4.233">
-        <g transform="matrix(.9291 0 0 .9291 -17.842 -2.3)">
-          <path fill="none" stroke={active ? '#fff' : '#737B8C'} strokeLinecap="round" strokeLinejoin="round" d="M 20.024199,3.6070661 A 1.8520832,1.8520832 0 0 1 22.367615,3.1255956 1.8520832,1.8520832 0 0 1 23.230813,5.3568064 1.8520832,1.8520832 0 0 1 21.173521,6.5778561 1.8520832,1.8520832 0 0 1 19.628393,4.7513866" strokeWidth=".285" />
-          <path fill="none" stroke={active ? '#fff' : '#737B8C'} strokeLinecap="round" strokeLinejoin="round" d="M21.393658 4.1139613v.877204h.783213M20.024199 2.9017046V3.6070661M20.729561 3.6070661H20.024199" strokeWidth=".285" />
-        </g>
+      // Clock / history icon
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#fff' : '#737B8C'} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <polyline points="12 7 12 12 15 15" />
       </svg>
     ),
   },
@@ -53,8 +52,12 @@ const navItems = [
     label: 'Menü',
     href: '#menu',
     icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill={active ? '#fff' : '#737B8C'}>
-        <path d="M4 18h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zm0-5h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM3 7c0 .55.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1z" />
+      // Grid / dots menu
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? '#fff' : '#737B8C'}>
+        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+        <rect x="14" y="14" width="7" height="7" rx="1.5" />
       </svg>
     ),
   },
@@ -65,9 +68,6 @@ const navItems = [
 const menuTabs = [
   { label: 'Top', icon: '/icons/top.svg' },
   { label: 'Sporlar', icon: '/icons/sporlar.svg' },
-  { label: 'Casino', icon: '/icons/casino.svg' },
-  { label: '1xOyunlar', icon: '/icons/slotlar.svg' },
-  { label: 'Diğer', icon: '/icons/digerleri.svg' },
 ]
 
 // TOP tab items — same as home screen
@@ -92,11 +92,25 @@ for (let c = 0; c < topItems.length; c += 3) {
 
 // Spor tab items
 const sporItems = [
-  { title: 'CANLI BAHİS', desc: 'Canlı etkinliklere bahis yapın', href: '/live', color: '#0E8FCF', icon: <svg width="22" height="22" viewBox="0 0 128 128" fill="#fff"><path d="M64,48c-8.82,0-16,7.18-16,16s7.18,16,16,16s16-7.18,16-16S72.82,48,64,48z M64,72c-4.41,0-8-3.59-8-8s3.59-8,8-8s8,3.59,8,8S68.41,72,64,72z M30.83,97.17c1.56,1.56,1.56,4.09,0,5.66c-0.78,0.78-1.8,1.17-2.83,1.17s-2.05-0.39-2.83-1.17C14.8,92.46,9.09,78.67,9.09,64s5.71-28.46,16.08-38.83c1.56-1.56,4.1-1.56,5.66,0c1.56,1.56,1.56,4.09,0,5.66C12.54,49.12,12.54,78.88,30.83,97.17z M44.83,44.83c-10.57,10.57-10.57,27.77,0,38.34c1.56,1.56,1.56,4.09,0,5.66C44.05,89.61,43.02,90,42,90s-2.05-0.39-2.83-1.17c-13.69-13.69-13.69-35.97,0-49.66c1.56-1.56,4.1-1.56,5.66,0C46.39,40.73,46.39,43.27,44.83,44.83z" /></svg> },
-  { title: 'Maç Öncesi', desc: 'Yaklaşan etkinliklere bahis yapın', href: '/prematch', color: '#0E8FCF', icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg> },
-  { title: 'Günün Kombinesi', desc: 'Kazançlı bahislere bahis yapın', href: '#', color: '#27ae60', icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg> },
-  { title: 'Canlı Yayın', desc: 'Canlı oynanan bahis oyunları', href: '#', color: '#e74c3c', icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="5 3 19 12 5 21 5 3" /></svg> },
-  { title: 'SANAL BAHİS', desc: 'En iyi sanal bahis etkinlikleri', href: '#', color: '#8b5cf6', icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM5 15h14v3H5z" /></svg> },
+  { title: 'CANLI BAHİS', desc: 'Canlı etkinliklere bahis yapın', href: '/live', color: '#0E8FCF', icon: (
+    <img src="/icons/livebetting.svg" alt="Canlı Bahis" width={22} height={22} style={{ objectFit: 'contain' }} />
+  ) },
+  { title: 'Maç Öncesi', desc: 'Yaklaşan etkinliklere bahis yapın', href: '/prematch', color: '#0E8FCF', icon: (
+    <img src="/icons/calendar.svg" alt="Maç Öncesi" width={22} height={22} style={{ objectFit: 'contain' }} />
+  ) },
+  { title: 'Günün Kombinesi', desc: 'Kazançlı bahislere bahis yapın', href: '#', color: '#0E8FCF', icon: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff">
+      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+    </svg>
+  ) },
+  { title: 'Canlı Yayın', desc: 'Canlı oynanan bahis oyunları', href: '#', color: '#0E8FCF', icon: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+    </svg>
+  ) },
+  { title: 'SANAL BAHİS', desc: 'En iyi sanal bahis etkinlikleri', href: '#', color: '#0E8FCF', icon: (
+    <img src="/icons/vr-glasses.svg" alt="Sanal Bahis" width={22} height={22} style={{ objectFit: 'contain' }} />
+  ) },
 ]
 
 // ── Component ──────────────────────────────────────────────────
@@ -312,88 +326,6 @@ export default function BottomNav() {
               </div>
             )}
 
-            {/* ── Casino tab ── */}
-            {activeMenuTab === 2 && (
-              <div className="flex flex-col gap-[8px]">
-                {[
-                  { title: 'SLOTLAR', desc: 'En iyi slot oyunları', href: '/slots', color: '#f59e0b' },
-                  { title: 'CANLI CASİNO', desc: 'Kendinizi casinodaymış gibi hissedin', href: '/live-casino', color: '#8b5cf6' },
-                  { title: 'CANLI OYUNLAR', desc: 'Size özel canlı oyunlar ile kazan', href: '#', color: '#0E8FCF' },
-                  { title: 'POKER', desc: 'Özel poker tavla okey canlı oyunlar', href: '#', color: '#e74c3c' },
-                ].map((item) => (
-                  <button
-                    key={item.title}
-                    onClick={() => navigateFromMenu(item.href)}
-                    className="flex items-center gap-3 bg-white rounded-xl px-3 py-3 border border-[#e8ecf1] hover:shadow-sm transition-shadow"
-                  >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: item.color }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-.83 0-1.5-.67-1.5-1.5S6.67 15 7.5 15s1.5.67 1.5 1.5S8.33 18 7.5 18zm0-9C6.67 9 6 8.33 6 7.5S6.67 6 7.5 6 9 6.67 9 7.5 8.33 9 7.5 9zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5 4.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-9c-.83 0-1.5-.67-1.5-1.5S15.67 6 16.5 6s1.5.67 1.5 1.5S17.33 9 16.5 9z" /></svg>
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <p className="text-[12px] font-semibold text-[#1a2332] leading-tight">{item.title}</p>
-                      <p className="text-[9px] text-[#737B8C] mt-[2px]">{item.desc}</p>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0c8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* ── 1xOyunlar tab ── */}
-            {activeMenuTab === 3 && (
-              <div className="flex flex-col gap-[8px]">
-                {[
-                  { title: 'GOLDEN RACE', desc: 'Canlı oyunlar ile başla, hemen kazan', href: '#', color: '#f59e0b' },
-                  { title: 'ŞANS ÇARKI', desc: 'Ücretsiz çevirme hakkı ile her gün kazan!', href: '#', color: '#0E8FCF' },
-                ].map((item) => (
-                  <button
-                    key={item.title}
-                    onClick={() => navigateFromMenu(item.href)}
-                    className="flex items-center gap-3 bg-white rounded-xl px-3 py-3 border border-[#e8ecf1] hover:shadow-sm transition-shadow"
-                  >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: item.color }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z" /></svg>
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <p className="text-[12px] font-semibold text-[#1a2332] leading-tight">{item.title}</p>
-                      <p className="text-[9px] text-[#737B8C] mt-[2px]">{item.desc}</p>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0c8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* ── Diğer tab ── */}
-            {activeMenuTab === 4 && (
-              <div className="flex flex-col gap-[8px]">
-                {[
-                  { title: 'Ortaklık', desc: 'Sitemizdeki oyuncular ile para kazanın', href: '#', color: '#27ae60' },
-                  { title: 'Müşteri Hizmetleri', desc: 'Bizimle iletişime geçin', href: '#', color: '#0E8FCF' },
-                ].map((item) => (
-                  <button
-                    key={item.title}
-                    onClick={() => navigateFromMenu(item.href)}
-                    className="flex items-center gap-3 bg-white rounded-xl px-3 py-3 border border-[#e8ecf1] hover:shadow-sm transition-shadow"
-                  >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: item.color }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z" /></svg>
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <p className="text-[12px] font-semibold text-[#1a2332] leading-tight">{item.title}</p>
-                      <p className="text-[9px] text-[#737B8C] mt-[2px]">{item.desc}</p>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0c8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
+// ── Quick-bar filters ──────────────────────────────────────────
 const filters = [
   {
     label: 'Tümü',
@@ -71,7 +72,7 @@ const filters = [
     label: 'Hentbol',
     icon: (
       <svg width="20" height="20" viewBox="0 0 48 48" fill="#0E8FCF">
-        <path d="M38.851,25.78L27.536,14.465c-0.172-0.172-0.357-0.326-0.549-0.469C28.205,13.083,29,11.635,29,10c0-2.757-2.243-5-5-5s-5,2.243-5,5c0,1.128,0.385,2.162,1.018,3h-2.775l-1.599-1.599C16.478,10.507,17,9.317,17,8c0-2.757-2.243-5-5-5S7,5.243,7,8c0,0.696,0.145,1.359,0.403,1.962c-0.12,0.916,0.158,1.842,0.819,2.503l5.657,5.656C14.445,18.688,15.198,19,16,19h3v9c0,0.512,0.082,1.018,0.245,1.513L9.151,39.606c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l10.855-10.855c0.15-0.007,0.291-0.044,0.437-0.065l2.435,2.435l-4.243,4.243c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l6.364-6.364c1.169-1.17,1.169-3.073,0-4.243l-4.553-4.553C28.964,28.462,29,28.236,29,28v-3.586l5.608,5.608c1.17,1.17,3.073,1.17,4.243,0C40.02,28.853,40.021,26.949,38.851,25.78z M24,7c1.654,0,3,1.346,3,3s-1.346,3-3,3s-3-1.346-3-3S22.346,7,24,7z M12,5c1.654,0,3,1.346,3,3s-1.346,3-3,3S9,9.654,9,8S10.346,5,12,5z M32.071,34.657c0.39,0.39,0.39,1.024,0,1.415l-6.365,6.364c-0.377,0.378-1.036,0.378-1.414,0c-0.39-0.39-0.39-1.024,0-1.415l4.95-4.95c0.188-0.188,0.293-0.442,0.293-0.707s-0.105-0.52-0.293-0.707l-2.497-2.497c0.562-0.372,1.05-0.845,1.422-1.407L32.071,34.657z M37.437,28.608c-0.391,0.39-1.026,0.389-1.415,0l-7.315-7.315c-0.286-0.287-0.716-0.372-1.09-0.217C27.244,21.231,27,21.596,27,22v6c0,1.654-1.346,3-2.942,3.002c-0.035-0.005-0.141-0.016-0.176-0.017c-0.284-0.016-0.547,0.096-0.744,0.292L11.979,42.435c-0.377,0.378-1.036,0.378-1.414,0c-0.39-0.39-0.39-1.024,0-1.415l10.562-10.562c0.303-0.302,0.379-0.764,0.19-1.148C21.107,28.882,21,28.441,21,28V18c0-0.552-0.448-1-1-1h-4c-0.267,0-0.518-0.104-0.707-0.293l-3.754-3.754C11.693,12.968,11.842,13,12,13c0.709,0,1.382-0.153,1.994-0.42l2.128,2.127C16.309,14.895,16.564,15,16.829,15H24c0.801,0,1.555,0.313,2.122,0.879l11.314,11.314C37.826,27.583,37.826,28.218,37.437,28.608z" />
+        <path d="M38.851,25.78L27.536,14.465c-0.172-0.172-0.357-0.326-0.549-0.469C28.205,13.083,29,11.635,29,10c0-2.757-2.243-5-5-5s-5,2.243-5,5c0,1.128,0.385,2.162,1.018,3h-2.775l-1.599-1.599C16.478,10.507,17,9.317,17,8c0-2.757-2.243-5-5-5S7,5.243,7,8c0,0.696,0.145,1.359,0.403,1.962c-0.12,0.916,0.158,1.842,0.819,2.503l5.657,5.656C14.445,18.688,15.198,19,16,19h3v9c0,0.512,0.082,1.018,0.245,1.513L9.151,39.606c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l10.855-10.855c0.15-0.007,0.291-0.044,0.437-0.065l2.435,2.435l-4.243,4.243c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l6.364-6.364c1.169-1.17,1.169-3.073,0-4.243l-4.553-4.553C28.964,28.462,29,28.236,29,28v-3.586l5.608,5.608c1.17,1.17,3.073,1.17,4.243,0C40.02,28.853,40.021,26.949,38.851,25.78z M24,7c1.654,0,3,1.346,3,3s-1.346,3-3,3s-3-1.346-3-3S22.346,7,24,7z M12,5c1.654,0,3,1.346,3,3s-1.346,3-3,3S9,9.654,9,8S10.346,5,12,5z" />
       </svg>
     ),
   },
@@ -128,40 +129,340 @@ const filters = [
       </svg>
     ),
   },
+]
+
+// ── SVG icon lookup built from the filters array (skip Tümü at index 0) ──
+const svgIconMap: Record<string, ReactNode> = Object.fromEntries(
+  filters.slice(1).map(f => [f.label, f.icon])
+)
+// 'Buzhokeyi' in filters maps to 'Buz Hokeyi' in the popup list
+svgIconMap['Buz Hokeyi'] = svgIconMap['Buzhokeyi']
+svgIconMap['Su Topu']     = <img src="/icons/waterpolo_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Su Topu" />
+svgIconMap['Badminton']   = <img src="/icons/shuttlecock.svg" width={22} height={22} style={{ objectFit: 'contain' }} alt="Badminton" />
+svgIconMap['Dart']        = <img src="/icons/dart.svg"        width={22} height={22} style={{ objectFit: 'contain' }} alt="Dart" />
+svgIconMap['Aussie Rules']  = <img src="/icons/AFL_5.png"          width={22} height={22} style={{ objectFit: 'contain' }} alt="Aussie Rules" />
+svgIconMap['Rugby Birliği'] = <img src="/icons/rugbyUnion_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Rugby Birliği" />
+svgIconMap['Lacrosse']      = <img src="/icons/lacrosse_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Lacrosse" />
+svgIconMap['Boxing']        = <img src="/icons/boxing_5.png"  width={22} height={22} style={{ objectFit: 'contain' }} alt="Boxing" />
+svgIconMap['Rugby Ligi']    = <img src="/icons/rugby_5.png"   width={22} height={22} style={{ objectFit: 'contain' }} alt="Rugby Ligi" />
+svgIconMap['Çim Hokeyi']    = <img src="/icons/hockey.svg"    width={22} height={22} style={{ objectFit: 'contain' }} alt="Çim Hokeyi" />
+svgIconMap['MMA']           = <img src="/icons/MMA_5.png"     width={22} height={22} style={{ objectFit: 'contain' }} alt="MMA" />
+svgIconMap['Squash']        = <img src="/icons/squash_5.png"          width={22} height={22} style={{ objectFit: 'contain' }} alt="Squash" />
+svgIconMap['Gal Futbolu']   = <img src="/icons/gaelicFootball_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Gal Futbolu" />
+svgIconMap['Florbol']       = <img src="/icons/floorball_5.png"  width={22} height={22} style={{ objectFit: 'contain' }} alt="Florbol" />
+svgIconMap['İrlanda Hokeyi']= <img src="/icons/hurling_5.png"       width={22} height={22} style={{ objectFit: 'contain' }} alt="İrlanda Hokeyi" />
+svgIconMap['Sanal Futbol']      = <img src="/icons/vrtrdrSoccer_5.png"      width={22} height={22} style={{ objectFit: 'contain' }} alt="Sanal Futbol" />
+svgIconMap['Sanal Basketbol']   = <img src="/icons/vrtrdrBasketball_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Sanal Basketbol" />
+svgIconMap['Sanal Tenis']       = <img src="/icons/vrtrdrTennis_5.png"    width={22} height={22} style={{ objectFit: 'contain' }} alt="Sanal Tenis" />
+svgIconMap['Sanal Beyzbol']       = <img src="/icons/vrtrdrBaseball_5.png"    width={22} height={22} style={{ objectFit: 'contain' }} alt="Sanal Beyzbol" />
+svgIconMap['Sanal Köpek Yarışı']  = <img src="/icons/vrtrdrGreyhounds_5.png"   width={22} height={22} style={{ objectFit: 'contain' }} alt="Sanal Köpek Yarışı" />
+svgIconMap['Virtual HorseRacing'] = <img src="/icons/vrtrdrHorseRacing_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Virtual HorseRacing" />
+svgIconMap['Dota 2']              = <img src="/icons/dota2_5.png"          width={22} height={22} style={{ objectFit: 'contain' }} alt="Dota 2" />
+svgIconMap['Call of Duty']        = <img src="/icons/callOfDuty_5.png"    width={22} height={22} style={{ objectFit: 'contain' }} alt="Call of Duty" />
+svgIconMap['King Of Glory']       = <img src="/icons/kingOfGlory_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="King Of Glory" />
+svgIconMap['League of Legends']   = <img src="/icons/LOL_5.png"             width={22} height={22} style={{ objectFit: 'contain' }} alt="League of Legends" />
+svgIconMap['Rainbow Six']         = <img src="/icons/rainbowSix_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Rainbow Six" />
+svgIconMap['Counter-Strike']      = <img src="/icons/CS2_5.png"        width={22} height={22} style={{ objectFit: 'contain' }} alt="Counter-Strike" />
+svgIconMap['e-Dövüş']             = <img src="/icons/eFighting_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="e-Dövüş" />
+svgIconMap['e-Tenis']             = <img src="/icons/eTennis_5.png"          width={22} height={22} style={{ objectFit: 'contain' }} alt="e-Tenis" />
+svgIconMap['Mobile Legends']      = <img src="/icons/mobileLegends_5.png" width={22} height={22} style={{ objectFit: 'contain' }} alt="Mobile Legends" />
+svgIconMap['Valorant']            = <img src="/icons/valorant_5.png"       width={22} height={22} style={{ objectFit: 'contain' }} alt="Valorant" />
+
+// ── Full sport list for filter modal ──────────────────────────
+type SportItem = { label: string; emoji: string; icon?: ReactNode }
+const allSports: SportItem[] = [
+  { label: 'Futbol',               emoji: '⚽' },
+  { label: 'Basketbol',            emoji: '🏀' },
+  { label: 'Sanal Futbol',         emoji: '🎮' },
+  { label: 'Sanal Basketbol',      emoji: '🎮' },
+  { label: 'Tenis',                emoji: '🎾' },
+  { label: 'Sanal Tenis',          emoji: '🎮' },
+  { label: 'Buz Hokeyi',           emoji: '🏒' },
+  { label: 'Hentbol',              emoji: '🤾' },
+  { label: 'Çim Hokeyi',           emoji: '🏑' },
+  { label: 'Amerikan Futbolu',     emoji: '🏈' },
+  { label: 'Beyzbol',              emoji: '⚾' },
+  { label: 'Sanal Beyzbol',        emoji: '🎮' },
+  { label: 'Voleybol',             emoji: '🏐' },
+  { label: 'Badminton',            emoji: '🏸' },
+  { label: 'Dota 2',               emoji: '🖥️' },
+  { label: 'Kriket',               emoji: '🏏' },
+  { label: 'Su Topu',              emoji: '🤽' },
+  { label: 'Masa Tenisi',          emoji: '🏓' },
+  { label: 'Futsal',               emoji: '⚽' },
+  { label: 'Dart',                 emoji: '🎯' },
+  { label: 'Aussie Rules',         emoji: '🏉' },
+  { label: 'Snooker',              emoji: '🎱' },
+  { label: 'Rugby Birliği',        emoji: '🏉' },
+  { label: 'Rugby Ligi',           emoji: '🏉' },
+  { label: 'Florbol',              emoji: '🏑' },
+  { label: 'Sanal Köpek Yarışı',   emoji: '🐕' },
+  { label: 'Virtual HorseRacing',  emoji: '🐎' },
+  { label: 'Call of Duty',         emoji: '🖥️' },
+  { label: 'Gal Futbolu',          emoji: '⚽' },
+  { label: 'İrlanda Hokeyi',       emoji: '🏑' },
+  { label: 'King Of Glory',        emoji: '🖥️' },
+  { label: 'Lacrosse',             emoji: '🥍' },
+  { label: 'League of Legends',    emoji: '🖥️' },
+  { label: 'Rainbow Six',          emoji: '🖥️' },
+  { label: 'Squash',               emoji: '🎾' },
+  { label: 'Boxing',               emoji: '🥊' },
+  { label: 'Counter-Strike',       emoji: '🖥️' },
+  { label: 'e-Dövüş',              emoji: '🖥️' },
+  { label: 'e-Tenis',              emoji: '🖥️' },
+  { label: 'MMA',                  emoji: '🥋' },
+  { label: 'Mobile Legends',       emoji: '🖥️' },
+  { label: 'Valorant',             emoji: '🖥️' },
+].map(s => ({ ...s, icon: svgIconMap[s.label] }))
+
+// Group by category
+const categories = [
   {
-    label: 'Filtre',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2">
-        <circle cx="12" cy="12" r="10" />
-        <path d="M4.9 4.9 19 19M12 2v20M2 12h20" />
-      </svg>
+    label: 'Spor',
+    items: allSports.filter(s =>
+      !s.label.startsWith('Sanal') && !s.label.startsWith('Virtual') &&
+      !['Dota 2','Call of Duty','King Of Glory','League of Legends','Rainbow Six',
+        'Counter-Strike','e-Dövüş','e-Tenis','Mobile Legends','Valorant'].includes(s.label)
+    ),
+  },
+  {
+    label: 'Sanal Spor',
+    items: allSports.filter(s => s.label.startsWith('Sanal') || s.label.startsWith('Virtual')),
+  },
+  {
+    label: 'E-Spor',
+    items: allSports.filter(s =>
+      ['Dota 2','Call of Duty','King Of Glory','League of Legends','Rainbow Six',
+        'Counter-Strike','e-Dövüş','e-Tenis','Mobile Legends','Valorant'].includes(s.label)
     ),
   },
 ]
 
 export default function QuickFilters() {
-  const [active, setActive] = useState(0)
+  const [active, setActive]     = useState(0)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [search, setSearch]     = useState('')
+
+  function toggleSport(label: string) {
+    setSelected(prev => {
+      const next = new Set(prev)
+      next.has(label) ? next.delete(label) : next.add(label)
+      return next
+    })
+  }
+
+  function toggleAll(items: typeof allSports) {
+    const allSelected = items.every(s => selected.has(s.label))
+    setSelected(prev => {
+      const next = new Set(prev)
+      items.forEach(s => allSelected ? next.delete(s.label) : next.add(s.label))
+      return next
+    })
+  }
+
+  const filtered = search.trim()
+    ? allSports.filter(s => s.label.toLowerCase().includes(search.toLowerCase()))
+    : null
 
   return (
-    <div className="flex gap-[5px] overflow-x-auto scrollbar-hide -mx-4 px-4">
-      {filters.map((f, i) => (
+    <>
+      {/* ── Quick-bar ── */}
+      <div className="flex gap-[5px]">
+        {filters.slice(0, 5).map((f, i) => (
+          <button
+            key={f.label}
+            onClick={() => setActive(i)}
+            className={`flex flex-col items-center justify-center gap-[5px] flex-1 min-h-[60px] py-[6px] rounded-[10px] transition-all ${
+              active === i ? 'bg-[#0E8FCF]' : 'bg-white'
+            }`}
+          >
+            <div className={active === i ? '[&_svg]:brightness-0 [&_svg]:invert' : ''}>
+              {f.icon}
+            </div>
+            <span className={`text-[9px] font-medium text-center leading-tight w-full px-[4px] break-words ${
+              active === i ? 'text-white' : 'text-[#1a2332]'
+            }`}>
+              {f.label}
+            </span>
+          </button>
+        ))}
+
+        {/* Filter trigger button */}
         <button
-          key={f.label}
-          onClick={() => setActive(i)}
-          className={`flex flex-col items-center justify-center gap-[5px] w-[60px] min-h-[60px] py-[6px] rounded-[10px] shrink-0 transition-all ${
-            active === i ? 'bg-[#0E8FCF]' : 'bg-white'
+          onClick={() => setModalOpen(true)}
+          className={`flex flex-col items-center justify-center gap-[5px] flex-1 min-h-[60px] py-[6px] rounded-[10px] transition-all relative ${
+            selected.size > 0 ? 'bg-[#0E8FCF]' : 'bg-white'
           }`}
         >
-          <div className={active === i ? '[&_svg]:brightness-0 [&_svg]:invert' : ''}>
-            {f.icon}
-          </div>
-          <span className={`text-[9px] font-medium text-center leading-tight w-full px-[4px] break-words ${
-            active === i ? 'text-white' : 'text-[#1a2332]'
-          }`}>
-            {f.label}
+          {selected.size > 0 && (
+            <span className="absolute top-[5px] right-[5px] w-[14px] h-[14px] rounded-full bg-[#ef4444] text-white text-[8px] font-bold flex items-center justify-center leading-none">
+              {selected.size}
+            </span>
+          )}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke={selected.size > 0 ? '#fff' : '#737B8C'} strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          <span className={`text-[9px] font-medium ${selected.size > 0 ? 'text-white' : 'text-[#737B8C]'}`}>
+            Filtre
           </span>
         </button>
-      ))}
-    </div>
+      </div>
+
+      {/* ── Modal overlay ── */}
+      <div
+        className={`fixed inset-0 z-[70] transition-all duration-300 ${modalOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(2px)' }}
+        onClick={() => setModalOpen(false)}
+      />
+
+      {/* ── Bottom sheet ── */}
+      <div
+        className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[80] transition-transform duration-350 ${modalOpen ? 'translate-y-0' : 'translate-y-full'}`}
+        style={{ borderRadius: '20px 20px 0 0', background: '#fff', maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}
+      >
+        {/* Handle */}
+        <div className="flex justify-center pt-[10px] pb-[4px] flex-shrink-0">
+          <div className="w-[36px] h-[4px] rounded-full bg-[#e2e8f0]"/>
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between px-[16px] py-[12px] border-b border-[#f0f2f5] flex-shrink-0">
+          <div>
+            <h3 className="text-[15px] font-extrabold text-[#1a2332]">Spor Filtresi</h3>
+            <p className="text-[10px] text-[#94a3b8] mt-[1px]">{allSports.length} spor mevcut</p>
+          </div>
+          <div className="flex items-center gap-[8px]">
+            {selected.size > 0 && (
+              <button
+                onClick={() => setSelected(new Set())}
+                className="text-[10px] font-semibold text-[#ef4444] px-[10px] py-[5px] rounded-full border border-[#fecaca]"
+              >
+                Temizle
+              </button>
+            )}
+            <button
+              onClick={() => setModalOpen(false)}
+              className="w-[30px] h-[30px] rounded-full bg-[#f1f5f9] flex items-center justify-center"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="px-[16px] py-[10px] flex-shrink-0">
+          <div className="flex items-center gap-[8px] bg-[#f1f5f9] rounded-xl px-[12px] py-[8px]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Spor ara..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="flex-1 bg-transparent text-[12px] text-[#1a2332] placeholder-[#94a3b8] outline-none"
+            />
+            {search && (
+              <button onClick={() => setSearch('')}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Sport list */}
+        <div className="flex-1 overflow-y-auto px-[16px] pb-[100px]">
+          {filtered ? (
+            <div className="grid grid-cols-3 gap-[8px] pt-[4px]">
+              {filtered.map(s => {
+                const sel = selected.has(s.label)
+                return (
+                  <SportCard key={s.label} sport={s} selected={sel} onToggle={() => toggleSport(s.label)} />
+                )
+              })}
+              {filtered.length === 0 && (
+                <p className="col-span-3 text-center text-[12px] text-[#94a3b8] py-[24px]">Sonuç bulunamadı.</p>
+              )}
+            </div>
+          ) : (
+            categories.map(cat => (
+              <div key={cat.label} className="mb-[18px]">
+                <div className="flex items-center justify-between mb-[8px]">
+                  <span className="text-[11px] font-bold text-[#0E8FCF] uppercase tracking-wider">{cat.label}</span>
+                  <button
+                    onClick={() => toggleAll(cat.items)}
+                    className="text-[9px] font-semibold text-[#64748b] px-[8px] py-[3px] rounded-full bg-[#f1f5f9]"
+                  >
+                    {cat.items.every(s => selected.has(s.label)) ? 'Kaldır' : 'Tümünü Seç'}
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-[8px]">
+                  {cat.items.map(s => {
+                    const sel = selected.has(s.label)
+                    return (
+                      <SportCard key={s.label} sport={s} selected={sel} onToggle={() => toggleSport(s.label)} />
+                    )
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Apply button */}
+        <div className="absolute bottom-0 left-0 right-0 px-[16px] py-[14px] bg-white border-t border-[#f0f2f5]"
+          style={{ boxShadow: '0 -4px 16px rgba(0,0,0,0.06)' }}>
+          <button
+            onClick={() => setModalOpen(false)}
+            className="w-full py-[13px] rounded-[14px] text-[13px] font-bold text-white transition-all"
+            style={{ background: 'linear-gradient(135deg,#0c3060,#0E8FCF)' }}
+          >
+            {selected.size > 0 ? `${selected.size} Filtre Uygula` : 'Tümünü Göster'}
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function SportCard({ sport, selected, onToggle }: {
+  sport: SportItem
+  selected: boolean
+  onToggle: () => void
+}) {
+  return (
+    <button
+      onClick={onToggle}
+      className="relative flex flex-col items-center justify-center gap-[5px] rounded-[12px] py-[10px] px-[4px] transition-all"
+      style={{
+        background: selected ? 'rgba(14,143,207,0.08)' : '#f8fafc',
+        border: selected ? '1.5px solid #0E8FCF' : '1.5px solid #e8ecf1',
+      }}
+    >
+      {selected && (
+        <span className="absolute top-[5px] right-[5px] w-[12px] h-[12px] rounded-full bg-[#0E8FCF] flex items-center justify-center">
+          <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </span>
+      )}
+      {sport.icon
+        ? <div className="w-[22px] h-[22px] flex items-center justify-center">{sport.icon}</div>
+        : <span className="text-[20px] leading-none">{sport.emoji}</span>
+      }
+      <span className={`text-[9px] font-semibold text-center leading-tight px-[2px] line-clamp-2 ${selected ? 'text-[#0E8FCF]' : 'text-[#374957]'}`}>
+        {sport.label}
+      </span>
+    </button>
   )
 }

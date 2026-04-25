@@ -6,9 +6,15 @@ import Link from 'next/link'
 
 // ── Section data ───────────────────────────────────────────────
 
+const etkinlikItems = [
+  { label: 'Bahisler yapıldığında anlık bildirimleri alın', key: 'instantNotify', defaultValue: true },
+  { label: 'Bahis yapıldıktan sonra bahis kuponunu temizle', key: 'clearAfterBet', defaultValue: true },
+  { label: 'Bitmiş etkinlikleri bahis kuponundan çıkar', key: 'removeFinished', defaultValue: true },
+]
+
 const hesapItems = [
   { title: 'Hesaba Para Yatır', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M2 10h20" /><path d="M12 14h4" /></svg> },
-  { title: 'Hesabından Para Çek', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10M12 12l4-4M12 12l-4-4" /><rect x="2" y="14" width="20" height="8" rx="2" /></svg> },
+  { title: 'Hesabına Para Çek', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10M12 12l4-4M12 12l-4-4" /><rect x="2" y="14" width="20" height="8" rx="2" /></svg> },
 ]
 
 const guvenlikItems = [
@@ -18,11 +24,6 @@ const guvenlikItems = [
   { title: 'Oturum Açma Geçmişi', desc: '', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" /></svg> },
 ]
 
-const uygulamaItems = [
-  { title: 'Anlık Bildirimler', desc: 'Maç etkinliği bildirimleri', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" /></svg> },
-  { title: 'Abonelikleri Yönet', desc: 'Telefon ve e-mail bağlayın', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg> },
-  { title: 'Arkaplan', desc: 'Tema ve dil seçimi', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" /></svg> },
-]
 
 const ekstraItems = [
   { title: 'Proxy Ayarları', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" /></svg> },
@@ -30,7 +31,7 @@ const ekstraItems = [
 
 const hakkindaItems = [
   { title: 'Uygulamayı Paylaş', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" /></svg> },
-  { title: 'QR Kodu ile Paylaş', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2z" /></svg> },
+  { title: 'Uygulamayı QR Kodu ile Paylaşın', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2z" /></svg> },
   { title: 'Uygulama Sürümü', desc: 'Güncellendi', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#27ae60"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg> },
   { title: 'Önbelleği Temizle', desc: '96.1 MB', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#737B8C"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" /></svg> },
 ]
@@ -62,8 +63,40 @@ function SettingsRow({ title, desc, descColor, icon, onClick, last }: { title: s
   )
 }
 
+function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!value)}
+      className={`w-[40px] h-[22px] rounded-full flex items-center px-[2px] transition-colors ${value ? 'bg-[#0E8FCF]' : 'bg-[#d0d5dd]'}`}
+    >
+      <div className={`w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform ${value ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+    </button>
+  )
+}
+
 export default function SettingsPage() {
   const router = useRouter()
+  const [instantNotify, setInstantNotify] = useState(true)
+  const [clearAfterBet, setClearAfterBet] = useState(true)
+  const [removeFinished, setRemoveFinished] = useState(true)
+  const [matchNotify, setMatchNotify] = useState(true)
+  const [favoriteNotify, setFavoriteNotify] = useState(true)
+  const [phoneSubscribe, setPhoneSubscribe] = useState(false)
+  const [emailSubscribe, setEmailSubscribe] = useState(false)
+  const [emailNews, setEmailNews] = useState(false)
+  const [smsOffers, setSmsOffers] = useState(false)
+  const [phoneMarketing, setPhoneMarketing] = useState(false)
+  const [theme, setTheme] = useState(0)
+  const [language, setLanguage] = useState(0)
+
+  const themes = ['Gündüz Modu', 'Koyu Mod', 'Gece Modu']
+  const languages = ['Türkçe', 'İngilizce', 'Almanca', 'Rusça', 'İsveçce']
+
+  const etkinlikToggles = [
+    { label: etkinlikItems[0].label, value: instantNotify, onChange: setInstantNotify },
+    { label: etkinlikItems[1].label, value: clearAfterBet, onChange: setClearAfterBet },
+    { label: etkinlikItems[2].label, value: removeFinished, onChange: setRemoveFinished },
+  ]
 
   return (
     <div className="max-w-[430px] mx-auto bg-[#f5f7fa] min-h-screen pb-8">
@@ -109,11 +142,110 @@ export default function SettingsPage() {
           />
         </SettingsCard>
 
+        {/* Etkinlikler */}
+        <SectionLabel label="Etkinlikler" />
+        <SettingsCard>
+          {etkinlikToggles.map((item, i) => (
+            <div key={item.label} className={`flex items-center justify-between px-3 py-3.5 ${i < etkinlikToggles.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}>
+              <span className="text-[13px] font-medium text-[#1a2332] flex-1 pr-3">{item.label}</span>
+              <Toggle value={item.value} onChange={item.onChange} />
+            </div>
+          ))}
+        </SettingsCard>
+
         {/* Uygulama Ayarları */}
         <SectionLabel label="Uygulama Ayarları" />
         <SettingsCard>
-          {uygulamaItems.map((item, i) => (
-            <SettingsRow key={item.title} title={item.title} desc={item.desc} icon={item.icon} last={i === uygulamaItems.length - 1} />
+          <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
+            <div>
+              <p className="text-[13px] font-medium text-[#1a2332] leading-tight">Anlık Bildirimler</p>
+              <p className="text-[10px] text-[#737B8C] mt-[2px]">Maç etkinliği bildirimleri</p>
+            </div>
+            <Toggle value={matchNotify} onChange={setMatchNotify} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-3.5">
+            <span className="text-[13px] font-medium text-[#1a2332] flex-1 pr-3">Favori oyunlardaki etkinlikler hakkında bildirimler</span>
+            <Toggle value={favoriteNotify} onChange={setFavoriteNotify} />
+          </div>
+        </SettingsCard>
+
+        {/* Abonelikleri Yönet */}
+        <SectionLabel label="Abonelikleri Yönet" />
+        <SettingsCard>
+          <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
+            <div>
+              <p className="text-[13px] font-medium text-[#1a2332] leading-tight">Telefon numaranızı bağlayın</p>
+              <p className="text-[10px] text-[#737B8C] mt-[2px]">Özel teklifleri kaçırmayın</p>
+            </div>
+            <Toggle value={phoneSubscribe} onChange={setPhoneSubscribe} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-3.5">
+            <div>
+              <p className="text-[13px] font-medium text-[#1a2332] leading-tight">E-mail adresinizi bağlayın</p>
+              <p className="text-[10px] text-[#737B8C] mt-[2px]">Önemli etkinlik bonuslarda güncel kalın</p>
+            </div>
+            <Toggle value={emailSubscribe} onChange={setEmailSubscribe} />
+          </div>
+        </SettingsCard>
+
+        {/* Marketing toggles */}
+        <SettingsCard>
+          <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
+            <span className="text-[13px] font-medium text-[#1a2332] flex-1 pr-3">Etkinliklerle ilgili haberleri e-mail ile alın</span>
+            <Toggle value={emailNews} onChange={setEmailNews} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
+            <span className="text-[13px] font-medium text-[#1a2332] flex-1 pr-3">Özel teklifleri SMS ile bilgi alın</span>
+            <Toggle value={smsOffers} onChange={setSmsOffers} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-3.5">
+            <span className="text-[13px] font-medium text-[#1a2332] flex-1 pr-3">Telefonla pazarlama promosyon teklifleri alın</span>
+            <Toggle value={phoneMarketing} onChange={setPhoneMarketing} />
+          </div>
+        </SettingsCard>
+
+        {/* Info message */}
+        <div className="mt-3 px-3 py-3 bg-[#edf5ff] rounded-xl border border-[#0E8FCF]/20">
+          <p className="text-[10px] text-[#0E8FCF] leading-relaxed">
+            E-mail adresiniz ve telefon numaranız etkinleştirildiğinde mesaj almaya başlayacaksınız.
+          </p>
+        </div>
+
+        {/* Arkaplan */}
+        <SectionLabel label="Arkaplan" />
+        <SettingsCard>
+          <div className="px-3 py-3">
+            <p className="text-[11px] font-medium text-[#1a2332] mb-2">Tema Seçimi</p>
+            <div className="flex gap-[6px]">
+              {themes.map((t, i) => (
+                <button
+                  key={t}
+                  onClick={() => setTheme(i)}
+                  className={`flex-1 py-[8px] rounded-lg text-[10px] font-medium transition-all ${
+                    theme === i ? 'bg-[#0E8FCF] text-white' : 'bg-[#edf5ff] text-[#1a2332] border border-[#e8ecf1]'
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+        </SettingsCard>
+
+        {/* Dil Seçimi */}
+        <SectionLabel label="Dil Seçimi" />
+        <SettingsCard>
+          {languages.map((lang, i) => (
+            <button
+              key={lang}
+              onClick={() => setLanguage(i)}
+              className={`w-full flex items-center gap-3 px-3 py-3 text-left ${i < languages.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}
+            >
+              <div className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center flex-shrink-0 ${language === i ? 'border-[#0E8FCF]' : 'border-[#d0d5dd]'}`}>
+                {language === i && <div className="w-[9px] h-[9px] rounded-full bg-[#0E8FCF]" />}
+              </div>
+              <span className={`text-[12px] font-medium ${language === i ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>{lang}</span>
+            </button>
           ))}
         </SettingsCard>
 
