@@ -3,9 +3,23 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
+function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!value)}
+      className={`w-[40px] h-[22px] rounded-full flex items-center px-[2px] transition-colors ${value ? 'bg-[#0E8FCF]' : 'bg-[#d0d5dd]'}`}
+    >
+      <div className={`w-[18px] h-[18px] rounded-full bg-white shadow-sm transition-transform ${value ? 'translate-x-[18px]' : 'translate-x-0'}`} />
+    </button>
+  )
+}
+
 export default function BetSettingsPage() {
   const router = useRouter()
   const [oddsChange, setOddsChange] = useState(0)
+  const [instantNotify, setInstantNotify] = useState(true)
+  const [clearAfterBet, setClearAfterBet] = useState(true)
+  const [removeFinished, setRemoveFinished] = useState(true)
 
   const oddsOptions = [
     'Değişiklikleri onaylamamı iste',
@@ -43,6 +57,21 @@ export default function BetSettingsPage() {
               <span className={`text-[12px] font-medium ${oddsChange === i ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>{opt}</span>
             </button>
           ))}
+        </div>
+        <p className="text-[12px] font-bold text-[#0E8FCF] px-1 pt-5 pb-2">Etkinlikler</p>
+        <div className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
+            <span className="text-[12px] font-medium text-[#1a2332] flex-1 pr-3">Bahisler yapıldığında anlık bildirimleri alın</span>
+            <Toggle value={instantNotify} onChange={setInstantNotify} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
+            <span className="text-[12px] font-medium text-[#1a2332] flex-1 pr-3">Bahis yapıldıktan sonra bahis kuponunu temizle</span>
+            <Toggle value={clearAfterBet} onChange={setClearAfterBet} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-3.5">
+            <span className="text-[12px] font-medium text-[#1a2332] flex-1 pr-3">Bitmiş etkinlikleri bahis kuponundan çıkar</span>
+            <Toggle value={removeFinished} onChange={setRemoveFinished} />
+          </div>
         </div>
       </div>
     </div>

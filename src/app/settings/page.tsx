@@ -6,12 +6,6 @@ import Link from 'next/link'
 
 // ── Section data ───────────────────────────────────────────────
 
-const etkinlikItems = [
-  { label: 'Bahisler yapıldığında anlık bildirimleri alın', key: 'instantNotify', defaultValue: true },
-  { label: 'Bahis yapıldıktan sonra bahis kuponunu temizle', key: 'clearAfterBet', defaultValue: true },
-  { label: 'Bitmiş etkinlikleri bahis kuponundan çıkar', key: 'removeFinished', defaultValue: true },
-]
-
 const hesapItems = [
   { title: 'Hesaba Para Yatır', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M2 10h20" /><path d="M12 14h4" /></svg> },
   { title: 'Hesabına Para Çek', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10M12 12l4-4M12 12l-4-4" /><rect x="2" y="14" width="20" height="8" rx="2" /></svg> },
@@ -76,9 +70,6 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 
 export default function SettingsPage() {
   const router = useRouter()
-  const [instantNotify, setInstantNotify] = useState(true)
-  const [clearAfterBet, setClearAfterBet] = useState(true)
-  const [removeFinished, setRemoveFinished] = useState(true)
   const [matchNotify, setMatchNotify] = useState(true)
   const [favoriteNotify, setFavoriteNotify] = useState(true)
   const [phoneSubscribe, setPhoneSubscribe] = useState(false)
@@ -91,12 +82,6 @@ export default function SettingsPage() {
 
   const themes = ['Gündüz Modu', 'Koyu Mod', 'Gece Modu']
   const languages = ['Türkçe', 'İngilizce', 'Almanca', 'Rusça', 'İsveçce']
-
-  const etkinlikToggles = [
-    { label: etkinlikItems[0].label, value: instantNotify, onChange: setInstantNotify },
-    { label: etkinlikItems[1].label, value: clearAfterBet, onChange: setClearAfterBet },
-    { label: etkinlikItems[2].label, value: removeFinished, onChange: setRemoveFinished },
-  ]
 
   return (
     <div className="max-w-[430px] mx-auto bg-[#f5f7fa] min-h-screen pb-8">
@@ -142,17 +127,6 @@ export default function SettingsPage() {
           />
         </SettingsCard>
 
-        {/* Etkinlikler */}
-        <SectionLabel label="Etkinlikler" />
-        <SettingsCard>
-          {etkinlikToggles.map((item, i) => (
-            <div key={item.label} className={`flex items-center justify-between px-3 py-3.5 ${i < etkinlikToggles.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}>
-              <span className="text-[13px] font-medium text-[#1a2332] flex-1 pr-3">{item.label}</span>
-              <Toggle value={item.value} onChange={item.onChange} />
-            </div>
-          ))}
-        </SettingsCard>
-
         {/* Uygulama Ayarları */}
         <SectionLabel label="Uygulama Ayarları" />
         <SettingsCard>
@@ -163,9 +137,33 @@ export default function SettingsPage() {
             </div>
             <Toggle value={matchNotify} onChange={setMatchNotify} />
           </div>
-          <div className="flex items-center justify-between px-3 py-3.5">
+          <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
             <span className="text-[13px] font-medium text-[#1a2332] flex-1 pr-3">Favori oyunlardaki etkinlikler hakkında bildirimler</span>
             <Toggle value={favoriteNotify} onChange={setFavoriteNotify} />
+          </div>
+          <div className="flex items-center justify-between px-3 py-3 border-b border-[#f0f2f5]">
+            <p className="text-[13px] font-medium text-[#1a2332]">Tema Seçimi</p>
+            <select
+              value={theme}
+              onChange={e => setTheme(Number(e.target.value))}
+              className="text-[12px] font-medium text-[#1a2332] bg-[#edf5ff] border border-[#e8ecf1] rounded-lg px-[10px] py-[6px] outline-none cursor-pointer"
+            >
+              {themes.map((t, i) => (
+                <option key={t} value={i}>{t}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center justify-between px-3 py-3">
+            <p className="text-[13px] font-medium text-[#1a2332]">Dil Seçimi</p>
+            <select
+              value={language}
+              onChange={e => setLanguage(Number(e.target.value))}
+              className="text-[12px] font-medium text-[#1a2332] bg-[#edf5ff] border border-[#e8ecf1] rounded-lg px-[10px] py-[6px] outline-none cursor-pointer"
+            >
+              {languages.map((lang, i) => (
+                <option key={lang} value={i}>{lang}</option>
+              ))}
+            </select>
           </div>
         </SettingsCard>
 
@@ -210,44 +208,6 @@ export default function SettingsPage() {
             E-mail adresiniz ve telefon numaranız etkinleştirildiğinde mesaj almaya başlayacaksınız.
           </p>
         </div>
-
-        {/* Arkaplan */}
-        <SectionLabel label="Arkaplan" />
-        <SettingsCard>
-          <div className="px-3 py-3">
-            <p className="text-[11px] font-medium text-[#1a2332] mb-2">Tema Seçimi</p>
-            <div className="flex gap-[6px]">
-              {themes.map((t, i) => (
-                <button
-                  key={t}
-                  onClick={() => setTheme(i)}
-                  className={`flex-1 py-[8px] rounded-lg text-[10px] font-medium transition-all ${
-                    theme === i ? 'bg-[#0E8FCF] text-white' : 'bg-[#edf5ff] text-[#1a2332] border border-[#e8ecf1]'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-        </SettingsCard>
-
-        {/* Dil Seçimi */}
-        <SectionLabel label="Dil Seçimi" />
-        <SettingsCard>
-          {languages.map((lang, i) => (
-            <button
-              key={lang}
-              onClick={() => setLanguage(i)}
-              className={`w-full flex items-center gap-3 px-3 py-3 text-left ${i < languages.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}
-            >
-              <div className={`w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center flex-shrink-0 ${language === i ? 'border-[#0E8FCF]' : 'border-[#d0d5dd]'}`}>
-                {language === i && <div className="w-[9px] h-[9px] rounded-full bg-[#0E8FCF]" />}
-              </div>
-              <span className={`text-[12px] font-medium ${language === i ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>{lang}</span>
-            </button>
-          ))}
-        </SettingsCard>
 
         {/* Ekstra */}
         <SectionLabel label="Ekstra" />

@@ -134,10 +134,40 @@ const sports = [
     count: 45,
     icon: (
       <svg width="20" height="20" viewBox="0 0 48 48" fill="#0E8FCF">
-        <path d="M38.851,25.78L27.536,14.465c-0.172-0.172-0.357-0.326-0.549-0.469C28.205,13.083,29,11.635,29,10c0-2.757-2.243-5-5-5s-5,2.243-5,5c0,1.128,0.385,2.162,1.018,3h-2.775l-1.599-1.599C16.478,10.507,17,9.317,17,8c0-2.757-2.243-5-5-5S7,5.243,7,8c0,0.696,0.145,1.359,0.403,1.962c-0.12,0.916,0.158,1.842,0.819,2.503l5.657,5.656C14.445,18.688,15.198,19,16,19h3v9c0,0.512,0.082,1.018,0.245,1.513L9.151,39.606c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l10.855-10.855c0.15-0.007,0.291-0.044,0.437-0.065l2.435,2.435l-4.243,4.243c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l6.364-6.364c1.169-1.17,1.169-3.073,0-4.243l-4.553-4.553C28.964,28.462,29,28.236,29,28v-3.586l5.608,5.608c1.17,1.17,3.073,1.17,4.243,0C40.02,28.853,40.021,26.949,38.851,25.78z M24,7c1.654,0,3,1.346,3,3s-1.346,3-3,3s-3-1.346-3-3S22.346,7,24,7z M12,5c1.654,0,3,1.346,3,3s-1.346,3-3,3S9,9.654,9,8S10.346,5,12,5z M32.071,34.657c0.39,0.39,0.39,1.024,0,1.415l-6.365,6.364c-0.377,0.378-1.036,0.378-1.414,0c-0.39-0.39-0.39-1.024,0-1.415l4.95-4.95c0.188-0.188,0.293-0.442,0.293-0.707s-0.105-0.52-0.293-0.707l-2.497-2.497c0.562-0.372,1.05-0.845,1.422-1.407L32.071,34.657z M37.437,28.608c-0.391,0.39-1.026,0.389-1.415,0l-7.315-7.315c-0.286-0.287-0.716-0.372-1.09-0.217C27.244,21.231,27,21.596,27,22v6c0,1.654-1.346,3-2.942,3.002c-0.035-0.005-0.141-0.016-0.176-0.017c-0.284-0.016-0.547,0.096-0.744,0.292L11.979,42.435c-0.377,0.378-1.036,0.378-1.414,0c-0.39-0.39-0.39-1.024,0-1.415l10.562-10.562c0.303-0.302,0.379-0.764,0.19-1.148C21.107,28.882,21,28.441,21,28V18c0-0.552-0.448-1-1-1h-4c-0.267,0-0.518-0.104-0.707-0.293l-3.754-3.754C11.693,12.968,11.842,13,12,13c0.709,0,1.382-0.153,1.994-0.42l2.128,2.127C16.309,14.895,16.564,15,16.829,15H24c0.801,0,1.555,0.313,2.122,0.879l11.314,11.314C37.826,27.583,37.826,28.218,37.437,28.608z" />
+        <path d="M38.851,25.78L27.536,14.465c-0.172-0.172-0.357-0.326-0.549-0.469C28.205,13.083,29,11.635,29,10c0-2.757-2.243-5-5-5s-5,2.243-5,5c0,1.128,0.385,2.162,1.018,3h-2.775l-1.599-1.599C16.478,10.507,17,9.317,17,8c0-2.757-2.243-5-5-5S7,5.243,7,8c0,0.696,0.145,1.359,0.403,1.962c-0.12,0.916,0.158,1.842,0.819,2.503l5.657,5.656C14.445,18.688,15.198,19,16,19h3v9c0,0.512,0.082,1.018,0.245,1.513L9.151,39.606c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l10.855-10.855c0.15-0.007,0.291-0.044,0.437-0.065l2.435,2.435l-4.243,4.243c-1.17,1.17-1.17,3.073,0,4.243c1.17,1.17,3.073,1.17,4.243,0l6.364-6.364c1.169-1.17,1.169-3.073,0-4.243l-4.553-4.553C28.964,28.462,29,28.236,29,28v-3.586l5.608,5.608c1.17,1.17,3.073,1.17,4.243,0C40.02,28.853,40.021,26.949,38.851,25.78z M24,7c1.654,0,3,1.346,3,3s-1.346,3-3,3s-3-1.346-3-3S22.346,7,24,7z M12,5c1.654,0,3,1.346,3,3s-1.346,3-3,3S9,9.654,9,8S10.346,5,12,5z" />
       </svg>
     ),
   },
+  { label: 'Badminton',          count: 38,  icon: <img src="/icons/shuttlecock.svg"         width={20} height={20} style={{ objectFit: 'contain' }} alt="Badminton" /> },
+  { label: 'Su Topu',            count: 14,  icon: <img src="/icons/waterpolo_5.png"          width={20} height={20} style={{ objectFit: 'contain' }} alt="Su Topu" /> },
+  { label: 'Dart',               count: 22,  icon: <img src="/icons/dart.svg"                width={20} height={20} style={{ objectFit: 'contain' }} alt="Dart" /> },
+  { label: 'Aussie Rules',       count: 18,  icon: <img src="/icons/AFL_5.png"               width={20} height={20} style={{ objectFit: 'contain' }} alt="Aussie Rules" /> },
+  { label: 'Rugby Birliği',      count: 31,  icon: <img src="/icons/rugbyUnion_5.png"        width={20} height={20} style={{ objectFit: 'contain' }} alt="Rugby Birliği" /> },
+  { label: 'Rugby Ligi',         count: 24,  icon: <img src="/icons/rugby_5.png"             width={20} height={20} style={{ objectFit: 'contain' }} alt="Rugby Ligi" /> },
+  { label: 'Çim Hokeyi',         count: 16,  icon: <img src="/icons/hockey.svg"              width={20} height={20} style={{ objectFit: 'contain' }} alt="Çim Hokeyi" /> },
+  { label: 'Florbol',            count: 12,  icon: <img src="/icons/floorball_5.png"         width={20} height={20} style={{ objectFit: 'contain' }} alt="Florbol" /> },
+  { label: 'Lacrosse',           count: 8,   icon: <img src="/icons/lacrosse_5.png"          width={20} height={20} style={{ objectFit: 'contain' }} alt="Lacrosse" /> },
+  { label: 'Squash',             count: 10,  icon: <img src="/icons/squash_5.png"            width={20} height={20} style={{ objectFit: 'contain' }} alt="Squash" /> },
+  { label: 'Boxing',             count: 19,  icon: <img src="/icons/boxing_5.png"            width={20} height={20} style={{ objectFit: 'contain' }} alt="Boxing" /> },
+  { label: 'MMA',                count: 27,  icon: <img src="/icons/MMA_5.png"               width={20} height={20} style={{ objectFit: 'contain' }} alt="MMA" /> },
+  { label: 'Gal Futbolu',        count: 9,   icon: <img src="/icons/gaelicFootball_5.png"    width={20} height={20} style={{ objectFit: 'contain' }} alt="Gal Futbolu" /> },
+  { label: 'İrlanda Hokeyi',     count: 7,   icon: <img src="/icons/hurling_5.png"           width={20} height={20} style={{ objectFit: 'contain' }} alt="İrlanda Hokeyi" /> },
+  { label: 'Sanal Futbol',       count: 48,  icon: <img src="/icons/vrtrdrSoccer_5.png"      width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Futbol" /> },
+  { label: 'Sanal Basketbol',    count: 32,  icon: <img src="/icons/vrtrdrBasketball_5.png"  width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Basketbol" /> },
+  { label: 'Sanal Tenis',        count: 24,  icon: <img src="/icons/vrtrdrTennis_5.png"      width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Tenis" /> },
+  { label: 'Sanal Beyzbol',      count: 18,  icon: <img src="/icons/vrtrdrBaseball_5.png"    width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Beyzbol" /> },
+  { label: 'Sanal Köpek Yarışı', count: 36,  icon: <img src="/icons/vrtrdrGreyhounds_5.png"  width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Köpek Yarışı" /> },
+  { label: 'Virtual HorseRacing',count: 42,  icon: <img src="/icons/vrtrdrHorseRacing_5.png" width={20} height={20} style={{ objectFit: 'contain' }} alt="Virtual HorseRacing" /> },
+  { label: 'Dota 2',             count: 28,  icon: <img src="/icons/dota2_5.png"             width={20} height={20} style={{ objectFit: 'contain' }} alt="Dota 2" /> },
+  { label: 'Call of Duty',       count: 14,  icon: <img src="/icons/callOfDuty_5.png"        width={20} height={20} style={{ objectFit: 'contain' }} alt="Call of Duty" /> },
+  { label: 'King Of Glory',      count: 11,  icon: <img src="/icons/kingOfGlory_5.png"       width={20} height={20} style={{ objectFit: 'contain' }} alt="King Of Glory" /> },
+  { label: 'League of Legends',  count: 35,  icon: <img src="/icons/LOL_5.png"               width={20} height={20} style={{ objectFit: 'contain' }} alt="League of Legends" /> },
+  { label: 'Rainbow Six',        count: 9,   icon: <img src="/icons/rainbowSix_5.png"        width={20} height={20} style={{ objectFit: 'contain' }} alt="Rainbow Six" /> },
+  { label: 'Counter-Strike',     count: 52,  icon: <img src="/icons/CS2_5.png"               width={20} height={20} style={{ objectFit: 'contain' }} alt="Counter-Strike" /> },
+  { label: 'e-Dövüş',            count: 8,   icon: <img src="/icons/eFighting_5.png"         width={20} height={20} style={{ objectFit: 'contain' }} alt="e-Dövüş" /> },
+  { label: 'e-Tenis',            count: 16,  icon: <img src="/icons/eTennis_5.png"           width={20} height={20} style={{ objectFit: 'contain' }} alt="e-Tenis" /> },
+  { label: 'Mobile Legends',     count: 22,  icon: <img src="/icons/mobileLegends_5.png"     width={20} height={20} style={{ objectFit: 'contain' }} alt="Mobile Legends" /> },
+  { label: 'Valorant',           count: 18,  icon: <img src="/icons/valorant_5.png"          width={20} height={20} style={{ objectFit: 'contain' }} alt="Valorant" /> },
 ]
 
 interface PreMatchScreenProps {
@@ -224,6 +254,7 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
           {sports.map((sport, i) => (
             <button
               key={sport.label}
+              onClick={() => router.push(`/live/sport?name=${encodeURIComponent(sport.label)}`)}
               className={`w-full flex items-center gap-2.5 px-3 py-[8px] hover:bg-[#f8fafc] transition-colors ${
                 i < sports.length - 1 ? 'border-b border-[#f0f2f5]' : ''
               }`}
