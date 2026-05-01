@@ -202,7 +202,7 @@ export default function LiveSportScreen() {
               <path d="m15 18-6-6 6-6"/>
             </svg>
           </button>
-          <h1 className="text-[15px] font-bold text-[#1a2332]">Turnuvalar</h1>
+          <h1 className="text-[16px] font-bold text-[#1a2332]">Turnuvalar</h1>
           <div className="flex items-center gap-[2px]">
             <button className="w-9 h-9 flex items-center justify-center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round">

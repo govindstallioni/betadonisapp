@@ -371,8 +371,16 @@ export default function BottomNav() {
                 </button>
               )
 
-              if (i === 4 || i === 2) {
+              if (i === 4) {
                 return <span key={item.label}>{navContent}</span>
+              }
+
+              if (i === 2) {
+                return (
+                  <Link key={item.label} href="/kupon">
+                    {navContent}
+                  </Link>
+                )
               }
 
               return (
