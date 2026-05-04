@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 const historyTypes = [
   { label: 'Bahis Geçmişi' },
@@ -54,6 +55,7 @@ function Mascot() {
 }
 
 export default function BetHistory() {
+  const router = useRouter()
   const [activeHistoryType, setActiveHistoryType] = useState(0)
   const [showHistoryType, setShowHistoryType] = useState(false)
   const [showPeriod, setShowPeriod] = useState(false)
@@ -105,7 +107,7 @@ export default function BetHistory() {
 
         {/* 3 Action cards */}
         <div className="flex gap-[6px]">
-          <button className="flex-1 flex flex-col items-center gap-[4px] rounded-xl py-[9px] px-2 bg-[#e8f5e9]">
+          <button onClick={() => router.push('/kupon/deposit')} className="flex-1 flex flex-col items-center gap-[4px] rounded-xl py-[9px] px-2 bg-[#e8f5e9]">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <rect x="2" y="6" width="18" height="13" rx="2" fill="#27ae60" opacity="0.3"/>
               <rect x="4" y="4" width="18" height="13" rx="2" fill="#27ae60" opacity="0.6"/>
@@ -140,7 +142,7 @@ export default function BetHistory() {
         <p className="text-[12px] text-[#737B8C] font-medium text-center leading-relaxed mt-3 mb-4">
           Seçilen dönem için bahis bulunmamaktadır.{'\n'}Daha fazla tahmin yapın ve kazanın!
         </p>
-        <button className="bg-[#0E8FCF] text-white text-[12px] font-semibold rounded-xl px-7 py-[10px]">
+        <button onClick={() => router.push('/')} className="bg-[#0E8FCF] text-white text-[12px] font-semibold rounded-xl px-7 py-[10px]">
           Bahis Yap
         </button>
       </div>

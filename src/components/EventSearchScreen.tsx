@@ -85,30 +85,7 @@ function SportIcon() {
   )
 }
 
-function OddsRow({ odds, matchId, selectedOdds, onToggle }: {
-  odds: ResultMatch['odds']
-  matchId: number
-  selectedOdds: Set<string>
-  onToggle: (k: string) => void
-}) {
-  return (
-    <div className="grid grid-cols-3 gap-[5px]">
-      {[{ label: 'W1', value: odds.w1 }, { label: 'X', value: odds.x }, { label: 'W2', value: odds.w2 }].map(o => {
-        const key = `${matchId}-${o.label}`
-        const sel = selectedOdds.has(key)
-        return (
-          <button key={o.label} onClick={() => onToggle(key)}
-            className={`flex items-center justify-between px-2 py-[7px] rounded-[8px] border transition-all ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#f4f7fb] border-[#e8ecf1]'}`}>
-            <span className={`text-[9px] font-medium ${sel ? 'text-white/80' : 'text-[#94a3b8]'}`}>{o.label}</span>
-            <span className={`text-[12px] font-extrabold tabular-nums ${sel ? 'text-white' : 'text-[#1a2332]'}`}>{o.value}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-function MatchCard({ m, selectedOdds, onToggle, notified, onNotify, favorited, onFav }: {
+function MatchCard({ m, selectedOdds, onToggle, notified, onNotify, favorited, onFav, router }: {
   m: ResultMatch
   selectedOdds: Set<string>
   onToggle: (k: string) => void
@@ -116,26 +93,32 @@ function MatchCard({ m, selectedOdds, onToggle, notified, onNotify, favorited, o
   onNotify: () => void
   favorited: boolean
   onFav: () => void
+  router: ReturnType<typeof import('next/navigation').useRouter>
 }) {
+  const odds = [
+    { label: 'EV1',  value: m.odds.w1 },
+    { label: 'X',    value: m.odds.x  },
+    { label: 'DEP2', value: m.odds.w2 },
+  ]
+
   return (
-    <div className="bg-white rounded-xl border border-[#e8ecf1] shadow-sm overflow-hidden mb-[8px]">
+    <div className="bg-white rounded-xl border border-[#e8ecf1] shadow-sm overflow-hidden mb-[8px] cursor-pointer" onClick={() => router.push(`/live/matches?league=${encodeURIComponent(m.league)}`)}>
       {/* Card header */}
       <div className="flex items-center gap-2 px-3 py-[7px] border-b border-[#f0f4f8]">
         <SportIcon />
-        <span className="flex-1 text-[10px] font-semibold text-[#1a2332] truncate">{m.league}</span>
-        {m.hasStream && (
-          <button className="w-6 h-6 flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.8">
-              <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="#0E8FCF" stroke="none"/>
+        <span className="flex-1 text-[11px] font-medium text-[#737B8C] truncate">{m.league}</span>
+        <button onClick={onNotify} className="w-6 h-6 flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={notified ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </button>
+        {m.isLive && (
+          <div className="flex items-center gap-[3px] bg-[#ef4444] rounded-full px-[6px] py-[2px]">
+            <svg width="7" height="7" viewBox="0 0 24 24" fill="white">
+              <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
-          </button>
-        )}
-        {!m.isLive && (
-          <button onClick={onNotify} className="w-6 h-6 flex items-center justify-center">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill={notified ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-          </button>
+            <span className="text-[8px] font-bold text-white tracking-wide">CANLI</span>
+          </div>
         )}
         <button onClick={onFav} className="w-6 h-6 flex items-center justify-center">
           <svg width="14" height="14" viewBox="0 0 24 24" fill={favorited ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
@@ -144,41 +127,39 @@ function MatchCard({ m, selectedOdds, onToggle, notified, onNotify, favorited, o
         </button>
       </div>
 
-      {/* Teams */}
-      <div className="flex items-center justify-between px-3 pt-[10px] pb-[2px]">
-        <div className="flex items-center gap-[6px] flex-1">
-          <span className="text-[11px] font-bold text-[#1a2332]">{m.homeTeam}</span>
-          <span className="text-[18px]">{m.homeFlag}</span>
-        </div>
-        <span className="text-[12px] font-extrabold text-[#1a2332] mx-2 tabular-nums flex-shrink-0">
-          {m.score ?? 'VS'}
+      {/* Teams + score */}
+      <div className="flex items-center px-3 pt-[10px] pb-[2px] gap-[6px]">
+        <span className="flex-1 text-[11px] font-normal text-[#1a2332] text-right truncate">{m.homeTeam}</span>
+        <img src="/teams/jersey1.png" width={26} height={26} style={{ objectFit: 'contain' }} alt="" className="flex-shrink-0"/>
+        <span className="text-[13px] font-extrabold text-[#1a2332] tabular-nums flex-shrink-0 mx-[2px]">
+          {m.score ?? '0 : 0'}
         </span>
-        <div className="flex items-center gap-[6px] flex-1 justify-end">
-          <span className="text-[18px]">{m.awayFlag}</span>
-          <span className="text-[11px] font-bold text-[#1a2332]">{m.awayTeam}</span>
-        </div>
+        <img src="/teams/jersey2.png" width={26} height={26} style={{ objectFit: 'contain' }} alt="" className="flex-shrink-0"/>
+        <span className="flex-1 text-[11px] font-normal text-[#1a2332] truncate">{m.awayTeam}</span>
       </div>
 
-      {/* Status / date */}
-      <div className="text-center py-[5px]">
-        {m.countdown && (
-          <div className="flex items-center justify-center gap-[2px] mb-[2px]">
-            {m.countdown.split(':').map((seg, i) => (
-              <span key={i} className="flex items-center gap-[2px]">
-                <span className="bg-[#edf5ff] rounded px-[6px] py-[2px] text-[11px] font-bold text-[#0E8FCF] tabular-nums">{seg.trim()}</span>
-                {i < 2 && <span className="text-[11px] font-bold text-[#0E8FCF]">:</span>}
-              </span>
-            ))}
-          </div>
-        )}
-        {m.status && <p className="text-[10px] text-[#94a3b8]">{m.status}</p>}
-        {m.date  && <p className="text-[10px] text-[#0E8FCF] font-medium">{m.date}</p>}
-      </div>
+      {/* Status */}
+      <p className="text-center text-[10px] text-[#737B8C] py-[4px]">
+        {m.countdown ? m.countdown : m.status ?? m.date}
+      </p>
 
       {/* Odds */}
       <div className="px-3 pb-[10px]">
-        <p className="text-[10px] font-bold text-[#1a2332] mb-[5px]">1X2</p>
-        <OddsRow odds={m.odds} matchId={m.id} selectedOdds={selectedOdds} onToggle={onToggle} />
+        <div className="grid grid-cols-3 gap-[5px]">
+          {odds.map(o => {
+            const key = `${m.id}-${o.label}`
+            const sel = selectedOdds.has(key)
+            return (
+              <button key={o.label} onClick={() => onToggle(key)}
+                className={`flex items-center justify-between px-[10px] py-[7px] rounded-[8px] border transition-all ${
+                  sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#f4f7fb] border-[#e8ecf1]'
+                }`}>
+                <span className={`text-[10px] font-medium ${sel ? 'text-white/80' : 'text-[#94a3b8]'}`}>{o.label}</span>
+                <span className={`text-[10px] font-medium tabular-nums ${sel ? 'text-white' : 'text-[#1a2332]'}`}>{o.value}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
@@ -251,6 +232,7 @@ export default function EventSearchScreen() {
                 <MatchCard key={m.id} m={m} selectedOdds={selectedOdds} onToggle={toggleOdd}
                   notified={notified.has(m.id)} onNotify={() => setNotified(p => { const n=new Set(p); n.has(m.id)?n.delete(m.id):n.add(m.id); return n })}
                   favorited={favorited.has(m.id)} onFav={() => setFavorited(p => { const n=new Set(p); n.has(m.id)?n.delete(m.id):n.add(m.id); return n })}
+                  router={router}
                 />
               ))}
             </div>
@@ -267,6 +249,7 @@ export default function EventSearchScreen() {
                 <MatchCard key={m.id} m={m} selectedOdds={selectedOdds} onToggle={toggleOdd}
                   notified={notified.has(m.id)} onNotify={() => setNotified(p => { const n=new Set(p); n.has(m.id)?n.delete(m.id):n.add(m.id); return n })}
                   favorited={favorited.has(m.id)} onFav={() => setFavorited(p => { const n=new Set(p); n.has(m.id)?n.delete(m.id):n.add(m.id); return n })}
+                  router={router}
                 />
               ))}
             </div>

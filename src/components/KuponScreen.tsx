@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const actionRoutes: Record<string, string> = {
+  deposit:     '/kupon/deposit',
   search:      '/kupon/search',
   accumulator: '/kupon/accumulator',
   create:      '/kupon/create',

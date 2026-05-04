@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-const tabs = ['CANLI', 'Maç Öncesi', 'Espor']
+const tabs = ['CANLI', 'Maç Öncesi']
 
 const timeFilters = ['Tümü', '30 dk', '1 saat', '2 saat', '6 saat', '12 saat', '24 saat']
 
@@ -75,15 +75,6 @@ const sports = [
     icon: (
       <svg width="22" height="22" viewBox="0 0 100 100" fill="#0E8FCF">
         <path d="M22.917 966.945c-5.218 0-8.334 3.14-8.334 8.334 0 4.166 8.334 10.416 12.5 14.583 8.333 8.333 22.091 15.841 35.417 29.167l12.5 12.5-2.083 2.083c0 2.083 2.083 4.167 4.166 4.167l4.167-4.167 4.167-4.167c0-2.083-2.084-4.166-4.167-4.166l-2.083 2.083-12.5-12.5c-11.931-11.93-20.834-27.083-29.167-35.417-4.167-4.166-10.417-12.5-14.583-12.5zm14.583 41.667a6.25 6.25 0 1 0 0 12.5 6.25 6.25 0 0 0 0-12.5z" transform="translate(0 -952.362)" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Espor',
-    count: 315,
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="#0E8FCF">
-        <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
       </svg>
     ),
   },
@@ -177,34 +168,74 @@ interface PreMatchScreenProps {
 export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) {
   const [activeTab, setActiveTab] = useState(initialTab)
   const [activeTime, setActiveTime] = useState(0)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
+
+  const filteredSports = searchQuery.trim()
+    ? sports.filter(s => s.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : sports
+
+  function openSearch() { setSearchOpen(true) }
+  function closeSearch() { setSearchOpen(false); setSearchQuery('') }
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
       {/* Header */}
       <div className="bg-white px-4 pt-4 pb-3">
-        <div className="flex items-center justify-between">
-          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-          </button>
-          <h1 className="text-[16px] font-bold text-[#1a2332]">Sporlar</h1>
+        {searchOpen ? (
+          /* Search bar mode */
           <div className="flex items-center gap-2">
-            <button className="w-8 h-8 flex items-center justify-center">
+            <button onClick={closeSearch} className="w-8 h-8 flex items-center justify-center flex-shrink-0">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+                <path d="m15 18-6-6 6-6" />
               </svg>
             </button>
-            {activeTab === 0 && (
-              <button className="w-8 h-8 flex items-center justify-center">
+            <div className="flex-1 flex items-center gap-2 bg-[#f1f5f9] rounded-full px-3 py-[8px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
+              </svg>
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Spor ara..."
+                className="flex-1 bg-transparent text-[13px] text-[#1a2332] placeholder-[#94a3b8] outline-none"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Normal header */
+          <div className="flex items-center justify-between">
+            <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+            <h1 className="text-[16px] font-bold text-[#1a2332]">Sporlar</h1>
+            <div className="flex items-center gap-2">
+              <button onClick={openSearch} className="w-8 h-8 flex items-center justify-center">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                  <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
                 </svg>
               </button>
-            )}
+              {activeTab === 0 && (
+                <button className="w-8 h-8 flex items-center justify-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Tabs */}
@@ -251,12 +282,15 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
       {/* Sports list */}
       <div className="px-4 pb-24">
         <div className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1]">
-          {sports.map((sport, i) => (
+          {filteredSports.length === 0 && (
+            <p className="text-[12px] text-[#94a3b8] text-center py-6">Sonuç bulunamadı.</p>
+          )}
+          {filteredSports.map((sport, i) => (
             <button
               key={sport.label}
               onClick={() => router.push(`/live/sport?name=${encodeURIComponent(sport.label)}`)}
               className={`w-full flex items-center gap-2.5 px-3 py-[8px] hover:bg-[#f8fafc] transition-colors ${
-                i < sports.length - 1 ? 'border-b border-[#f0f2f5]' : ''
+                i < filteredSports.length - 1 ? 'border-b border-[#f0f2f5]' : ''
               }`}
             >
               <div className="w-7 h-7 rounded-full bg-[#edf5ff] flex items-center justify-center flex-shrink-0">

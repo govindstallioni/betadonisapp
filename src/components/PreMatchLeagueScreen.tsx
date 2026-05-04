@@ -75,8 +75,21 @@ const fixturesByLeague: Record<string, Fixture[]> = {
 function SportIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 512 512" fill="#0E8FCF">
-      <path d="M256 48C141.137 48 48 141.136 48 256s93.137 208 208 208c114.872 0 208-93.138 208-208S370.87 48 256 48zm41.151 394.179c-13.514 2.657-30.327 4.187-44 4.45a190.525 190.525 0 0 1-38.5-4.493l-6.805-1.777-24.417-65.435L203.074 336h105.854l.57 1.076 19.34 38.852-23.618 64.282a189.782 189.782 0 0 1-8.069 1.969zM189.578 77.28 247 116.576v58.147l-70.997 60.067-49.403-22.51-4.167-1.899-22.332-64.019c22.009-31.204 53.138-55.532 89.477-69.082zm221.986 68.787-22.432 64.483-53.992 24.388L264 174.723v-58.147l57.596-39.415c36.362 13.483 67.905 37.752 89.968 68.906z"/>
+      <path d="M256 48C141.137 48 48 141.136 48 256s93.137 208 208 208c114.872 0 208-93.138 208-208S370.87 48 256 48zm41.151 394.179c-13.514 2.657-30.327 4.187-44 4.45a190.525 190.525 0 0 1-38.5-4.493 978.146 978.146 0 0 1-6.805-1.777l-24.417-65.435L203.074 336h105.854l.57 1.076 19.34 38.852-23.618 64.282a189.782 189.782 0 0 1-8.069 1.969zM189.578 77.28 247 116.576v58.147l-70.997 60.067-49.403-22.51-4.167-1.899-22.332-64.019c22.009-31.204 53.138-55.532 89.477-69.082zm221.986 68.787-22.432 64.483-53.992 24.388L264 174.723v-58.147l57.596-39.415c36.362 13.483 67.905 37.752 89.968 68.906zM66.144 273.414l53.756-46.518 49.539 22.599.559.255 19.718 77.287-20.433 38.529-69.86-.915c-18.348-26.36-30.214-57.546-33.279-91.237zm276.575 92.151-20.434-38.529 19.752-77.416 49.997-22.781 53.822 46.575c-3.065 33.691-14.932 64.877-33.277 91.236l-69.86.915z"/>
     </svg>
+  )
+}
+
+function TShirt({ side }: { bg: string; color: string; abbr: string; side: 'home' | 'away' }) {
+  return (
+    <img
+      src={side === 'home' ? '/teams/jersey1.png' : '/teams/jersey2.png'}
+      width={30}
+      height={30}
+      style={{ objectFit: 'contain' }}
+      alt="jersey"
+      className="flex-shrink-0"
+    />
   )
 }
 
@@ -89,8 +102,17 @@ export default function PreMatchLeagueScreen() {
   const [notified, setNotified] = useState<Set<number>>(new Set())
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
   const [selectedOdds, setSelectedOdds] = useState<Set<string>>(new Set())
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const fixtures = fixturesByLeague[leagueName] ?? fixturesByLeague['default']
+  const allFixtures = fixturesByLeague[leagueName] ?? fixturesByLeague['default']
+  const fixtures = searchQuery.trim()
+    ? allFixtures.filter(f =>
+        f.home.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.away.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.league.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allFixtures
 
   function toggleNotify(id: number) {
     setNotified(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
@@ -107,14 +129,32 @@ export default function PreMatchLeagueScreen() {
 
       {/* ── Header ── */}
       <div className="bg-white px-4 pt-3 pb-2 flex items-center gap-2 shadow-sm">
-        <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+        <button onClick={() => { if (searchOpen) { setSearchOpen(false); setSearchQuery('') } else router.back() }}
+          className="w-8 h-8 flex items-center justify-center flex-shrink-0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m15 18-6-6 6-6"/>
           </svg>
         </button>
-        <h1 className="flex-1 text-[16px] font-bold text-[#1a2332] text-center truncate">{leagueName}</h1>
-        <button className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round">
+        {searchOpen ? (
+          <div className="flex-1 flex items-center gap-2 bg-[#f1f5f9] rounded-full px-3 py-[7px]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Maç ara..." className="flex-1 bg-transparent text-[13px] text-[#1a2332] placeholder-[#94a3b8] outline-none"/>
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        ) : (
+          <h1 className="flex-1 text-[16px] font-bold text-[#1a2332] text-center truncate">{leagueName}</h1>
+        )}
+        <button onClick={() => setSearchOpen(true)} className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? '#0E8FCF' : '#1a2332'} strokeWidth="2" strokeLinecap="round">
             <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
           </svg>
         </button>
@@ -150,7 +190,7 @@ export default function PreMatchLeagueScreen() {
               {/* Card header */}
               <div className="flex items-center gap-2 px-3 py-[7px] border-b border-[#f0f4f8]">
                 <SportIcon />
-                <span className="flex-1 text-[10px] font-semibold text-[#1a2332] truncate">{fixture.league}</span>
+                <span className="flex-1 text-[11px] font-medium text-[#737B8C] truncate">{fixture.league}</span>
                 <button onClick={() => toggleNotify(fixture.id)} className="w-7 h-7 flex items-center justify-center">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill={isNotified ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -163,58 +203,42 @@ export default function PreMatchLeagueScreen() {
                 </button>
               </div>
 
-              {/* Teams row */}
-              <div className="flex items-center justify-between px-3 pt-[10px] pb-[2px]">
+              {/* Teams + score row */}
+              <div className="flex items-center px-3 pt-[10px] pb-[4px] gap-[6px]">
                 {/* Home */}
-                <div className="flex items-center gap-[8px] flex-1">
-                  <span className="text-[11px] font-bold text-[#1a2332]">{fixture.home.name}</span>
-                  <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: fixture.home.badge.bg }}>
-                    <span className="text-[9px] font-extrabold" style={{ color: fixture.home.badge.color }}>
-                      {fixture.home.badge.abbr}
-                    </span>
-                  </div>
+                <span className="text-[12px] font-bold text-[#1a2332] flex-1 text-right truncate">{fixture.home.name}</span>
+                <TShirt bg={fixture.home.badge.bg} color={fixture.home.badge.color} abbr={fixture.home.badge.abbr} side="home"/>
+
+                {/* Score / date */}
+                <div className="flex flex-col items-center flex-shrink-0 mx-[2px]">
+                  <span className="text-[13px] font-extrabold text-[#1a2332] tabular-nums leading-tight">0 : 0</span>
                 </div>
 
-                {/* VS */}
-                <span className="text-[11px] font-bold text-[#94a3b8] mx-[6px] flex-shrink-0">VS</span>
-
+                <TShirt bg={fixture.away.badge.bg} color={fixture.away.badge.color} abbr={fixture.away.badge.abbr} side="away"/>
                 {/* Away */}
-                <div className="flex items-center gap-[8px] flex-1 justify-end">
-                  <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: fixture.away.badge.bg }}>
-                    <span className="text-[9px] font-extrabold" style={{ color: fixture.away.badge.color }}>
-                      {fixture.away.badge.abbr}
-                    </span>
-                  </div>
-                  <span className="text-[11px] font-bold text-[#1a2332]">{fixture.away.name}</span>
-                </div>
+                <span className="text-[12px] font-bold text-[#1a2332] flex-1 truncate">{fixture.away.name}</span>
               </div>
 
               {/* Date */}
-              <p className="text-center text-[10px] text-[#0E8FCF] font-medium py-[5px]">{fixture.date}</p>
+              <p className="text-center text-[10px] text-[#737B8C] font-medium pb-[6px]">{fixture.date}</p>
 
-              {/* 1X2 odds */}
+              {/* Odds */}
               <div className="px-3 pb-[10px]">
-                <p className="text-[10px] font-bold text-[#1a2332] mb-[5px]">1X2</p>
                 <div className="grid grid-cols-3 gap-[5px]">
                   {[
-                    { label: 'W1', value: fixture.odds.w1 },
-                    { label: 'X',  value: fixture.odds.x  },
-                    { label: 'W2', value: fixture.odds.w2 },
+                    { label: 'EV1', value: fixture.odds.w1 },
+                    { label: 'X',   value: fixture.odds.x  },
+                    { label: 'DEP2',value: fixture.odds.w2 },
                   ].map(odd => {
                     const key = `${fixture.id}-${odd.label}`
                     const sel = selectedOdds.has(key)
                     return (
-                      <button
-                        key={odd.label}
-                        onClick={() => toggleOdd(key)}
-                        className={`flex items-center justify-between px-2 py-[7px] rounded-[8px] border transition-all ${
+                      <button key={odd.label} onClick={() => toggleOdd(key)}
+                        className={`flex flex-col items-start px-[10px] py-[7px] rounded-[8px] border transition-all ${
                           sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#f4f7fb] border-[#e8ecf1] hover:border-[#0E8FCF]'
-                        }`}
-                      >
-                        <span className={`text-[9px] font-medium ${sel ? 'text-white/80' : 'text-[#94a3b8]'}`}>{odd.label}</span>
-                        <span className={`text-[11px] font-extrabold tabular-nums ${sel ? 'text-white' : 'text-[#1a2332]'}`}>{odd.value}</span>
+                        }`}>
+                        <span className={`text-[9px] font-medium leading-none mb-[3px] ${sel ? 'text-white/80' : 'text-[#94a3b8]'}`}>{odd.label}</span>
+                        <span className={`text-[12px] font-extrabold tabular-nums leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>{odd.value}</span>
                       </button>
                     )
                   })}

@@ -109,9 +109,21 @@ export default function LiveSportScreen() {
   const [activeTimeFilter, setActiveTimeFilter] = useState(0)
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [countryFilter, setCountryFilter] = useState('')
+  const [countrySheetOpen, setCountrySheetOpen] = useState(false)
 
   const currentSport = sportTabs[activeSport].label
-  const tournaments = activeTab === 0 ? (tournamentMap[currentSport] ?? []) : prematchTournaments
+  const baseTournaments = activeTab === 0 ? (tournamentMap[currentSport] ?? []) : prematchTournaments
+
+  const uniqueFlags = [...new Set(baseTournaments.map(t => t.flag))]
+
+  const tournaments = baseTournaments.filter(t => {
+    const matchesSearch = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCountry = !countryFilter || t.flag === countryFilter
+    return matchesSearch && matchesCountry
+  })
 
   function toggleExpand(id: number) {
     setExpanded(prev => {
@@ -160,7 +172,7 @@ export default function LiveSportScreen() {
           </div>
 
           {/* Name */}
-          <span className="flex-1 text-[12px] font-medium text-[#1a2332] text-left truncate">{t.name}</span>
+          <span className="flex-1 text-[11px] font-medium text-[#1a2332] text-left truncate">{t.name}</span>
 
           {/* Count */}
           <span className="text-[11px] font-semibold text-[#737B8C] mr-2 flex-shrink-0">{t.count}</span>
@@ -196,32 +208,63 @@ export default function LiveSportScreen() {
 
       {/* ── Header ── */}
       <div className="bg-white sticky top-0 z-30 shadow-sm">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2">
-          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6"/>
-            </svg>
-          </button>
-          <h1 className="text-[16px] font-bold text-[#1a2332]">Turnuvalar</h1>
-          <div className="flex items-center gap-[2px]">
-            <button className="w-9 h-9 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round">
+        {searchOpen ? (
+          /* Search mode */
+          <div className="flex items-center gap-2 px-4 pt-3 pb-2">
+            <button onClick={() => { setSearchOpen(false); setSearchQuery('') }} className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
+            <div className="flex-1 flex items-center gap-2 bg-[#f1f5f9] rounded-full px-3 py-[7px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
                 <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
               </svg>
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-              </svg>
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
-              </svg>
-            </button>
+              <input
+                autoFocus
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Turnuva ara..."
+                className="flex-1 bg-transparent text-[13px] text-[#1a2332] placeholder-[#94a3b8] outline-none"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Normal header */
+          <div className="flex items-center justify-between px-4 pt-3 pb-2">
+            <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            </button>
+            <h1 className="text-[16px] font-bold text-[#1a2332]">Turnuvalar</h1>
+            <div className="flex items-center gap-[2px]">
+              <button onClick={() => setSearchOpen(true)} className="w-9 h-9 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round">
+                  <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                </svg>
+              </button>
+              <button onClick={() => setCountrySheetOpen(true)} className="w-9 h-9 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={countryFilter ? '#0E8FCF' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+              </button>
+              <button className="w-9 h-9 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* CANLI / Maç Öncesi tabs */}
         <div className="px-4 pb-2">
@@ -246,7 +289,7 @@ export default function LiveSportScreen() {
               <button
                 key={f}
                 onClick={() => setActiveTimeFilter(i)}
-                className={`flex-shrink-0 px-[10px] py-[5px] rounded-full text-[10px] font-semibold transition-all ${
+                className={`flex-shrink-0 px-[10px] py-[5px] rounded-full text-[10px] font-medium transition-all ${
                   activeTimeFilter === i
                     ? 'bg-[#0E8FCF] text-white shadow-sm'
                     : 'bg-white text-[#1a2332] border border-[#e8ecf1]'
@@ -260,17 +303,64 @@ export default function LiveSportScreen() {
       </div>
 
       {/* ── Sport section header ── */}
-      <div className="flex items-center gap-2 px-3 py-[7px]">
-        <div className="flex-shrink-0 scale-75 origin-left">{sportTabs[activeSport].icon}</div>
+      <div className="flex items-center gap-[4px] px-3 py-[7px]">
+        <div className="flex-shrink-0 w-[16px] h-[16px] flex items-center justify-center" style={{ transform: 'scale(0.72)', transformOrigin: 'center' }}>
+          {sportTabs[activeSport].icon}
+        </div>
         <span className="text-[12px] font-bold text-[#1a2332]">{currentSport}</span>
+        {countryFilter && (
+          <button onClick={() => setCountryFilter('')} className="ml-1 flex items-center gap-1 bg-[#edf5ff] rounded-full px-2 py-[2px]">
+            <span className="text-[11px]">{countryFilter}</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="3" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* ── Tournament list ── */}
       <div className="rounded-xl overflow-hidden mx-3 mb-24 shadow-sm">
-        {tournaments.map(t => (
-          <TournamentRow key={t.id} t={t} />
-        ))}
+        {tournaments.length === 0 ? (
+          <div className="bg-white py-8 text-center">
+            <p className="text-[12px] text-[#94a3b8]">Sonuç bulunamadı.</p>
+          </div>
+        ) : (
+          tournaments.map(t => <TournamentRow key={t.id} t={t} />)
+        )}
       </div>
+
+      {/* ── Country filter bottom sheet ── */}
+      {countrySheetOpen && (
+        <>
+          <div className="fixed inset-0 z-[70] bg-black/40" onClick={() => setCountrySheetOpen(false)}/>
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[80] bg-white rounded-t-2xl" style={{ maxHeight: '60vh', display: 'flex', flexDirection: 'column' }}>
+            <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+              <div className="w-10 h-1 rounded-full bg-[#e2e8f0]"/>
+            </div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#f0f2f5] flex-shrink-0">
+              <h3 className="text-[14px] font-bold text-[#1a2332]">Ülkeye Göre Filtrele</h3>
+              {countryFilter && (
+                <button onClick={() => { setCountryFilter(''); setCountrySheetOpen(false) }} className="text-[11px] text-[#ef4444] font-semibold">
+                  Temizle
+                </button>
+              )}
+            </div>
+            <div className="overflow-y-auto flex-1 pb-6">
+              {uniqueFlags.map(flag => (
+                <button key={flag} onClick={() => { setCountryFilter(flag === countryFilter ? '' : flag); setCountrySheetOpen(false) }}
+                  className={`w-full flex items-center gap-3 px-4 py-[11px] border-b border-[#f0f2f5] transition-colors ${flag === countryFilter ? 'bg-[#edf5ff]' : ''}`}>
+                  <span className="text-[20px]">{flag}</span>
+                  {flag === countryFilter && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-auto">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

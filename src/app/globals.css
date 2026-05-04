@@ -142,6 +142,23 @@ html.dark .stroke-\[\#1a2332\] {
   stroke: #e4e8ec !important;
 }
 
+/* ── SVG inline attribute overrides for dark mode ── */
+html.dark svg[stroke="#1a2332"] {
+  stroke: #e4e8ec !important;
+}
+
+html.dark svg[fill="#1a2332"] {
+  fill: #e4e8ec !important;
+}
+
+html.dark svg path[stroke="#1a2332"] {
+  stroke: #e4e8ec !important;
+}
+
+html.dark svg path[fill="#1a2332"] {
+  fill: #e4e8ec !important;
+}
+
 html.dark input {
   color: #e4e8ec !important;
 }
@@ -186,6 +203,65 @@ html.dark .text-\[\#16a34a\] {
 
 html.dark .bg-\[\#f1f5f9\] {
   background-color: #1e2a3a !important;
+}
+
+/* ── Kupon screens dark mode ── */
+html.dark .bg-\[\#edf1f7\] {
+  background-color: #0f1419 !important;
+}
+
+html.dark .bg-\[\#f4f7fb\] {
+  background-color: #1a2535 !important;
+}
+
+html.dark .bg-\[\#f8fafc\] {
+  background-color: #1a2535 !important;
+}
+
+html.dark .bg-\[\#f4f6f9\] {
+  background-color: #1a2535 !important;
+}
+
+html.dark .bg-\[\#e8f5e9\] {
+  background-color: rgba(39,174,96,0.12) !important;
+}
+
+html.dark .border-\[\#c8d8e8\] {
+  border-color: #2a3a4a !important;
+}
+
+html.dark .border-\[\#d0e8f8\] {
+  border-color: #253040 !important;
+}
+
+html.dark .border-\[\#bce0f5\] {
+  border-color: #253040 !important;
+}
+
+html.dark .border-\[\#b8d4ec\] {
+  border-color: #253040 !important;
+}
+
+html.dark .bg-\[\#f4f8fb\] {
+  background-color: #1a2535 !important;
+}
+
+html.dark .divide-y > * {
+  border-color: #253040 !important;
+}
+
+html.dark .text-\[\#0E8FCF\] {
+  color: #4db8e8 !important;
+}
+
+html.dark .placeholder-\[\#94a3b8\]::placeholder {
+  color: #3a4a5a !important;
+}
+
+html.dark .bg-\[\#071428\],
+html.dark [style*="background: linear-gradient(135deg,#071428"],
+html.dark [style*="background: linear-gradient(180deg,#071428"] {
+  background-color: #050d1a !important;
 }
 
 @layer utilities {
