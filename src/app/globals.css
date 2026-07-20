@@ -264,6 +264,7 @@ html.dark [style*="background: linear-gradient(180deg,#071428"] {
   background-color: #050d1a !important;
 }
 
+<<<<<<< HEAD
 /* ── Dark mode: light hover/active backgrounds ──
    Tailwind's hover:/active: variants generate their own classes, which the
    plain .bg-[...] overrides above don't touch — so a light hover bg would wash
@@ -284,6 +285,8 @@ html.dark [class~="hover:bg-[#fde8e8]"]:hover {
   background-color: rgba(231, 76, 60, 0.14) !important;
 }
 
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -294,6 +297,7 @@ html.dark [class~="hover:bg-[#fde8e8]"]:hover {
   }
 }
 
+<<<<<<< HEAD
 /* ── Notifications page (betadonis-style) dark mode ── */
 html.dark .bg-\[\#eef2f7\] { background-color: #0f1419 !important; }
 html.dark .border-\[\#eef2f7\] { border-color: #253040 !important; }
@@ -688,6 +692,8 @@ html.dark .auth-hero {
   .auth-sheen { display: none; }
 }
 
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }

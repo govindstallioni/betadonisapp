@@ -1,9 +1,15 @@
 'use client'
 
+<<<<<<< HEAD
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import NotifyBell from '@/components/NotifyBell'
+=======
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 interface EventDetailProps {
   event: {
@@ -30,7 +36,11 @@ const generateDates = () => {
   return dates
 }
 
+<<<<<<< HEAD
 type EventDate = ReturnType<typeof generateDates>[number]
+=======
+const dates = generateDates()
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 const preMatchEvents = [
   {
@@ -118,6 +128,7 @@ const playoffTeams = [
 export default function EventDetail({ event }: EventDetailProps) {
   const [activeTab, setActiveTab] = useState(0)
   const [activeDate, setActiveDate] = useState(0)
+<<<<<<< HEAD
   // Build the date list client-side after mount so server and client HTML match
   // (new Date() at module scope can differ across timezone/day boundaries → hydration mismatch)
   const [dates, setDates] = useState<EventDate[]>([])
@@ -127,6 +138,10 @@ export default function EventDetail({ event }: EventDetailProps) {
     setDates(generateDates())
   }, [])
 
+=======
+  const router = useRouter()
+
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
       {/* Hero Banner */}
@@ -214,7 +229,14 @@ export default function EventDetail({ event }: EventDetailProps) {
                       <span className="text-[10px] text-[#737B8C] font-medium">{match.league}</span>
                     </div>
                     <div className="flex items-center gap-[8px]">
+<<<<<<< HEAD
                       <NotifyBell size={14} />
+=======
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                      </svg>
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                       </svg>
@@ -367,7 +389,14 @@ export default function EventDetail({ event }: EventDetailProps) {
                       <span className="text-[10px] text-[#737B8C] font-medium">{match.league}</span>
                     </div>
                     <div className="flex items-center gap-[8px]">
+<<<<<<< HEAD
                       <NotifyBell size={14} />
+=======
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                      </svg>
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                       </svg>

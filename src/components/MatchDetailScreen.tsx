@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+<<<<<<< HEAD
 import NotifyBell from '@/components/NotifyBell'
 import FavoriteStar from '@/components/FavoriteStar'
 import { useBetSlip } from '@/components/BetSlipProvider'
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 // ── Static match data ──────────────────────────────────────────
 
@@ -317,7 +320,11 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   const [expandedMarkets, setExpandedMarkets] = useState<Set<number>>(
     new Set(allMarkets.map((m, i) => (m.rows.length > 0 ? i : -1)).filter(i => i >= 0))
   )
+<<<<<<< HEAD
   const { has, toggle } = useBetSlip()
+=======
+  const [selectedOdds, setSelectedOdds] = useState<Set<string>>(new Set())
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
   const visibleMarkets = allMarkets.filter(m => m.tabs.includes(activeFilter))
 
@@ -330,6 +337,7 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
     })
   }
 
+<<<<<<< HEAD
   // Stable id per outcome so the same pick dedupes across market tabs and screens.
   const oddId = (marketTitle: string, label: string) => `${match.id}::${marketTitle}::${label}`
   const pickOdd = (marketTitle: string, odd: MarketRow) => toggle({
@@ -340,6 +348,16 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
     pick: odd.label,
     baseOdd: parseFloat(odd.value) || 1,
   })
+=======
+  const toggleOdd = (key: string) => {
+    setSelectedOdds(prev => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative pb-20">
@@ -354,6 +372,7 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
           </button>
           <h1 className="text-[13px] font-semibold text-white truncate max-w-[220px] text-center">{match.league}</h1>
           <div className="flex items-center gap-1">
+<<<<<<< HEAD
             <FavoriteStar
               size={18}
               inactiveStroke="white"
@@ -373,6 +392,8 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
               }}
             />
             <NotifyBell size={18} stroke="white" className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors" />
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
             <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
                 <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
@@ -569,11 +590,20 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
                       {market.rows.map((row, ri) => (
                         <div key={ri} className="flex gap-[6px]">
                           {row.map((odd, oi) => {
+<<<<<<< HEAD
                             const sel = has(oddId(market.title, odd.label))
                             return (
                               <button
                                 key={oi}
                                 onClick={() => pickOdd(market.title, odd)}
+=======
+                            const key = `${globalIdx}-${ri}-${oi}`
+                            const sel = selectedOdds.has(key)
+                            return (
+                              <button
+                                key={oi}
+                                onClick={() => toggleOdd(key)}
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                                 className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all active:scale-[0.97] ${
                                   sel
                                     ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)]'
@@ -615,18 +645,31 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
 
             {sectionOpen && (
               <div className="px-4 pt-1 pb-3">
+<<<<<<< HEAD
                 {visibleMarkets.map((market) => (
+=======
+                {visibleMarkets.map((market, mi) => (
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                   <div key={market.title} className="mt-3 first:mt-2">
                     <p className="text-[12px] font-bold text-[#1a2332] mb-2">{market.title}</p>
                     <div className="flex flex-col gap-[6px]">
                       {market.rows.map((row, ri) => (
                         <div key={ri} className="flex gap-[6px]">
                           {row.map((odd, oi) => {
+<<<<<<< HEAD
                             const sel = has(oddId(market.title, odd.label))
                             return (
                               <button
                                 key={oi}
                                 onClick={() => pickOdd(market.title, odd)}
+=======
+                            const key = `p-${activeFilter}-${mi}-${ri}-${oi}`
+                            const sel = selectedOdds.has(key)
+                            return (
+                              <button
+                                key={oi}
+                                onClick={() => toggleOdd(key)}
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                                 className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all active:scale-[0.97] ${
                                   sel
                                     ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)]'

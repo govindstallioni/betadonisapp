@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+<<<<<<< HEAD
 import { useBetSlip } from '@/components/BetSlipProvider'
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 const matchData = {
   league: 'Futbol. ABD. USL',
@@ -66,7 +69,11 @@ export default function LiveMatchDetail() {
   const [pinned, setPinned]               = useState<Set<string>>(new Set())
   const [favHome, setFavHome]             = useState(false)
   const [favAway, setFavAway]             = useState(false)
+<<<<<<< HEAD
   const { has, toggle } = useBetSlip()
+=======
+  const [selectedOdds, setSelectedOdds]   = useState<Set<string>>(new Set())
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   const [oneClickSheet, setOneClickSheet] = useState(false)
   const [oneClickEnabled, setOneClickEnabled] = useState(true)
   const [stakeAmount, setStakeAmount]     = useState('0.5')
@@ -77,6 +84,7 @@ export default function LiveMatchDetail() {
   function togglePin(id: string) {
     setPinned(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   }
+<<<<<<< HEAD
   // Stable id per outcome so live picks dedupe and persist in the global slip.
   const oddId = (marketName: string, label: string) => `live-${matchData.home.abbr}-${matchData.away.abbr}::${marketName}::${label}`
   const pickOdd = (marketName: string, odd: { label: string; value: string }) => toggle({
@@ -87,6 +95,11 @@ export default function LiveMatchDetail() {
     pick: odd.label,
     baseOdd: parseFloat(odd.value) || 1,
   })
+=======
+  function toggleOdd(key: string) {
+    setSelectedOdds(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n })
+  }
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
   return (
     <div className="max-w-[430px] mx-auto bg-[#f0f4f8] min-h-screen">
@@ -306,9 +319,16 @@ export default function LiveMatchDetail() {
                   {market.rows.map((row, ri) => (
                     <div key={ri} className="grid gap-[6px]" style={{ gridTemplateColumns: `repeat(${row.length}, 1fr)` }}>
                       {row.map(odd => {
+<<<<<<< HEAD
                         const sel = has(oddId(market.name, odd.label))
                         return (
                           <button key={odd.label} onClick={() => pickOdd(market.name, odd)}
+=======
+                        const key = `${market.id}-${ri}-${odd.label}`
+                        const sel = selectedOdds.has(key)
+                        return (
+                          <button key={odd.label} onClick={() => toggleOdd(key)}
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                             className={`flex items-center justify-between px-[10px] py-[10px] rounded-[10px] border transition-all ${
                               sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#f4f7fb] border-[#e8ecf1]'
                             }`}>

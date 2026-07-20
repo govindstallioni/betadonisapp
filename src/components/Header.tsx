@@ -2,13 +2,17 @@
 
 import Link from 'next/link'
 import { useTheme } from './ThemeProvider'
+<<<<<<< HEAD
 import { useAuth } from './AuthProvider'
 
 const fmtBalance = (n: number) => `${n.toFixed(2).replace('.', ',')} ₺`
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme()
   const darkMode = theme === 'dark'
+<<<<<<< HEAD
   const { loaded, isLoggedIn, balance } = useAuth()
 
   return (
@@ -30,6 +34,16 @@ export default function Header() {
         </div>
         <Link href="/">
           <img src={darkMode ? '/logo-dark.png' : '/logo.png'} alt="BetAdonis" className="h-[20px] object-contain" />
+=======
+
+  return (
+    <header className="bg-white">
+      {/* Top row: logo centered, icons right */}
+      <div className="flex items-center justify-between px-4 h-[48px]">
+        <div className="w-[68px]" />
+        <Link href="/">
+          <img src="/logo.png" alt="BetAdonis" className="h-[20px] object-contain" />
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
         </Link>
         <div className="flex items-center gap-1">
           <button onClick={toggleTheme} className="w-8 h-8 flex items-center justify-center">
@@ -47,6 +61,7 @@ export default function Header() {
               </svg>
             )}
           </button>
+<<<<<<< HEAD
           <Link href="/settings" aria-label="Ayarlar" className="w-8 h-8 flex items-center justify-center">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={darkMode ? '#e4e8ec' : '#1a2332'} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
@@ -80,6 +95,26 @@ export default function Header() {
           </Link>
         </div>
       )}
+=======
+          <button className="w-8 h-8 flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={darkMode ? '#e4e8ec' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Auth buttons row */}
+      <div className="flex items-center gap-3 px-4 pb-3">
+        <Link href="/login" className="flex-1 h-[40px] rounded-full border-2 border-[#0E8FCF] text-[#0E8FCF] text-[12px] font-medium tracking-wide flex items-center justify-center">
+          Giriş Yap
+        </Link>
+        <Link href="/register" className="flex-1 h-[40px] rounded-full bg-[#0E8FCF] text-white text-[12px] font-medium tracking-wide flex items-center justify-center">
+          Kayıt Ol
+        </Link>
+      </div>
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
       <div className="h-[1px] bg-border" />
     </header>

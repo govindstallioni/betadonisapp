@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 import { gameHref } from './gameHref'
+=======
+import SectionHeader from './SectionHeader'
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 const spotlightGames = [
   {
@@ -94,10 +98,16 @@ export default function InTheSpotlight() {
       <SectionHeader title="Günün Öne Çıkanları" badge="Casino Oyunları" showAll />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {spotlightGames.map((game) => (
+<<<<<<< HEAD
           <Link
             href={gameHref(game.name, game.image, game.provider)}
             key={game.name}
             className="block flex-shrink-0 w-[70%] rounded-2xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform relative overflow-hidden"
+=======
+          <div
+            key={game.name}
+            className="flex-shrink-0 w-[70%] rounded-2xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform relative overflow-hidden"
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
           >
             <img src={game.image} alt={game.name} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -107,7 +117,11 @@ export default function InTheSpotlight() {
               </span>
               <span className="text-[9px] font-medium text-white/60 mt-[2px]">{game.provider}</span>
             </div>
+<<<<<<< HEAD
           </Link>
+=======
+          </div>
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
         ))}
       </div>
     </div>

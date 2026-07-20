@@ -1,8 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+<<<<<<< HEAD
 import { useRouter } from 'next/navigation'
 import { gameHref } from './gameHref'
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 type Tab = 'casino' | 'spor'
 
@@ -16,12 +19,17 @@ const casinoPool = [
   { game: 'Great 27',                  image: '/canli-casino/7.jpg',  amount: 0 },
   { game: 'Flaming Hot Extreme Be.',   image: '/canli-casino/8.jpg',  amount: 980.00 },
   { game: 'Starlight Princess 1000',   image: '/canli-casino/9.png',  amount: 0 },
+<<<<<<< HEAD
   { game: 'Zombie Outbreak',           image: '/canli-casino/10.png', amount: 0 },
+=======
+  { game: 'Zombie Outbreak',           image: '/canli-casino/10.jpg', amount: 0 },
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   { game: 'Gates of Olympus',          image: '/canli-casino/11.png', amount: 2450.00 },
   { game: 'Sweet Bonanza',             image: '/canli-casino/1.jpg',  amount: 375.50 },
 ]
 
 const sporPool = [
+<<<<<<< HEAD
   { game: 'Beşiktaş - Galatasaray',   image: '/events/turkey-league.png',    amount: 840.00 },
   { game: 'Barcelona - Real Madrid',  image: '/events/champions-league.png', amount: 0 },
   { game: 'Man City - Arsenal',       image: '/events/europa-league.png',    amount: 1250.00 },
@@ -32,6 +40,18 @@ const sporPool = [
   { game: 'Dortmund - Leipzig',       image: '/events/champions-league.png', amount: 0 },
   { game: 'Ajax - PSV',               image: '/events/europa-league.png',    amount: 190.00 },
   { game: 'Porto - Benfica',          image: '/events/champions-league.png', amount: 0 },
+=======
+  { game: 'Beşiktaş - Galatasaray',   image: '/events/1.png', amount: 840.00 },
+  { game: 'Barcelona - Real Madrid',  image: '/events/2.png', amount: 0 },
+  { game: 'Man City - Arsenal',       image: '/events/3.png', amount: 1250.00 },
+  { game: 'PSG - Bayern Münih',       image: '/events/4.png', amount: 0 },
+  { game: 'Fenerbahçe - Trabzonspor', image: '/events/5.png', amount: 320.00 },
+  { game: 'Liverpool - Chelsea',      image: '/events/6.png', amount: 0 },
+  { game: 'Inter - Juventus',         image: '/events/7.png', amount: 560.00 },
+  { game: 'Dortmund - Leipzig',       image: '/events/1.png', amount: 0 },
+  { game: 'Ajax - PSV',               image: '/events/2.png', amount: 190.00 },
+  { game: 'Porto - Benfica',          image: '/events/3.png', amount: 0 },
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 ]
 
 const avatars = ['🧑', '👤', '🎮', '🏆', '⚽', '🎲', '👑', '🃏', '🎯', '🌟']
@@ -63,6 +83,7 @@ function randomWinner(pool: typeof casinoPool): Winner {
 }
 
 export default function EnsonKazananlar() {
+<<<<<<< HEAD
   const router = useRouter()
   const [tab, setTab] = useState<Tab>('casino')
   const [expanded, setExpanded] = useState(false)
@@ -70,6 +91,12 @@ export default function EnsonKazananlar() {
   // generated on the client in the mount effect below (avoids hydration mismatch).
   const [casinoList, setCasinoList] = useState<Winner[]>([])
   const [sporList, setSporList]   = useState<Winner[]>([])
+=======
+  const [tab, setTab] = useState<Tab>('casino')
+  const [expanded, setExpanded] = useState(false)
+  const [casinoList, setCasinoList] = useState<Winner[]>(() => buildList(casinoPool, 10))
+  const [sporList, setSporList]   = useState<Winner[]>(() => buildList(sporPool, 10))
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   const [newId, setNewId] = useState<number | null>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -78,12 +105,15 @@ export default function EnsonKazananlar() {
   const pool       = tab === 'casino' ? casinoPool : sporPool
   const displayCount = expanded ? 10 : 5
 
+<<<<<<< HEAD
   // Populate the initial random lists client-side, after hydration
   useEffect(() => {
     setCasinoList(buildList(casinoPool, 10))
     setSporList(buildList(sporPool, 10))
   }, [])
 
+=======
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   // Live stream: every 2.5s prepend a new winner, drop the last one
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -129,8 +159,12 @@ export default function EnsonKazananlar() {
         {list.slice(0, displayCount).map((w, i) => (
           <div
             key={w.id}
+<<<<<<< HEAD
             onClick={() => { if (tab === 'casino') router.push(gameHref(w.game, w.image)) }}
             className={`flex items-center gap-[10px] px-[14px] py-[9px] overflow-hidden${tab === 'casino' ? ' cursor-pointer hover:bg-[#f0f7ff]' : ''}${newId === w.id ? ' animate-slide-down-in bg-[rgba(14,143,207,0.06)]' : i % 2 === 0 ? ' bg-[#fafbfc]' : ' bg-white'}${i < displayCount - 1 ? ' border-b border-[#f1f5f9]' : ''}`}
+=======
+            className={`flex items-center gap-[10px] px-[14px] py-[9px] overflow-hidden${newId === w.id ? ' animate-slide-down-in bg-[rgba(14,143,207,0.06)]' : i % 2 === 0 ? ' bg-[#fafbfc]' : ' bg-white'}${i < displayCount - 1 ? ' border-b border-[#f1f5f9]' : ''}`}
+>>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
           >
             {/* Game icon */}
             <div className="w-[32px] h-[32px] rounded-lg overflow-hidden flex-shrink-0 bg-[#f1f5f9]">
