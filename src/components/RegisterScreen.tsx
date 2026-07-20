@@ -3,11 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-<<<<<<< HEAD
 import AuthHero from '@/components/AuthHero'
 import { useAuth } from '@/components/AuthProvider'
-=======
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 const chevronDown = (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -141,7 +138,6 @@ function FormHeader({ title, subtitle, onBack }: { title: string; subtitle: stri
 }
 
 function BottomButton() {
-<<<<<<< HEAD
   const router = useRouter()
   const { login } = useAuth()
   const handleRegister = () => {
@@ -151,11 +147,6 @@ function BottomButton() {
   return (
     <div className="sticky bottom-0 px-4 py-2 bg-bg">
       <button onClick={handleRegister} className="w-full py-[12px] bg-[#27ae60] text-white text-[13px] font-medium rounded-xl hover:bg-[#219a52] transition-colors">Kayıt Ol</button>
-=======
-  return (
-    <div className="sticky bottom-0 px-4 py-2 bg-bg">
-      <button className="w-full py-[12px] bg-[#27ae60] text-white text-[13px] font-medium rounded-xl hover:bg-[#219a52] transition-colors">Kayıt Ol</button>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
     </div>
   )
 }
@@ -306,28 +297,12 @@ export default function RegisterScreen() {
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
-<<<<<<< HEAD
       {/* Animated hero */}
       <div className="relative h-[240px] overflow-hidden">
         <button onClick={() => router.back()} className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
         </button>
         <AuthHero variant="register" />
-=======
-      {/* Hero */}
-      <div className="relative h-[240px] bg-[#dce8f5] overflow-hidden">
-        <button onClick={() => router.back()} className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
-        </button>
-        <svg viewBox="0 0 430 320" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
-          <circle cx="140" cy="130" r="160" fill="#e0e8ef" />
-          <circle cx="140" cy="130" r="155" fill="#eef2f6" />
-          <circle cx="370" cy="140" r="110" fill="#f0a030" opacity="0.8" />
-          <circle cx="370" cy="140" r="105" fill="#e89520" opacity="0.6" />
-          <circle cx="280" cy="320" r="55" fill="#a4e34a" />
-          <circle cx="280" cy="320" r="52" fill="#8fd630" />
-        </svg>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
       </div>
 
       {/* Methods */}

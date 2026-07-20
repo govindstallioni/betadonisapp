@@ -80,27 +80,17 @@ function WheelSVG({ size, opacity = 1 }: { size: number; opacity?: number }) {
 export default function CarkiKazananlar() {
   const [tab, setTab]             = useState<Tab>('enson')
   const [expanded, setExpanded]   = useState(false)
-<<<<<<< HEAD
   // Start empty/null so server and client render identically; random data is
   // generated on the client in the mount effect below (avoids hydration mismatch).
   const [ensonList, setEnsonList]       = useState<Winner[]>([])
   const [enYuksekList, setEnYuksekList] = useState<Winner[]>([])
   const [flashId, setFlashId]           = useState<number | null>(null)
   const [totalToday, setTotalToday]     = useState<number | null>(null)
-=======
-  const [ensonList, setEnsonList] = useState<Winner[]>(() => buildList(10))
-  const [enYuksekList]            = useState<Winner[]>(() =>
-    buildList(10).sort((a, b) => b.amount - a.amount)
-  )
-  const [flashId, setFlashId]     = useState<number | null>(null)
-  const [totalToday]              = useState(() => 120 + Math.floor(Math.random() * 80))
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const displayCount = expanded ? 10 : 4
   const list = tab === 'enson' ? ensonList : enYuksekList
 
-<<<<<<< HEAD
   // Populate the initial random data client-side, after hydration
   useEffect(() => {
     setEnsonList(buildList(10))
@@ -108,8 +98,6 @@ export default function CarkiKazananlar() {
     setTotalToday(120 + Math.floor(Math.random() * 80))
   }, [])
 
-=======
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   useEffect(() => {
     tickRef.current = setInterval(() => {
       setEnsonList(prev => prev.map(w => ({ ...w, secondsAgo: w.secondsAgo + 1 })))

@@ -3,11 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-<<<<<<< HEAD
 import NotifyBell from '@/components/NotifyBell'
 import LiveTag from '@/components/LiveTag'
-=======
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 interface LeagueDetailProps {
   league: { title: string; color: string }
@@ -139,24 +136,11 @@ export default function LeagueDetail({ league }: LeagueDetailProps) {
 
         {liveEvents.map((match, i) => (
           <Link key={i} href="/match?id=gal-fen" className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1] mb-3 block">
-<<<<<<< HEAD
             {/* Live header: indicator grouped with notify + favorite icons */}
             <div className="flex items-center justify-end gap-[6px] px-3 py-[6px] border-b border-[#f0f2f5]">
               <LiveTag />
               <div className="flex items-center gap-[6px]">
                 <NotifyBell size={12} />
-=======
-            {/* Live badge */}
-            <div className="flex items-center justify-between px-3 py-[6px] border-b border-[#f0f2f5]">
-              <div className="flex items-center gap-[3px] bg-[#fde8e8] rounded-full px-[6px] py-[2px]">
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M8 5v14l11-7z" /></svg>
-                <span className="text-[8px] text-[#e74c3c] font-semibold">CANLI</span>
-              </div>
-              <div className="flex items-center gap-[6px]">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
@@ -215,13 +199,7 @@ export default function LeagueDetail({ league }: LeagueDetailProps) {
               <div className="flex items-center justify-between px-3 py-[6px] border-b border-[#f0f2f5]">
                 <span className="text-[9px] text-[#737B8C] font-medium">{match.dateTime}</span>
                 <div className="flex items-center gap-[6px]">
-<<<<<<< HEAD
                   <NotifyBell size={12} />
-=======
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                   </svg>

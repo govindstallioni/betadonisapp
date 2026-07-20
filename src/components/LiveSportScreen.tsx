@@ -2,10 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-<<<<<<< HEAD
 import FavoriteStar from '@/components/FavoriteStar'
-=======
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 type Tournament = {
   id: number
@@ -112,23 +109,15 @@ export default function LiveSportScreen() {
   const [activeTab, setActiveTab] = useState(0)
   const [activeTimeFilter, setActiveTimeFilter] = useState(0)
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
-<<<<<<< HEAD
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   // 1xBet-style multi-select: any number of countries active at once; empty = all.
   const [countryFilters, setCountryFilters] = useState<Set<string>>(new Set())
-=======
-  const [favorites, setFavorites] = useState<Set<number>>(new Set())
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [countryFilter, setCountryFilter] = useState('')
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
   const [countrySheetOpen, setCountrySheetOpen] = useState(false)
 
   const currentSport = sportTabs[activeSport].label
   const baseTournaments = activeTab === 0 ? (tournamentMap[currentSport] ?? []) : prematchTournaments
 
-<<<<<<< HEAD
   // Distinct countries with how many tournaments each has (shown in the sheet).
   const flagOptions = [...new Set(baseTournaments.map(t => t.flag))].map(flag => ({
     flag,
@@ -146,13 +135,6 @@ export default function LiveSportScreen() {
   const tournaments = baseTournaments.filter(t => {
     const matchesSearch = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesCountry = countryFilters.size === 0 || countryFilters.has(t.flag)
-=======
-  const uniqueFlags = [...new Set(baseTournaments.map(t => t.flag))]
-
-  const tournaments = baseTournaments.filter(t => {
-    const matchesSearch = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCountry = !countryFilter || t.flag === countryFilter
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
     return matchesSearch && matchesCountry
   })
 
@@ -164,36 +146,17 @@ export default function LiveSportScreen() {
     })
   }
 
-<<<<<<< HEAD
   function TournamentRow({ t, indent = false }: { t: Tournament; indent?: boolean }) {
-=======
-  function toggleFav(id: number) {
-    setFavorites(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
-
-  function TournamentRow({ t, indent = false }: { t: Tournament; indent?: boolean }) {
-    const isFav = favorites.has(t.id)
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
     const isExp = expanded.has(t.id)
     const hasChildren = t.sub && t.sub.length > 0
 
     return (
       <>
-<<<<<<< HEAD
         <div
           role="button"
           tabIndex={0}
           onClick={() => hasChildren ? toggleExpand(t.id) : router.push(activeTab === 1 ? `/prematch/league?name=${encodeURIComponent(t.name)}` : `/live/matches?league=${encodeURIComponent(t.name)}&flag=${encodeURIComponent(t.flag)}`)}
           className={`w-full flex items-center gap-2 px-3 py-[8px] bg-white hover:bg-[#f8fafc] transition-colors border-b border-[#f0f4f8] cursor-pointer ${indent ? 'pl-[44px]' : ''}`}
-=======
-        <button
-          onClick={() => hasChildren ? toggleExpand(t.id) : router.push(activeTab === 1 ? `/prematch/league?name=${encodeURIComponent(t.name)}` : `/live/matches?league=${encodeURIComponent(t.name)}`)}
-          className={`w-full flex items-center gap-2 px-3 py-[8px] bg-white hover:bg-[#f8fafc] transition-colors border-b border-[#f0f4f8] ${indent ? 'pl-[44px]' : ''}`}
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
         >
           {/* Flag */}
           <div className="relative flex-shrink-0">
@@ -227,7 +190,6 @@ export default function LiveSportScreen() {
               <path d="m6 9 6 6 6-6"/>
             </svg>
           ) : (
-<<<<<<< HEAD
             <FavoriteStar
               size={18}
               inactiveStroke="#0E8FCF"
@@ -244,18 +206,6 @@ export default function LiveSportScreen() {
             />
           )}
         </div>
-=======
-            <button
-              onClick={e => { e.stopPropagation(); toggleFav(t.id) }}
-              className="flex-shrink-0 p-[2px]"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill={isFav ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-              </svg>
-            </button>
-          )}
-        </button>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
         {/* Sub-items */}
         {hasChildren && isExp && t.sub!.map(sub => (
@@ -313,16 +263,11 @@ export default function LiveSportScreen() {
                   <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
                 </svg>
               </button>
-<<<<<<< HEAD
               <button onClick={() => setCountrySheetOpen(true)} className="relative w-9 h-9 flex items-center justify-center">
                 {countryFilters.size > 0 && (
                   <span className="absolute top-0.5 right-0.5 min-w-[14px] h-[14px] px-[3px] rounded-full bg-[#0E8FCF] text-white text-[8px] font-bold flex items-center justify-center">{countryFilters.size}</span>
                 )}
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={countryFilters.size ? '#0E8FCF' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-=======
-              <button onClick={() => setCountrySheetOpen(true)} className="w-9 h-9 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={countryFilter ? '#0E8FCF' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                   <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
                   <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                 </svg>
@@ -378,24 +323,14 @@ export default function LiveSportScreen() {
           {sportTabs[activeSport].icon}
         </div>
         <span className="text-[12px] font-bold text-[#1a2332]">{currentSport}</span>
-<<<<<<< HEAD
         {[...countryFilters].map(flag => (
           <button key={flag} onClick={() => toggleCountry(flag)} className="ml-1 flex items-center gap-1 bg-[#edf5ff] rounded-full px-2 py-[2px]">
             <span className="text-[11px]">{flag}</span>
-=======
-        {countryFilter && (
-          <button onClick={() => setCountryFilter('')} className="ml-1 flex items-center gap-1 bg-[#edf5ff] rounded-full px-2 py-[2px]">
-            <span className="text-[11px]">{countryFilter}</span>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="3" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
-<<<<<<< HEAD
         ))}
-=======
-        )}
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
       </div>
 
       {/* ── Tournament list ── */}
@@ -419,18 +354,12 @@ export default function LiveSportScreen() {
             </div>
             <div className="flex items-center justify-between px-4 py-3 border-b border-[#f0f2f5] flex-shrink-0">
               <h3 className="text-[14px] font-bold text-[#1a2332]">Ülkeye Göre Filtrele</h3>
-<<<<<<< HEAD
               {countryFilters.size > 0 && (
                 <button onClick={() => setCountryFilters(new Set())} className="text-[11px] text-[#ef4444] font-semibold">
-=======
-              {countryFilter && (
-                <button onClick={() => { setCountryFilter(''); setCountrySheetOpen(false) }} className="text-[11px] text-[#ef4444] font-semibold">
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                   Temizle
                 </button>
               )}
             </div>
-<<<<<<< HEAD
             <div className="overflow-y-auto flex-1">
               {flagOptions.map(({ flag, count }) => {
                 const active = countryFilters.has(flag)
@@ -454,20 +383,6 @@ export default function LiveSportScreen() {
               <button onClick={() => setCountrySheetOpen(false)} className="w-full h-[42px] rounded-full bg-[#0E8FCF] text-white text-[13px] font-bold">
                 {countryFilters.size > 0 ? `Göster (${countryFilters.size})` : 'Tümünü Göster'}
               </button>
-=======
-            <div className="overflow-y-auto flex-1 pb-6">
-              {uniqueFlags.map(flag => (
-                <button key={flag} onClick={() => { setCountryFilter(flag === countryFilter ? '' : flag); setCountrySheetOpen(false) }}
-                  className={`w-full flex items-center gap-3 px-4 py-[11px] border-b border-[#f0f2f5] transition-colors ${flag === countryFilter ? 'bg-[#edf5ff]' : ''}`}>
-                  <span className="text-[20px]">{flag}</span>
-                  {flag === countryFilter && (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-auto">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  )}
-                </button>
-              ))}
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
             </div>
           </div>
         </>

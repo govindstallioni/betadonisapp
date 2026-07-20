@@ -1,13 +1,9 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
-<<<<<<< HEAD
 import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 import { gameHref } from './gameHref'
-=======
-import SectionHeader from './SectionHeader'
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 const winners = [
   { user: 'is***T', amount: 239020.50, game: 'Lucky Penny',      image: '/canli-casino/1.jpg' },
@@ -52,12 +48,8 @@ export default function SonKazananlar() {
         style={{ scrollSnapType: 'x mandatory' }}
       >
         {winners.map((w, i) => (
-<<<<<<< HEAD
           <Link
             href={gameHref(w.game, w.image)}
-=======
-          <div
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
             key={i}
             data-card
             className="flex-shrink-0 flex items-center gap-[8px] bg-white border border-[#e8ecf0] rounded-xl px-[10px] py-[8px] w-[155px] cursor-pointer hover:border-[#0E8FCF] transition-colors"
@@ -79,11 +71,7 @@ export default function SonKazananlar() {
               </span>
               <span className="text-[9px] text-[#6b7280] truncate">{w.game}</span>
             </div>
-<<<<<<< HEAD
           </Link>
-=======
-          </div>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
         ))}
       </div>
     </div>

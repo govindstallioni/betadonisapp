@@ -323,11 +323,7 @@ export default function QuickFilters() {
       {/* ── Bottom sheet ── */}
       <div
         className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[80] transition-transform duration-350 ${modalOpen ? 'translate-y-0' : 'translate-y-full'}`}
-<<<<<<< HEAD
         style={{ borderRadius: '20px 20px 0 0', background: 'var(--color-card)', maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}
-=======
-        style={{ borderRadius: '20px 20px 0 0', background: '#fff', maxHeight: '82vh', display: 'flex', flexDirection: 'column' }}
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
       >
         {/* Handle */}
         <div className="flex justify-center pt-[10px] pb-[4px] flex-shrink-0">
@@ -449,13 +445,8 @@ function SportCard({ sport, selected, onToggle }: {
       onClick={onToggle}
       className="relative flex flex-col items-center justify-center gap-[5px] rounded-[12px] py-[10px] px-[4px] transition-all"
       style={{
-<<<<<<< HEAD
         background: selected ? 'rgba(14,143,207,0.08)' : 'var(--color-input-bg)',
         border: selected ? '1.5px solid #0E8FCF' : '1.5px solid var(--color-border)',
-=======
-        background: selected ? 'rgba(14,143,207,0.08)' : '#f8fafc',
-        border: selected ? '1.5px solid #0E8FCF' : '1.5px solid #e8ecf1',
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
       }}
     >
       {selected && (

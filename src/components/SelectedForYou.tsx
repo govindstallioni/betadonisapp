@@ -1,10 +1,6 @@
-<<<<<<< HEAD
 import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 import { gameHref } from './gameHref'
-=======
-import SectionHeader from './SectionHeader'
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 const games = [
   {
@@ -33,16 +29,10 @@ export default function SelectedForYou() {
       <SectionHeader title="Sizin İçin Seçtiklerimiz" badge="Casino Oyunları" showAll />
       <div className="space-y-[10px]">
         {games.map((game) => (
-<<<<<<< HEAD
           <Link
             href={gameHref(game.name, game.image, game.provider)}
             key={game.name}
             className="block w-full h-[200px] rounded-2xl cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-transform relative overflow-hidden"
-=======
-          <div
-            key={game.name}
-            className="w-full h-[200px] rounded-2xl cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-transform relative overflow-hidden"
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
           >
             <img
               src={game.image}
@@ -60,11 +50,7 @@ export default function SelectedForYou() {
                 </div>
               </div>
             </div>
-<<<<<<< HEAD
           </Link>
-=======
-          </div>
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
         ))}
       </div>
     </div>

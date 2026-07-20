@@ -1,6 +1,5 @@
 'use client'
 
-<<<<<<< HEAD
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -12,22 +11,10 @@ const tabs = [
   { label: 'Canlı Casino', id: 'casino', icon: '/icons/casino.svg', href: '/live-casino' },
   { label: 'Slotlar', id: 'slotlar', icon: '/icons/slotlar.svg', href: '/slots' },
   { label: 'Diğerleri', id: 'digerleri', icon: '/icons/digerleri.svg', href: '/digerleri' },
-=======
-import { useState } from 'react'
-
-const tabs = [
-  { label: 'TOP', id: 'top', icon: '/icons/top.svg' },
-  { label: 'Sporlar', id: 'sporlar', icon: '/icons/sporlar.svg' },
-  { label: 'Sanal Bahis', id: 'sanalbahis', icon: '/icons/digerleri.svg' },
-  { label: 'Casino', id: 'casino', icon: '/icons/casino.svg' },
-  { label: 'Slotlar', id: 'slotlar', icon: '/icons/slotlar.svg' },
-  { label: 'Digerleri', id: 'digerleri', icon: '/icons/espor.svg' },
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 ]
 
 export default function CategoryTabs() {
   const [active, setActive] = useState('top')
-<<<<<<< HEAD
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -40,19 +27,13 @@ export default function CategoryTabs() {
     setActive(tab.id)
     router.push(tab.href)
   }
-=======
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
   return (
     <div className="flex items-end justify-between overflow-x-auto scrollbar-hide px-[10px] py-[10px]">
       {tabs.map((tab) => (
         <button
           key={tab.id}
-<<<<<<< HEAD
           onClick={() => handleClick(tab)}
-=======
-          onClick={() => setActive(tab.id)}
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
           className="flex flex-col items-center gap-[5px] min-w-[52px] transition-all duration-200"
         >
           <img

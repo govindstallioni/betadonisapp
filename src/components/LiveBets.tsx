@@ -3,12 +3,9 @@
 import { useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import SectionHeader from './SectionHeader'
-<<<<<<< HEAD
 import NotifyBell from './NotifyBell'
 import LiveTag from './LiveTag'
 import { useBetSlip } from './BetSlipProvider'
-=======
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
 interface LiveMatch {
   league: string
@@ -94,10 +91,7 @@ export default function LiveBets() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isUserScrolling = useRef(false)
-<<<<<<< HEAD
   const { has, toggle } = useBetSlip()
-=======
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
 
   const scrollToNext = useCallback(() => {
     const el = scrollRef.current
@@ -155,11 +149,7 @@ export default function LiveBets() {
 
   return (
     <div>
-<<<<<<< HEAD
       <SectionHeader title="En iyi CANLI BAHİS" badge="Spor" showAll count={161} href="/live" />
-=======
-      <SectionHeader title="En iyi CANLI BAHİS" badge="Spor" showAll count={161} />
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
       <div ref={scrollRef} className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
         {liveMatches.map((match, i) => (
           <Link
@@ -176,23 +166,8 @@ export default function LiveBets() {
                 <span className="text-[10px] text-[#737B8C] font-medium truncate max-w-[110px]">{match.league}</span>
               </div>
               <div className="flex items-center gap-[6px]">
-<<<<<<< HEAD
                 <NotifyBell size={12} />
                 <LiveTag />
-=======
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                {match.hasStream && (
-                  <div className="flex items-center gap-[3px] bg-[#fde8e8] rounded-full px-[5px] py-[2px]">
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    <span className="text-[8px] text-[#e74c3c] font-semibold">CANLI</span>
-                  </div>
-                )}
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
@@ -226,7 +201,6 @@ export default function LiveBets() {
             {/* Odds */}
             <div className="px-[10px] pb-[10px]">
               <div className="flex gap-[5px]">
-<<<<<<< HEAD
                 {match.odds.map((odd, j) => {
                   const id = `${matchIds[i]}::1X2::${odd.label}`
                   const sel = has(id)
@@ -250,21 +224,6 @@ export default function LiveBets() {
                     </span>
                   )
                 })}
-=======
-                {match.odds.map((odd, j) => (
-                  <span
-                    key={j}
-                    className={`flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[6px] px-[8px] flex items-center justify-between ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}
-                  >
-                    <span className="text-[9px] text-[#737B8C] font-semibold uppercase">{odd.label}</span>
-                    <span className={`text-[10px] font-medium flex items-center gap-[2px] ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
-                      {odd.value}
-                      {odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
-                      {odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
-                    </span>
-                  </span>
-                ))}
->>>>>>> 4ff8f4c9ce07e2dfe914605d9ef135e12b22f971
               </div>
             </div>
           </Link>
