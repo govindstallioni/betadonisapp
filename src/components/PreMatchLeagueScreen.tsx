@@ -1,0 +1,263 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import LiveTag from './LiveTag'
+import { useBetSlip } from './BetSlipProvider'
+
+const timeFilters = ['Tümü', '30 dk', '1 saat', '2 saat', '6 saat', '12 saat', '24 saat']
+
+type ClubBadge = { abbr: string; color: string; bg: string }
+type Fixture = {
+  id: number
+  league: string
+  date: string
+  live?: boolean
+  score?: string
+  minute?: string
+  home: { name: string; badge: ClubBadge }
+  away: { name: string; badge: ClubBadge }
+  odds: { w1: string; x: string; w2: string }
+}
+
+const fixturesByLeague: Record<string, Fixture[]> = {
+  default: [
+    {
+      id: 1,
+      league: 'UEFA Şampiyonlar Ligi',
+      date: '06.05.26 12:30',
+      live: true, score: '1 : 1', minute: "63'",
+      home: { name: 'Arsenal',         badge: { abbr: 'ARS', color: '#fff',    bg: '#EF0107' } },
+      away: { name: 'Atletico Madrid', badge: { abbr: 'ATM', color: '#fff',    bg: '#CB3524' } },
+      odds: { w1: '1.686', x: '4.11', w2: '5.58' },
+    },
+    {
+      id: 2,
+      league: 'UEFA Şampiyonlar Ligi',
+      date: '07.05.26 12:30',
+      home: { name: 'Bayern Münih',        badge: { abbr: 'BAY', color: '#fff', bg: '#DC052D' } },
+      away: { name: 'Paris Saint-Germain', badge: { abbr: 'PSG', color: '#fff', bg: '#003F7F' } },
+      odds: { w1: '1.728', x: '4.875', w2: '4.32' },
+    },
+  ],
+  'Türkiye. Süper Lig': [
+    {
+      id: 3,
+      league: 'Türkiye. Süper Lig',
+      date: '08.05.26 21:00',
+      live: true, score: '2 : 1', minute: "78'",
+      home: { name: 'Galatasaray', badge: { abbr: 'GS',  color: '#fff', bg: '#e90000' } },
+      away: { name: 'Fenerbahçe', badge: { abbr: 'FB',  color: '#fff', bg: '#003580' } },
+      odds: { w1: '2.35', x: '3.20', w2: '3.10' },
+    },
+    {
+      id: 4,
+      league: 'Türkiye. Süper Lig',
+      date: '09.05.26 19:00',
+      home: { name: 'Beşiktaş',    badge: { abbr: 'BJK', color: '#fff', bg: '#000000' } },
+      away: { name: 'Trabzonspor', badge: { abbr: 'TS',  color: '#fff', bg: '#6C1D45' } },
+      odds: { w1: '2.10', x: '3.40', w2: '3.50' },
+    },
+  ],
+  'İngiltere. Premier Ligi': [
+    {
+      id: 5,
+      league: 'İngiltere. Premier Ligi',
+      date: '10.05.26 18:30',
+      live: true, score: '0 : 0', minute: "21'",
+      home: { name: 'Manchester City', badge: { abbr: 'MCI', color: '#fff', bg: '#6CABDD' } },
+      away: { name: 'Liverpool',       badge: { abbr: 'LIV', color: '#fff', bg: '#C8102E' } },
+      odds: { w1: '1.95', x: '3.60', w2: '4.20' },
+    },
+    {
+      id: 6,
+      league: 'İngiltere. Premier Ligi',
+      date: '10.05.26 21:00',
+      home: { name: 'Chelsea',          badge: { abbr: 'CHE', color: '#fff', bg: '#034694' } },
+      away: { name: 'Manchester United',badge: { abbr: 'MUN', color: '#fff', bg: '#DA291C' } },
+      odds: { w1: '2.45', x: '3.30', w2: '2.90' },
+    },
+  ],
+}
+
+function SportIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 512 512" fill="#0E8FCF">
+      <path d="M256 48C141.137 48 48 141.136 48 256s93.137 208 208 208c114.872 0 208-93.138 208-208S370.87 48 256 48zm41.151 394.179c-13.514 2.657-30.327 4.187-44 4.45a190.525 190.525 0 0 1-38.5-4.493 978.146 978.146 0 0 1-6.805-1.777l-24.417-65.435L203.074 336h105.854l.57 1.076 19.34 38.852-23.618 64.282a189.782 189.782 0 0 1-8.069 1.969zM189.578 77.28 247 116.576v58.147l-70.997 60.067-49.403-22.51-4.167-1.899-22.332-64.019c22.009-31.204 53.138-55.532 89.477-69.082zm221.986 68.787-22.432 64.483-53.992 24.388L264 174.723v-58.147l57.596-39.415c36.362 13.483 67.905 37.752 89.968 68.906zM66.144 273.414l53.756-46.518 49.539 22.599.559.255 19.718 77.287-20.433 38.529-69.86-.915c-18.348-26.36-30.214-57.546-33.279-91.237zm276.575 92.151-20.434-38.529 19.752-77.416 49.997-22.781 53.822 46.575c-3.065 33.691-14.932 64.877-33.277 91.236l-69.86.915z"/>
+    </svg>
+  )
+}
+
+function TShirt({ side }: { bg: string; color: string; abbr: string; side: 'home' | 'away' }) {
+  return (
+    <img
+      src={side === 'home' ? '/teams/jersey1.png' : '/teams/jersey2.png'}
+      width={30}
+      height={30}
+      style={{ objectFit: 'contain' }}
+      alt="jersey"
+      className="flex-shrink-0"
+    />
+  )
+}
+
+export default function PreMatchLeagueScreen() {
+  const router = useRouter()
+  const params = useSearchParams()
+  const leagueName = params.get('name') || 'UEFA Şampiyonlar Ligi'
+
+  const [activeTimeFilter, setActiveTimeFilter] = useState(0)
+  const [notified, setNotified] = useState<Set<number>>(new Set())
+  const [favorites, setFavorites] = useState<Set<number>>(new Set())
+  const { has, toggle } = useBetSlip()
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const allFixtures = fixturesByLeague[leagueName] ?? fixturesByLeague['default']
+  const fixtures = searchQuery.trim()
+    ? allFixtures.filter(f =>
+        f.home.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.away.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        f.league.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allFixtures
+
+  function toggleNotify(id: number) {
+    setNotified(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+  function toggleFav(id: number) {
+    setFavorites(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
+  }
+
+  return (
+    <div className="max-w-[430px] mx-auto bg-[#edf1f7] min-h-screen">
+
+      {/* ── Header ── */}
+      <div className="bg-white px-4 pt-3 pb-2 flex items-center gap-2 shadow-sm">
+        <button onClick={() => { if (searchOpen) { setSearchOpen(false); setSearchQuery('') } else router.back() }}
+          className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
+        </button>
+        {searchOpen ? (
+          <div className="flex-1 flex items-center gap-2 bg-[#f1f5f9] rounded-full px-3 py-[7px]">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Maç ara..." className="flex-1 bg-transparent text-[13px] text-[#1a2332] placeholder-[#94a3b8] outline-none"/>
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        ) : (
+          <h1 className="flex-1 text-[16px] font-bold text-[#1a2332] text-center truncate">{leagueName}</h1>
+        )}
+        <button onClick={() => setSearchOpen(true)} className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={searchOpen ? '#0E8FCF' : '#1a2332'} strokeWidth="2" strokeLinecap="round">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* ── Time filters ── */}
+      <div className="bg-white border-b border-[#f0f2f5]">
+        <div className="flex gap-[5px] overflow-x-auto scrollbar-hide px-3 py-2">
+          {timeFilters.map((f, i) => (
+            <button
+              key={f}
+              onClick={() => setActiveTimeFilter(i)}
+              className={`flex-shrink-0 px-[10px] py-[5px] rounded-full text-[10px] font-semibold transition-all ${
+                activeTimeFilter === i
+                  ? 'bg-[#0E8FCF] text-white shadow-sm'
+                  : 'bg-white text-[#1a2332] border border-[#e8ecf1]'
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Match cards ── */}
+      <div className="px-3 pt-2 pb-24 flex flex-col gap-[8px]">
+        {fixtures.map(fixture => {
+          const isNotified = notified.has(fixture.id)
+          const isFav      = favorites.has(fixture.id)
+
+          return (
+            <div key={fixture.id} className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1] shadow-sm">
+              {/* Card header */}
+              <div className="flex items-center gap-2 px-3 py-[7px] border-b border-[#f0f4f8]">
+                <SportIcon />
+                <span className="flex-1 text-[11px] font-medium text-[#737B8C] truncate">{fixture.league}</span>
+                {fixture.live && <LiveTag />}
+                <button onClick={() => toggleNotify(fixture.id)} className="w-7 h-7 flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={isNotified ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+                  </svg>
+                </button>
+                <button onClick={() => toggleFav(fixture.id)} className="w-7 h-7 flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={isFav ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Teams + score row */}
+              <div className="flex items-center px-3 pt-[10px] pb-[4px] gap-[6px]">
+                {/* Home */}
+                <span className="text-[12px] font-bold text-[#1a2332] flex-1 text-right truncate">{fixture.home.name}</span>
+                <TShirt bg={fixture.home.badge.bg} color={fixture.home.badge.color} abbr={fixture.home.badge.abbr} side="home"/>
+
+                {/* Score / date */}
+                <div className="flex flex-col items-center flex-shrink-0 mx-[2px]">
+                  <span className={`text-[13px] font-extrabold tabular-nums leading-tight ${fixture.live ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>{fixture.live ? fixture.score : '0 : 0'}</span>
+                  {fixture.live && fixture.minute && <span className="text-[8px] font-semibold text-[#e74c3c] leading-none mt-[1px]">{fixture.minute}</span>}
+                </div>
+
+                <TShirt bg={fixture.away.badge.bg} color={fixture.away.badge.color} abbr={fixture.away.badge.abbr} side="away"/>
+                {/* Away */}
+                <span className="text-[12px] font-bold text-[#1a2332] flex-1 truncate">{fixture.away.name}</span>
+              </div>
+
+              {/* Date / live status */}
+              <p className={`text-center text-[10px] font-medium pb-[6px] ${fixture.live ? 'text-[#e74c3c]' : 'text-[#737B8C]'}`}>
+                {fixture.live ? `Canlı · ${fixture.minute} dakika` : fixture.date}
+              </p>
+
+              {/* Odds */}
+              <div className="px-3 pb-[10px]">
+                <div className="grid grid-cols-3 gap-[5px]">
+                  {[
+                    { label: 'EV1', value: fixture.odds.w1 },
+                    { label: 'X',   value: fixture.odds.x  },
+                    { label: 'DEP2',value: fixture.odds.w2 },
+                  ].map(odd => {
+                    const id = `pm-${fixture.id}::1X2::${odd.label}`
+                    const sel = has(id)
+                    return (
+                      <button key={odd.label}
+                        onClick={() => toggle({ id, league: fixture.league, match: `${fixture.home.name} - ${fixture.away.name}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1 })}
+                        className={`flex flex-col items-start px-[10px] py-[7px] rounded-[8px] border transition-all ${
+                          sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#f4f7fb] border-[#e8ecf1] hover:border-[#0E8FCF]'
+                        }`}>
+                        <span className={`text-[9px] font-medium leading-none mb-[3px] ${sel ? 'text-white/80' : 'text-[#94a3b8]'}`}>{odd.label}</span>
+                        <span className={`text-[12px] font-extrabold tabular-nums leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>{odd.value}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}

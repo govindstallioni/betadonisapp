@@ -1,0 +1,214 @@
+'use client'
+
+import { useEffect, useRef, useCallback } from 'react'
+import Link from 'next/link'
+import SectionHeader from './SectionHeader'
+import NotifyBell from './NotifyBell'
+import LiveTag from './LiveTag'
+import { useBetSlip } from './BetSlipProvider'
+
+interface PreMatch {
+  league: string
+  team1: string
+  team2: string
+  logo1: string
+  logo2: string
+  date: string
+  time: string
+  totalOdds: number
+  hasStream: boolean
+  odds: { label: string; value: string; trend?: 'up' | 'down' }[]
+}
+
+const matches: PreMatch[] = [
+  {
+    league: 'Türkiye, Süper Lig',
+    team1: 'Beşiktaş',
+    team2: 'Trabzonspor',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    date: '25 Mar',
+    time: '8:00 PM',
+    totalOdds: 35,
+    hasStream: true,
+    odds: [
+      { label: 'Ev1', value: '1.85', trend: 'up' },
+      { label: 'X', value: '3.40' },
+      { label: 'Dep2', value: '4.20', trend: 'down' },
+    ],
+  },
+  {
+    league: 'İngiltere, Premier Lig',
+    team1: 'Liverpool',
+    team2: 'Chelsea',
+    logo1: '/teams/jersey2.png',
+    logo2: '/teams/jersey1.png',
+    date: '26 Mar',
+    time: '10:00 PM',
+    totalOdds: 42,
+    hasStream: true,
+    odds: [
+      { label: 'Ev1', value: '1.55' },
+      { label: 'X', value: '4.10', trend: 'up' },
+      { label: 'Dep2', value: '5.20', trend: 'down' },
+    ],
+  },
+  {
+    league: 'İspanya, La Liga',
+    team1: 'Atletico Madrid',
+    team2: 'Sevilla',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    date: '27 Mar',
+    time: '7:30 PM',
+    totalOdds: 38,
+    hasStream: false,
+    odds: [
+      { label: 'Ev1', value: '2.10', trend: 'down' },
+      { label: 'X', value: '3.25' },
+      { label: 'Dep2', value: '3.50', trend: 'up' },
+    ],
+  },
+]
+
+const matchIds = ['bes-tra', 'liv-che', 'atl-sev']
+
+export default function TopPreMatch() {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isUserScrolling = useRef(false)
+  const { has, toggle } = useBetSlip()
+
+  const scrollToNext = useCallback(() => {
+    const el = scrollRef.current
+    if (!el || isUserScrolling.current) return
+
+    const cardWidth = el.firstElementChild ? (el.firstElementChild as HTMLElement).offsetWidth + 10 : 0
+    if (!cardWidth) return
+
+    const maxScroll = el.scrollWidth - el.clientWidth
+    const nextScroll = el.scrollLeft + cardWidth
+
+    if (nextScroll >= maxScroll + 10) {
+      el.scrollTo({ left: 0, behavior: 'smooth' })
+    } else {
+      el.scrollTo({ left: nextScroll, behavior: 'smooth' })
+    }
+  }, [])
+
+  useEffect(() => {
+    const start = () => {
+      timerRef.current = setInterval(scrollToNext, 4000)
+    }
+    start()
+
+    const el = scrollRef.current
+    let touchTimeout: ReturnType<typeof setTimeout>
+
+    const onTouchStart = () => {
+      isUserScrolling.current = true
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+    const onTouchEnd = () => {
+      clearTimeout(touchTimeout)
+      touchTimeout = setTimeout(() => {
+        isUserScrolling.current = false
+        if (timerRef.current) clearInterval(timerRef.current)
+        start()
+      }, 3000)
+    }
+
+    el?.addEventListener('touchstart', onTouchStart, { passive: true })
+    el?.addEventListener('touchend', onTouchEnd, { passive: true })
+    el?.addEventListener('mousedown', onTouchStart)
+    el?.addEventListener('mouseup', onTouchEnd)
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+      clearTimeout(touchTimeout)
+      el?.removeEventListener('touchstart', onTouchStart)
+      el?.removeEventListener('touchend', onTouchEnd)
+      el?.removeEventListener('mousedown', onTouchStart)
+      el?.removeEventListener('mouseup', onTouchEnd)
+    }
+  }, [scrollToNext])
+
+  return (
+    <div>
+      <SectionHeader title="En iyi Maç Öncesi" badge="Spor" showAll />
+      <div ref={scrollRef} className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
+        {matches.map((match, i) => (
+          <Link
+            key={i}
+            href={`/match?id=${matchIds[i]}`}
+            className="flex-shrink-0 w-[85%] bg-white rounded-xl overflow-hidden border border-[#e8ecf1]"
+          >
+            {/* League header */}
+            <div className="flex items-center justify-between px-[10px] py-[7px] border-b border-[#f0f2f5]">
+              <div className="flex items-center gap-[2px]">
+                <svg width="18" height="18" viewBox="0 0 512 512" fill="#374957">
+                  <path d="M256 48C141.137 48 48 141.136 48 256s93.137 208 208 208c114.872 0 208-93.138 208-208S370.87 48 256 48zm41.151 394.179c-13.514 2.657-30.327 4.187-44 4.45a190.525 190.525 0 0 1-38.5-4.493 978.146 978.146 0 0 1-6.805-1.777l-24.417-65.435L203.074 336h105.854l.57 1.076 19.34 38.852-23.618 64.282a189.782 189.782 0 0 1-8.069 1.969zM189.578 77.28 247 116.576v58.147l-70.997 60.067-49.403-22.51-4.167-1.899-22.332-64.019c22.009-31.204 53.138-55.532 89.477-69.082zm221.986 68.787-22.432 64.483-53.992 24.388L264 174.723v-58.147l57.596-39.415c36.362 13.483 67.905 37.752 89.968 68.906zM66.144 273.414l53.756-46.518 49.539 22.599.559.255 19.718 77.287-20.433 38.529-69.86-.915c-18.348-26.36-30.214-57.546-33.279-91.237zm276.575 92.151-20.434-38.529 19.752-77.416 49.997-22.781 53.822 46.575c-3.065 33.691-14.932 64.877-33.277 91.236l-69.86.915z" />
+                </svg>
+                <span className="text-[10px] text-[#737B8C] font-medium truncate max-w-[110px]">{match.league}</span>
+              </div>
+              <div className="flex items-center gap-[6px]">
+                <NotifyBell size={12} />
+                {match.hasStream && <LiveTag />}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Match center: teams + date/time */}
+            <div className="px-[10px] py-[10px]">
+              <div className="flex items-center">
+                <div className="flex-1 flex items-center justify-end gap-[6px]">
+                  <span className="text-[11px] text-[#1a2332] font-medium leading-tight truncate text-right">{match.team1}</span>
+                  <img src={match.logo1} alt={match.team1} className="w-[22px] h-[22px] object-contain flex-shrink-0" />
+                </div>
+                <div className="flex flex-col items-center px-[16px]">
+                  <span className="text-[14px] font-bold text-[#1a2332] leading-none">VS</span>
+                </div>
+                <div className="flex-1 flex items-center gap-[6px]">
+                  <img src={match.logo2} alt={match.team2} className="w-[22px] h-[22px] object-contain flex-shrink-0" />
+                  <span className="text-[11px] text-[#1a2332] font-medium leading-tight truncate">{match.team2}</span>
+                </div>
+              </div>
+              <p className="text-[9px] text-[#737B8C] text-center mt-[6px]">{match.date}, {match.time}</p>
+            </div>
+
+            {/* Odds */}
+            <div className="px-[10px] pb-[10px]">
+              <div className="flex gap-[5px]">
+                {match.odds.map((odd, j) => {
+                  const id = `${matchIds[i]}::1X2::${odd.label}`
+                  const sel = has(id)
+                  return (
+                    <span
+                      key={j}
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => {
+                        e.preventDefault(); e.stopPropagation()
+                        toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1 })
+                      }}
+                      className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border cursor-pointer ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}
+                    >
+                      <span className={`text-[9px] font-semibold uppercase ${sel ? 'text-white/80' : 'text-[#737B8C]'}`}>{odd.label}</span>
+                      <span className={`text-[10px] font-medium flex items-center gap-[2px] ${sel ? 'text-white' : odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                        {odd.value}
+                        {!sel && odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
+                        {!sel && odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
+                      </span>
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  )
+}
