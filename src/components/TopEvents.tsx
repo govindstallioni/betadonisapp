@@ -158,6 +158,7 @@ export default function TopEvents() {
                             market: '1X2',
                             pick: odd.label,
                             baseOdd: parseFloat(odd.value) || 1,
+                            isLive: false,
                           })}
                           className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border transition-all active:scale-[0.97] ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}
                         >

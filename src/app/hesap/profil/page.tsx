@@ -58,11 +58,24 @@ export default function ProfilPage() {
 
   return (
     <PageShell title="Profil Bilgileri">
+      <SectionLabel label="Kişisel Bilgiler" />
+      <Card>
+        <Field label="Ad Soyad" value="Ahmet Yılmaz" />
+        <Field label="Doğum Tarihi" value="12.05.1990" />
+        <Field label="T.C. Kimlik No" value="1** *** *** 45" />
+        <Field label="Uyruk" value="Türkiye" />
+        <Field label="Para Birimi" value="Türk Lirası (TRY)" />
+      </Card>
+      <p className="text-[10px] text-[#94a3b8] px-1 mt-2 leading-relaxed">
+        Güvenlik nedeniyle kimlik bilgileriniz değiştirilemez. Güncelleme için Canlı Destek ile iletişime geçin.
+      </p>
+
       <SectionLabel label="Hesap Bilgileri" />
       <Card>
         <Field label="Kullanıcı Adı" value={username || 'kullanici'} />
         <Field label="E-posta" value="kullanici@betadonis.com" editable />
         <Field label="Telefon" value="+90 5** *** ** 21" editable />
+        <Field label="Adres" value="Kadıköy, İstanbul" editable />
         <Field label="Üyelik Tarihi" value="14.07.2026" />
       </Card>
 

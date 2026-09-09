@@ -3,18 +3,42 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useAuth } from './AuthProvider'
+import { DAY_MULTIPLIERS, WHEEL_WINDOW_DAYS } from '@/data/wheelData'
 
-// ── Prize segments (boş yok — every wedge is a prize) ────────────────────────
-type Prize = { label: string; amount: number; color: string; weight: number }
-const SEGMENTS: Prize[] = [
-  { label: '100 ₺', amount: 100, color: '#2563EB', weight: 20 },
-  { label: '250 ₺', amount: 250, color: '#059669', weight: 12 },
-  { label: '50 ₺', amount: 50, color: '#D97706', weight: 24 },
-  { label: '1000 ₺', amount: 1000, color: '#7C3AED', weight: 2 },
-  { label: '75 ₺', amount: 75, color: '#DB2777', weight: 20 },
-  { label: '200 ₺', amount: 200, color: '#DC2626', weight: 10 },
-  { label: '150 ₺', amount: 150, color: '#0891B2', weight: 12 },
-  { label: '500 ₺', amount: 500, color: '#EA580C', weight: 4 },
+// ── Prize segments ────────────────────────────────────────────────────────
+// The client's exact 18-item list (their "10 EUR Spin Again" token read as
+// two segments — see plan's scope decision). wheelLabel is the short text
+// drawn on the wedge; fullLabel is the spelled-out version used in messages.
+type SegmentKind = 'cash' | 'spinAgain' | 'empty' | 'extraDay'
+type Segment = {
+  wheelLabel: string
+  fullLabel: string
+  kind: SegmentKind
+  amount?: number
+  days?: number
+  color: string
+  weight: number
+}
+
+const SEGMENTS: Segment[] = [
+  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
+  { wheelLabel: '10€', fullLabel: '10 €', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
+  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
+  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
+  { wheelLabel: '5€', fullLabel: '5 €', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
+  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
+  { wheelLabel: '15€', fullLabel: '15 €', kind: 'cash', amount: 15, color: '#7C3AED', weight: 8 },
+  { wheelLabel: '17€', fullLabel: '17 €', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
+  { wheelLabel: 'BOŞ', fullLabel: 'Boş', kind: 'empty', color: '#6B7280', weight: 10 },
+  { wheelLabel: '+3 GÜN', fullLabel: '3 Ekstra Gün', kind: 'extraDay', days: 3, color: '#EA580C', weight: 2 },
+  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
+  { wheelLabel: '5€', fullLabel: '5 €', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
+  { wheelLabel: '2€', fullLabel: '2 €', kind: 'cash', amount: 2, color: '#D97706', weight: 22 },
+  { wheelLabel: '+1 GÜN', fullLabel: '1 Ekstra Gün', kind: 'extraDay', days: 1, color: '#F59E0B', weight: 6 },
+  { wheelLabel: '17€', fullLabel: '17 €', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
+  { wheelLabel: 'BOŞ', fullLabel: 'Boş', kind: 'empty', color: '#6B7280', weight: 10 },
+  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
+  { wheelLabel: '10€', fullLabel: '10 €', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
 ]
 const N = SEGMENTS.length
 const SEG = 360 / N
@@ -41,10 +65,13 @@ function pickWin() {
 }
 
 export default function SpinWheel() {
-  const { loaded, isLoggedIn, adjustBalance } = useAuth()
+  const { loaded, isLoggedIn, adjustBalance, wheel, addExtraDays } = useAuth()
   const [rotation, setRotation] = useState(0)
   const [spinning, setSpinning] = useState(false)
-  const [result, setResult] = useState<Prize | null>(null)
+  const [result, setResult] = useState<Segment | null>(null)
+  const [resultAmount, setResultAmount] = useState(0)
+  const [resultMultiplier, setResultMultiplier] = useState(1)
+  const [spinAgainNotice, setSpinAgainNotice] = useState(false)
   const [spunToday, setSpunToday] = useState(false)
   const [lastPrize, setLastPrize] = useState<string | null>(null)
   const [countdown, setCountdown] = useState('')
@@ -74,26 +101,48 @@ export default function SpinWheel() {
     return () => { if (cdRef.current) clearInterval(cdRef.current) }
   }, [spunToday])
 
+  // Lucky Wheel eligibility: first-deposit gated, running on a 14(+extra)-day window.
+  const needsDeposit = loaded && isLoggedIn && wheel.firstDepositAt === null
+  const dayNumber = wheel.firstDepositAt ? Math.floor((Date.now() - wheel.firstDepositAt) / 86400000) + 1 : 0
+  const windowTotal = WHEEL_WINDOW_DAYS + wheel.extraDays
+  const windowExpired = loaded && isLoggedIn && wheel.firstDepositAt !== null && dayNumber > windowTotal
+  const multiplier = dayNumber > 0 ? DAY_MULTIPLIERS[(dayNumber - 1) % 7] : 1
+
   const spin = useCallback(() => {
     if (spinning || spunToday) return
     if (loaded && !isLoggedIn) { setLoginPrompt(true); return }
+    if (needsDeposit || windowExpired) return
     const win = pickWin()
+    const seg = SEGMENTS[win]
     setSpinning(true)
     setResult(null)
+    setSpinAgainNotice(false)
     // Land segment `win` centre under the top pointer. Segment i centre sits at
     // (i*SEG + SEG/2) clockwise from top; rotate forward by whole turns minus that.
     const target = rotation + 360 * 6 + (360 - (win * SEG + SEG / 2)) - (rotation % 360)
     setRotation(target)
     window.setTimeout(() => {
       setSpinning(false)
-      setResult(SEGMENTS[win])
+      if (seg.kind === 'spinAgain') {
+        // Bonus re-spin: doesn't consume the day's spin or credit anything.
+        setSpinAgainNotice(true)
+        window.setTimeout(() => { setSpinAgainNotice(false); spin() }, 900)
+        return
+      }
+      setResult(seg)
       setSpunToday(true)
-      adjustBalance(SEGMENTS[win].amount) // credit the prize to withdrawable balance
-      try { localStorage.setItem(LS_KEY, dayKey()); localStorage.setItem(LS_PRIZE, SEGMENTS[win].label) } catch {}
+      try { localStorage.setItem(LS_KEY, dayKey()); localStorage.setItem(LS_PRIZE, seg.fullLabel) } catch {}
+      if (seg.kind === 'cash') {
+        const credited = Math.round(seg.amount! * multiplier * 100) / 100
+        setResultAmount(credited)
+        setResultMultiplier(multiplier)
+        adjustBalance(credited)
+      } else if (seg.kind === 'extraDay') {
+        addExtraDays(seg.days!)
+      }
+      // 'empty' needs no further action beyond locking the day.
     }, 4300)
-  }, [spinning, spunToday, loaded, isLoggedIn, rotation, adjustBalance])
-
-  const canSpin = !spinning && !spunToday
+  }, [spinning, spunToday, loaded, isLoggedIn, needsDeposit, windowExpired, rotation, multiplier, adjustBalance, addExtraDays])
 
   return (
     <div>
@@ -133,13 +182,13 @@ export default function SpinWheel() {
                 const x1 = 100 + 100 * Math.cos(a0), y1 = 100 + 100 * Math.sin(a0)
                 const x2 = 100 + 100 * Math.cos(a1), y2 = 100 + 100 * Math.sin(a1)
                 const mid = ((i + 0.5) * SEG - 90) * Math.PI / 180
-                const tx = 100 + 64 * Math.cos(mid), ty = 100 + 64 * Math.sin(mid)
+                const tx = 100 + 68 * Math.cos(mid), ty = 100 + 68 * Math.sin(mid)
                 return (
                   <g key={i}>
                     <path d={`M100,100 L${x1},${y1} A100,100 0 0,1 ${x2},${y2} Z`} fill={seg.color} stroke="rgba(0,0,0,0.25)" strokeWidth="0.6" />
-                    <text x={tx} y={ty} fill="#fff" fontSize="12" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
+                    <text x={tx} y={ty} fill="#fff" fontSize="7.5" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
                       transform={`rotate(${(i + 0.5) * SEG}, ${tx}, ${ty})`} style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
-                      {seg.label}
+                      {seg.wheelLabel}
                     </text>
                   </g>
                 )
@@ -150,18 +199,31 @@ export default function SpinWheel() {
           {/* Center hub */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[42px] h-[42px] rounded-full z-20 flex items-center justify-center"
             style={{ background: 'radial-gradient(circle at 35% 35%, #ffd700, #b8860b)', border: '3px solid #ffd700', boxShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-            <span className="text-[16px] font-black text-amber-900">₺</span>
+            <span className="text-[16px] font-black text-amber-900">€</span>
           </div>
         </div>
 
         {/* Status line under wheel */}
         <p className="text-[11px] text-white/80 font-medium mt-4 text-center">
-          {spunToday ? 'Bugünlük çevirme hakkın doldu' : spinning ? 'Çark dönüyor…' : 'Günde 1 ücretsiz çevirme hakkın var'}
+          {needsDeposit ? 'İlk yatırımınızı yapın, çarkı açın'
+            : windowExpired ? '14 günlük Şans Çarkı süreniz doldu'
+            : spinAgainNotice ? 'Tekrar çeviriliyor… 🔁'
+            : spunToday ? 'Bugünlük çevirme hakkın doldu'
+            : spinning ? 'Çark dönüyor…'
+            : `Gün ${dayNumber}/${windowTotal} · Bugünkü çarpan: x${multiplier}`}
         </p>
       </div>
 
       {/* ── Spin CTA ── */}
-      {spunToday ? (
+      {needsDeposit ? (
+        <Link href="/kupon/deposit" className="mt-4 w-full h-[52px] rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white text-[15px] font-extrabold shadow-[0_4px_16px_rgba(217,119,6,0.4)] flex items-center justify-center">
+          İlk Yatırımını Yap
+        </Link>
+      ) : windowExpired ? (
+        <div className="mt-4 w-full h-[52px] rounded-xl bg-[#eef1f5] border border-[#e0e5ec] flex items-center justify-center">
+          <span className="text-[12px] font-semibold text-[#737B8C]">Şans Çarkı süreniz sona erdi</span>
+        </div>
+      ) : spunToday ? (
         <div className="mt-4 w-full h-[52px] rounded-xl bg-[#eef1f5] border border-[#e0e5ec] flex items-center justify-center gap-2">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" strokeLinecap="round" /></svg>
           <span className="text-[12px] font-semibold text-[#737B8C]">Yeni çevirme:</span>
@@ -185,16 +247,40 @@ export default function SpinWheel() {
           <div className="fixed inset-0 z-[90] bg-black/55 left-1/2 -translate-x-1/2 w-full max-w-[430px]" onClick={() => setResult(null)} />
           <div className="fixed z-[95] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-white rounded-2xl overflow-hidden animate-slide-up">
             <div className="px-6 pt-6 pb-5 text-center" style={{ background: 'linear-gradient(160deg, #2a0a4a, #1a0533)' }}>
-              <div className="text-[34px] mb-1">🎉</div>
-              <p className="text-[13px] text-white/80 font-medium">Tebrikler, kazandın!</p>
-              <p className="text-[34px] font-black text-[#ffd700] leading-tight mt-1" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{result.label}</p>
+              {result.kind === 'cash' && (
+                <>
+                  <div className="text-[34px] mb-1">🎉</div>
+                  <p className="text-[13px] text-white/80 font-medium">Tebrikler, kazandın!</p>
+                  <p className="text-[34px] font-black text-[#ffd700] leading-tight mt-1" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{resultAmount} €</p>
+                  {resultMultiplier !== 1 && (
+                    <p className="text-[11px] text-white/60 font-medium mt-1">{result.fullLabel} × Gün {dayNumber} çarpanı (x{resultMultiplier})</p>
+                  )}
+                </>
+              )}
+              {result.kind === 'extraDay' && (
+                <>
+                  <div className="text-[34px] mb-1">🎁</div>
+                  <p className="text-[13px] text-white/80 font-medium">Tebrikler, kazandın!</p>
+                  <p className="text-[26px] font-black text-[#ffd700] leading-tight mt-1" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{result.fullLabel}</p>
+                  <p className="text-[11px] text-white/60 font-medium mt-1">Şans Çarkı süreniz uzatıldı</p>
+                </>
+              )}
+              {result.kind === 'empty' && (
+                <>
+                  <div className="text-[34px] mb-1">😔</div>
+                  <p className="text-[15px] text-white font-bold">Bu sefer olmadı</p>
+                  <p className="text-[11px] text-white/60 font-medium mt-1">Yarın tekrar deneyin!</p>
+                </>
+              )}
             </div>
             <div className="px-5 py-4">
-              <div className="flex items-center gap-2 justify-center mb-3">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                <p className="text-[11px] text-[#1a7a43] font-semibold">Çevrimsiz · anında çekilebilir bakiye</p>
-              </div>
-              <button onClick={() => setResult(null)} className="w-full py-[12px] rounded-xl bg-[#0E8FCF] text-white text-[13px] font-bold">Bakiyeme Ekle</button>
+              {result.kind === 'cash' && (
+                <div className="flex items-center gap-2 justify-center mb-3">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  <p className="text-[11px] text-[#1a7a43] font-semibold">Çevrimsiz · anında çekilebilir bakiye</p>
+                </div>
+              )}
+              <button onClick={() => setResult(null)} className="w-full py-[12px] rounded-xl bg-[#0E8FCF] text-white text-[13px] font-bold">Tamam</button>
             </div>
           </div>
         </>

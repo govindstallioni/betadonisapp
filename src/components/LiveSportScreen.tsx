@@ -59,10 +59,18 @@ const tenisTournaments: Tournament[] = [
   { id: 4, name: 'ITF. Men',               flag: '🌍', count: 7 },
 ]
 
+const iceHockeyTournaments: Tournament[] = [
+  { id: 1, name: 'NHL',                    flag: '🇺🇸', count: 6, isHot: true },
+  { id: 2, name: 'KHL',                    flag: '🇷🇺', count: 4, isHot: true },
+  { id: 3, name: 'Sweden. SHL',            flag: '🇸🇪', count: 2 },
+  { id: 4, name: 'Finland. Liiga',         flag: '🇫🇮', count: 2 },
+]
+
 const tournamentMap: Record<string, Tournament[]> = {
   'Futbol': footballTournaments,
   'Basketbol': basketballTournaments,
   'Tenis': tenisTournaments,
+  'Buz Hokeyi': iceHockeyTournaments,
 }
 
 const prematchTournaments: Tournament[] = [
@@ -106,7 +114,7 @@ export default function LiveSportScreen() {
   const [activeSport, setActiveSport] = useState(
     Math.max(0, sportTabs.findIndex(s => s.label === sportName))
   )
-  const [activeTab, setActiveTab] = useState(0)
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') === '1' ? 1 : 0)
   const [activeTimeFilter, setActiveTimeFilter] = useState(0)
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [searchOpen, setSearchOpen] = useState(false)

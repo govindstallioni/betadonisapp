@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import NotifyBell from '@/components/NotifyBell'
 import FavoriteStar from '@/components/FavoriteStar'
@@ -113,6 +113,54 @@ const matchesData = [
     isLive: false,
     countdown: { hours: '05', minutes: '12', seconds: '48' },
     dateTime: '28.03.26 10:00 pm',
+  },
+  {
+    id: 'bos-gsw',
+    league: 'ABD, NBA',
+    leagueSub: 'Basketbol',
+    team1: 'Boston Celtics',
+    team2: 'Golden State Warriors',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    isLive: false,
+    countdown: { hours: '08', minutes: '20', seconds: '10' },
+    dateTime: '25.03.26 (09:00 pm)',
+  },
+  {
+    id: 'sin-zve',
+    league: 'ATP, Masters 1000',
+    leagueSub: 'Tenis',
+    team1: 'Sinner',
+    team2: 'Zverev',
+    logo1: '/teams/jersey2.png',
+    logo2: '/teams/jersey1.png',
+    isLive: false,
+    countdown: { hours: '02', minutes: '45', seconds: '30' },
+    dateTime: '26.03.26 (06:00 pm)',
+  },
+  {
+    id: 'vak-ecz',
+    league: 'Türkiye, Sultanlar Ligi',
+    leagueSub: 'Voleybol',
+    team1: 'VakıfBank',
+    team2: 'Eczacıbaşı',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    isLive: false,
+    countdown: { hours: '01', minutes: '30', seconds: '00' },
+    dateTime: '27.03.26 (07:00 pm)',
+  },
+  {
+    id: 'tor-bos',
+    league: 'ABD, NHL',
+    leagueSub: 'Buz Hokeyi',
+    team1: 'Toronto Maple Leafs',
+    team2: 'Boston Bruins',
+    logo1: '/teams/jersey2.png',
+    logo2: '/teams/jersey1.png',
+    isLive: false,
+    countdown: { hours: '03', minutes: '05', seconds: '55' },
+    dateTime: '28.03.26 (08:30 pm)',
   },
 ]
 
@@ -295,6 +343,34 @@ const allMarkets: Market[] = [
 const filterTabs = ['Tüm Marketler', 'Popüler', 'Toplam']
 const subTabs = ['Normal Süre', 'Alternatif Sonuçlar', 'Akümülatör']
 
+// Short static explanation shown in each market's info popover.
+const MARKET_INFO: Record<string, string> = {
+  '1X2': 'Maçı hangi takımın kazanacağını (ya da berabere biteceğini) tahmin edin.',
+  'Toss Kazananı': 'Maç öncesi yapılan toss\'u hangi takımın kazanacağını tahmin edin.',
+  'Toss / Maç': 'Toss\'u kazanan takım ile maçı kazanan takımın kombinasyonunu tahmin edin.',
+  'Toplam': 'Maçtaki toplam gol sayısının belirlenen sınırın üstünde mi altında mı olacağını tahmin edin.',
+  'Toplam 1': 'Ev sahibi takımın atacağı toplam gol sayısının sınırın üstünde mi altında mı olacağını tahmin edin.',
+  'Toplam 2': 'Deplasman takımının atacağı toplam gol sayısının sınırın üstünde mi altında mı olacağını tahmin edin.',
+  'Beraberlik': 'Maçın berabere bitip bitmeyeceğini tahmin edin.',
+  'Takım Galibiyetleri': 'Maçı kazanacak takımı tahmin edin (beraberlik seçeneği olmadan).',
+  'Çifte Şans': 'İki olası sonucu tek bahiste birleştirerek kazanma şansınızı artırın.',
+  'Handikap': 'Bir takıma sanal gol avantajı/dezavantajı tanınarak maç sonucunu tahmin edin.',
+  'Karşılıklı Gol': 'Her iki takımın da maçta en az bir gol atıp atmayacağını tahmin edin.',
+  'İlk Yarı Sonucu': 'Sadece ilk yarının sonucunu (1, X ya da 2) tahmin edin.',
+  'Doğru Skor': 'Maçın tam olarak hangi skorla biteceğini tahmin edin.',
+}
+
+// Deterministic "demo" stat generator — same technique as megaJackpotData's
+// hashPool: no live-stats feed exists, so numbers are derived from the match
+// id (stable per match, not random per render) rather than fabricated live data.
+function hashStat(seed: string, min: number, max: number): number {
+  let hash = 0
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
+  return min + (hash % (max - min + 1))
+}
+
+const HERO_TABS = ['Genel Bakış', 'Saha', 'İstatistik']
+
 // ── Exported lookup helper ─────────────────────────────────────
 
 export function getMatchById(id: string) {
@@ -319,6 +395,24 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   )
   const { has, toggle } = useBetSlip()
 
+  // ── Hero swipeable panel (Genel Bakış / Saha / İstatistik) ──
+  const heroScrollRef = useRef<HTMLDivElement>(null)
+  const [activeSlide, setActiveSlide] = useState(0)
+  const scrollToSlide = (i: number) => {
+    const el = heroScrollRef.current
+    if (!el) return
+    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+    setActiveSlide(i)
+  }
+  const handleHeroScroll = () => {
+    const el = heroScrollRef.current
+    if (!el || el.clientWidth === 0) return
+    setActiveSlide(Math.round(el.scrollLeft / el.clientWidth))
+  }
+
+  // ── Market info popover ──
+  const [infoOpenFor, setInfoOpenFor] = useState<string | null>(null)
+
   const visibleMarkets = allMarkets.filter(m => m.tabs.includes(activeFilter))
 
   const toggleMarket = (i: number) => {
@@ -339,6 +433,7 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
     market: marketTitle,
     pick: odd.label,
     baseOdd: parseFloat(odd.value) || 1,
+    isLive: match.isLive,
   })
 
   return (
@@ -389,14 +484,20 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
         )}
       </div>
 
-      {/* ── Hero banner ── */}
+      {/* ── Hero banner (swipeable: Genel Bakış / Saha / İstatistik) ── */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img src="/events/bannerbg.jpg" alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-[#1a3a52]/85" />
         </div>
 
-        <div className="relative px-5 pt-7 pb-5">
+        <div
+          ref={heroScrollRef}
+          onScroll={handleHeroScroll}
+          className="relative flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+        >
+        {/* ── Slide 1: Genel Bakış ── */}
+        <div className="w-full flex-shrink-0 snap-center px-5 pt-7 pb-5">
           {/* Teams */}
           <div className="flex items-start justify-center gap-4">
             {/* Team 1 */}
@@ -468,14 +569,89 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
           {match.dateTime && (
             <p className="text-[10px] text-white/40 text-center mt-4 font-medium">{match.dateTime}</p>
           )}
+        </div>
 
-          {/* Dots */}
-          <div className="flex items-center justify-center gap-1.5 mt-3">
-            <span className="w-[16px] h-[3px] rounded-full bg-white" />
-            <span className="w-[16px] h-[3px] rounded-full bg-white/25" />
-            <span className="w-[16px] h-[3px] rounded-full bg-white/25" />
-            <span className="w-[16px] h-[3px] rounded-full bg-white/25" />
+        {/* ── Slide 2: Saha ── */}
+        <div className="w-full flex-shrink-0 snap-center px-5 pt-6 pb-5">
+          <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden border border-white/15" style={{ background: 'linear-gradient(180deg, #2e7d46 0%, #1f6337 100%)' }}>
+            {/* Pitch markings */}
+            <div className="absolute inset-2 border border-white/30 rounded-sm" />
+            <div className="absolute top-2 bottom-2 left-1/2 w-px bg-white/30" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[15%] aspect-square rounded-full border border-white/30" />
+            <div className="absolute top-1/2 left-2 -translate-y-1/2 w-[8%] aspect-square border border-white/30" style={{ borderLeft: 'none' }} />
+            <div className="absolute top-1/2 right-2 -translate-y-1/2 w-[8%] aspect-square border border-white/30" style={{ borderRight: 'none' }} />
+            {/* Team badges at each end */}
+            <img src={match.logo1} alt="" className="absolute top-1/2 left-[8%] -translate-y-1/2 w-6 h-6 object-contain drop-shadow" />
+            <img src={match.logo2} alt="" className="absolute top-1/2 right-[8%] -translate-y-1/2 w-6 h-6 object-contain drop-shadow" />
+            {/* Ball / status overlay */}
+            {match.isLive ? (
+              <>
+                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-white animate-pulse-dot" />
+                {match.half === 'HT' && (
+                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Devre Arası</span>
+                )}
+              </>
+            ) : (
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Maç Başlamadı</span>
+            )}
           </div>
+          <p className="text-[10px] text-white/40 text-center mt-3 font-medium">
+            {match.isLive ? `${match.minute} ${match.half}` : match.dateTime}
+          </p>
+        </div>
+
+        {/* ── Slide 3: İstatistik ── */}
+        <div className="w-full flex-shrink-0 snap-center px-5 pt-6 pb-5">
+          <div className="flex flex-col gap-3">
+            {[
+              { label: 'Topla Oynama', key: 'poss' },
+              { label: 'İsabetli Şut', key: 'shots' },
+              { label: 'Korner', key: 'corner' },
+              { label: 'Faul', key: 'foul' },
+            ].map(({ label, key }) => {
+              const v1 = hashStat(`${match.id}-${key}-1`, 20, 80)
+              const v2 = 100 - v1
+              return (
+                <div key={key}>
+                  <div className="flex items-center justify-between text-[10px] text-white/70 font-medium mb-1">
+                    <span>{v1}</span>
+                    <span>{label}</span>
+                    <span>{v2}</span>
+                  </div>
+                  <div className="flex h-[5px] rounded-full overflow-hidden bg-white/10">
+                    <div className="bg-[#0E8FCF]" style={{ width: `${v1}%` }} />
+                    <div className="bg-white/40" style={{ width: `${v2}%` }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        </div>
+
+        {/* Dots */}
+        <div className="relative flex items-center justify-center gap-1.5 mt-3">
+          {HERO_TABS.map((_, i) => (
+            <button key={i} onClick={() => scrollToSlide(i)} className="p-1 -m-1" aria-label={`Slayt ${i + 1}`}>
+              <span className={`block w-[16px] h-[3px] rounded-full transition-colors ${activeSlide === i ? 'bg-white' : 'bg-white/25'}`} />
+            </button>
+          ))}
+        </div>
+
+        {/* Icon row */}
+        <div className="relative flex items-center justify-center gap-5 mt-2 pb-4">
+          {HERO_TABS.map((label, i) => (
+            <button
+              key={label}
+              onClick={() => scrollToSlide(i)}
+              className={`flex flex-col items-center gap-1 transition-colors ${activeSlide === i ? 'text-white' : 'text-white/40'}`}
+            >
+              {i === 0 && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>}
+              {i === 1 && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="1" /><path d="M12 5v14M3 12h18" /><circle cx="12" cy="12" r="3" /></svg>}
+              {i === 2 && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="M7 15l4-5 3 3 5-7" /></svg>}
+              <span className="text-[8px] font-semibold whitespace-nowrap">{label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -540,29 +716,46 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
               const isOpen = expandedMarkets.has(globalIdx)
               return (
                 <div key={market.title} className="border-b border-[#f0f2f5] last:border-b-0">
-                  <button
-                    onClick={() => toggleMarket(globalIdx)}
-                    className="w-full flex items-center justify-between py-3.5"
-                  >
-                    <span className="text-[12px] font-bold text-[#1a2332]">{market.title}</span>
-                    <div className="flex items-center gap-2">
-                      {market.subCount !== undefined && (
-                        <span className="text-[11px] text-[#737B8C] font-medium">({market.subCount})</span>
-                      )}
-                      <svg
-                        width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke={market.pinned ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  <div className="flex items-center justify-between py-3.5">
+                    <button
+                      onClick={() => toggleMarket(globalIdx)}
+                      className="flex items-center gap-2 min-w-0 flex-1 text-left"
+                    >
+                      <span className="text-[11px] text-[#737B8C] font-medium flex-shrink-0">
+                        ({market.subCount ?? market.rows.flat().length})
+                      </span>
+                      <span className="text-[12px] font-bold text-[#1a2332] truncate">{market.title}</span>
+                    </button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={() => setInfoOpenFor(prev => (prev === market.title ? null : market.title))}
+                        aria-label={`${market.title} hakkında bilgi`}
+                        className="w-4 h-4 rounded-full border border-[#c0c8d4] flex items-center justify-center flex-shrink-0"
                       >
-                        <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
-                      </svg>
-                      <svg
-                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                        className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                      >
-                        <path d="m6 9 6 6 6-6" />
-                      </svg>
+                        <span className="text-[8px] text-[#94a3b8] font-bold leading-none">i</span>
+                      </button>
+                      <button onClick={() => toggleMarket(globalIdx)} className="flex items-center gap-2">
+                        <svg
+                          width="14" height="14" viewBox="0 0 24 24" fill="none"
+                          stroke={market.pinned ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                        >
+                          <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
+                        </svg>
+                        <svg
+                          width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                          className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                        >
+                          <path d="m6 9 6 6 6-6" />
+                        </svg>
+                      </button>
                     </div>
-                  </button>
+                  </div>
+
+                  {infoOpenFor === market.title && (
+                    <div className="mb-2.5 -mt-1 bg-[#f4f6f9] rounded-lg px-3 py-2">
+                      <p className="text-[10px] text-[#737B8C] leading-snug">{MARKET_INFO[market.title]}</p>
+                    </div>
+                  )}
 
                   {isOpen && market.rows.length > 0 && (
                     <div className="pb-3 flex flex-col gap-[6px]">

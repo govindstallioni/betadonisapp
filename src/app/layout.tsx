@@ -5,6 +5,15 @@ import FavoritesProvider from '@/components/FavoritesProvider'
 import AuthProvider from '@/components/AuthProvider'
 import BetSlipProvider from '@/components/BetSlipProvider'
 import BetSlipModal from '@/components/BetSlipModal'
+import PromoBubble from '@/components/PromoBubble'
+import WheelGuestBubble from '@/components/WheelGuestBubble'
+import WelcomeBubble from '@/components/WelcomeBubble'
+import NotificationBubble from '@/components/NotificationBubble'
+import SiteAddressBanner from '@/components/SiteAddressBanner'
+import MessagesProvider from '@/components/MessagesProvider'
+import NotificationsProvider from '@/components/NotificationsProvider'
+import AccountPanelProvider from '@/components/AccountPanelProvider'
+import AccountPanel from '@/components/AccountPanel'
 import './globals.css'
 
 // Runs before first paint: applies saved theme and arms the launch splash
@@ -40,17 +49,29 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <ThemeProvider>
+          <SiteAddressBanner />
           <AuthProvider>
-            <FavoritesProvider>
-              <BetSlipProvider>
-                <SplashGate>
-                  {children}
-                </SplashGate>
-                <BetSlipModal />
-              </BetSlipProvider>
-            </FavoritesProvider>
+            <MessagesProvider>
+              <NotificationsProvider>
+                <FavoritesProvider>
+                  <BetSlipProvider>
+                    <AccountPanelProvider>
+                      <SplashGate>
+                        {children}
+                      </SplashGate>
+                      <BetSlipModal />
+                      <PromoBubble />
+                      <WheelGuestBubble />
+                      <WelcomeBubble />
+                      <NotificationBubble />
+                      <AccountPanel />
+                    </AccountPanelProvider>
+                  </BetSlipProvider>
+                </FavoritesProvider>
+              </NotificationsProvider>
+            </MessagesProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

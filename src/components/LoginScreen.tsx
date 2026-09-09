@@ -12,10 +12,16 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
   const [usernameFocused, setUsernameFocused] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
+  const [error, setError] = useState(false)
   const router = useRouter()
   const { login } = useAuth()
 
   const handleLogin = () => {
+    if (!username.trim() || !password.trim()) {
+      setError(true)
+      return
+    }
+    setError(false)
     login(username)
     router.push('/')
   }
@@ -102,9 +108,20 @@ export default function LoginScreen() {
         </div>
 
         {/* Forgot password */}
-        <button className="mt-2 self-end text-[10px] text-[#0E8FCF] font-medium">
+        <Link href="/forgot-password" className="mt-2 self-end text-[10px] text-[#0E8FCF] font-medium">
           Şifrenizi mi unuttunuz?
-        </button>
+        </Link>
+
+        {/* Wrong-credentials warning */}
+        {error && (
+          <div className="mt-3 px-3 py-2.5 bg-[#fef2f2] border border-[#e74c3c]/30 rounded-xl flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#e74c3c"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" /></svg>
+            <span className="text-[10px] text-[#b91c1c] font-medium flex-1">Kullanıcı adı veya şifre hatalı.</span>
+            <button onClick={() => setError(false)} className="text-[#b91c1c]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+          </div>
+        )}
 
         {/* Login button */}
         <button onClick={handleLogin} className="w-full mt-4 py-[12px] bg-[#0E8FCF] text-white text-[13px] font-semibold rounded-xl hover:bg-[#0a7ab5] transition-colors shadow-[0_4px_12px_rgba(14,143,207,0.3)]">

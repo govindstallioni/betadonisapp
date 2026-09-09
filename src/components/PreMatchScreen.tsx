@@ -2,8 +2,16 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import MatchCard from './MatchCard'
+import PreMatchCard from './PreMatchCard'
+import SectionHeader from './SectionHeader'
+import { SPORT_ICONS } from './sportIcons'
+import { liveMatches } from '@/data/liveData'
+import { preMatches, preMatchSportCats } from '@/data/prematchData'
 
 const tabs = ['CANLI', 'Maç Öncesi']
+
+type ListTab = 'popular' | 'upcoming'
 
 const timeFilters = ['Tümü', '30 dk', '1 saat', '2 saat', '6 saat', '12 saat', '24 saat']
 
@@ -170,7 +178,12 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
   const [activeTime, setActiveTime] = useState(0)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [listTab, setListTab] = useState<ListTab>('popular')
+  const [activeSport, setActiveSport] = useState(preMatchSportCats[0].label)
   const router = useRouter()
+
+  const sportMatches = preMatches.filter(m => m.sport === activeSport)
+  const listMatches = listTab === 'popular' ? sportMatches.filter(m => m.popular) : sportMatches
 
   const filteredSports = searchQuery.trim()
     ? sports.filter(s => s.label.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -260,6 +273,76 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
       {/* Spacer for live tab */}
       {activeTab === 0 && <div className="h-3" />}
 
+      {/* ── Maç Öncesi top section: canlı preview + popüler/yaklaşan ── */}
+      {activeTab === 1 && (
+        <div className="bg-white pb-3">
+          {/* Canlı mini-preview */}
+          <div className="px-4 pt-1 pb-3">
+            <SectionHeader title="Canlı Maçlar" showAll href="/live" />
+            <div className="mt-2">
+              <MatchCard match={liveMatches[0]} />
+            </div>
+          </div>
+
+          {/* Popüler Karşılaşmalar / Yaklaşan toggle */}
+          <div className="px-4">
+            <div className="bg-[#dce8f5] rounded-full p-[3px] flex">
+              {(['popular', 'upcoming'] as ListTab[]).map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setListTab(t)}
+                  className={`flex-1 py-[8px] rounded-full text-[11px] font-semibold transition-all ${
+                    listTab === t ? 'bg-[#0E8FCF] text-white shadow-sm' : 'text-[#0E8FCF]'
+                  }`}
+                >
+                  {t === 'popular' ? 'Popüler Karşılaşmalar' : 'Yaklaşan'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 5 sport-icon filter row */}
+          <div className="flex gap-[6px] overflow-x-auto scrollbar-hide px-4 pt-3">
+            {preMatchSportCats.map((s) => {
+              const active = activeSport === s.label
+              return (
+                <button
+                  key={s.label}
+                  onClick={() => setActiveSport(s.label)}
+                  className={`flex flex-col items-center gap-[3px] flex-shrink-0 min-w-[58px] py-[6px] px-1 rounded-xl transition-colors ${active ? 'bg-[#edf5ff]' : ''}`}
+                >
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center ${active ? 'bg-[#0E8FCF] text-white' : 'bg-[#f1f5f9] text-[#0E8FCF]'}`}>
+                    {SPORT_ICONS[s.label]}
+                  </div>
+                  <span className={`text-[9px] font-semibold leading-none whitespace-nowrap ${active ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>{s.label}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Match list */}
+          <div className="px-4 pt-3">
+            {listMatches.length === 0 ? (
+              <div className="bg-[#f8fafc] rounded-xl py-8 text-center border border-[#e8ecf1]">
+                <p className="text-[12px] text-[#94a3b8]">Bu filtreyle karşılaşma yok.</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-[10px]">
+                {listMatches.map((m) => (
+                  <PreMatchCard key={m.id} match={m} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Tüm Sporlar label (only for Maç Öncesi, once the top section above exists) */}
+      {activeTab === 1 && (
+        <p className="px-4 pt-4 pb-1 text-[11px] font-bold text-[#94a3b8] uppercase tracking-wide">Tüm Sporlar</p>
+      )}
+
       {/* Time filters - only for Pre-match and Esports */}
       {activeTab !== 0 && (
         <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 py-3">
@@ -288,7 +371,7 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
           {filteredSports.map((sport, i) => (
             <button
               key={sport.label}
-              onClick={() => router.push(`/live/sport?name=${encodeURIComponent(sport.label)}`)}
+              onClick={() => router.push(`/live/sport?name=${encodeURIComponent(sport.label)}${activeTab === 1 ? '&tab=1' : ''}`)}
               className={`w-full flex items-center gap-2.5 px-3 py-[8px] hover:bg-[#f8fafc] transition-colors ${
                 i < filteredSports.length - 1 ? 'border-b border-[#f0f2f5]' : ''
               }`}

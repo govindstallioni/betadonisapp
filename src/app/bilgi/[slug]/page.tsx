@@ -78,15 +78,6 @@ const docs: Record<string, Doc> = {
       { heading: 'Çevrim Şartları', body: 'Her bonusun kendine ait çevrim şartları vardır; bonus kurallarını mutlaka inceleyin.' },
     ],
   },
-  ortaklik: {
-    title: 'Ortaklık',
-    intro: 'Finansal ekosistemin ortağı olun ve yönlendirdiğiniz oyuncularla gelir elde edin.',
-    sections: [
-      { heading: 'Nasıl Çalışır', body: 'Size özel bağlantınız üzerinden kayıt olan oyuncuların aktivitesinden komisyon kazanırsınız.' },
-      { heading: 'Kazanç', body: 'Gelir paylaşımı modeli ile pasif gelir elde edebilir, performansınıza göre oranlarınızı artırabilirsiniz.' },
-      { heading: 'Başvuru', body: 'Ortaklık programına başvurmak için müşteri hizmetleri ile iletişime geçin.' },
-    ],
-  },
 }
 
 export default function BilgiPage() {

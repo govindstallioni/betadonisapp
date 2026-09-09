@@ -86,10 +86,17 @@ export default function WithdrawScreen() {
       <Header title="Hesabından Para Çek" onBack={() => (selected ? setSelected(null) : router.back())} />
 
       <div className="px-4 pt-4 pb-28 flex flex-col gap-3">
+        {!selected && (
+          <div className="flex bg-white rounded-full p-[3px] border border-[#e8ecf1]">
+            <button onClick={() => router.push('/kupon/deposit')} className="flex-1 text-[12px] font-semibold py-[8px] rounded-full text-[#1a2332]">Para Yatırma</button>
+            <button className="flex-1 text-[12px] font-semibold py-[8px] rounded-full bg-[#0E8FCF] text-white">Para Çekme</button>
+          </div>
+        )}
+
         {/* Balance */}
         <div className="rounded-xl px-4 py-4 text-white" style={{ background: 'linear-gradient(135deg,#071428 0%,#0c2a5a 60%,#0E8FCF 100%)' }}>
           <p className="text-[11px] text-white/70">Kullanılabilir Bakiye</p>
-          <p className="text-[24px] font-extrabold mt-0.5">{fmt(BALANCE)},00 ₺</p>
+          <p className="text-[24px] font-extrabold mt-0.5">{fmt(BALANCE)} ₺</p>
         </div>
 
         {!selected ? (

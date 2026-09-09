@@ -15,10 +15,11 @@ export interface Selection {
   odd: number         // current (live) odd
   dir: OddDir         // last live movement, for the red/green arrow
   locked: boolean     // suspended → faded & unusable
+  isLive?: boolean    // true if added from a live match (shows the CANLI badge in the slip)
 }
 
 // The persisted shape — only the stable fields, never the ticking odd.
-type StoredSelection = Pick<Selection, 'id' | 'league' | 'match' | 'market' | 'pick' | 'baseOdd'>
+type StoredSelection = Pick<Selection, 'id' | 'league' | 'match' | 'market' | 'pick' | 'baseOdd' | 'isLive'>
 
 interface BetSlipValue {
   selections: Selection[]
@@ -47,8 +48,8 @@ const STORAGE_KEY = 'bta_betslip'
 // Seed a realistic slip so the engine is demonstrable on first open:
 // a single match (each row in Tekli) and a 4-match parlay (Kombine).
 const demoSelections: StoredSelection[] = [
-  { id: 'gs-fb-ms1',   league: 'Türkiye. Süper Lig',    match: 'Galatasaray - Fenerbahçe', market: 'Maç Sonucu',      pick: '1',       baseOdd: 2.10 },
-  { id: 'rm-bar-ust',  league: 'İspanya. La Liga',      match: 'Real Madrid - Barcelona',  market: 'Toplam Gol',      pick: 'Üst 2.5', baseOdd: 1.75 },
+  { id: 'gs-fb-ms1',   league: 'Türkiye. Süper Lig',    match: 'Galatasaray - Fenerbahçe', market: 'Maç Sonucu',      pick: '1',       baseOdd: 2.10, isLive: true },
+  { id: 'rm-bar-ust',  league: 'İspanya. La Liga',      match: 'Real Madrid - Barcelona',  market: 'Toplam Gol',      pick: 'Üst 2.5', baseOdd: 1.75, isLive: true },
   { id: 'ars-che-kg',  league: 'İngiltere. Premier Ligi', match: 'Arsenal - Chelsea',      market: 'Karşılıklı Gol',  pick: 'Var',     baseOdd: 1.65 },
   { id: 'bay-dor-ms1', league: 'Almanya. Bundesliga',   match: 'Bayern - Dortmund',        market: 'Maç Sonucu',      pick: '1',       baseOdd: 1.50 },
 ]

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useFavorites, type FavType, type FavItem } from '@/components/FavoritesProvider'
 import FavoriteStar from '@/components/FavoriteStar'
 import BottomNav from '@/components/BottomNav'
@@ -12,16 +12,22 @@ const TABS: { key: FavType; label: string }[] = [
   { key: 'game', label: 'Oyunlar' },
 ]
 
+function isFavType(v: string | null): v is FavType {
+  return v === 'event' || v === 'league' || v === 'game'
+}
+
 const EMPTY: Record<FavType, { title: string; desc: string; cta: string; href: string }> = {
   event: { title: 'Favori etkinlik yok', desc: 'Maç detay veya lig sayfasındaki yıldıza dokunarak etkinlik ekle.', cta: 'Canlı Bahis', href: '/live' },
   league: { title: 'Favori lig yok', desc: 'Canlı bahis listesinde turnuvaların yanındaki yıldıza dokun.', cta: 'Ligleri Keşfet', href: '/live' },
   game: { title: 'Favori oyun yok', desc: 'Slot ve casino oyunlarındaki yıldıza dokunarak oyun ekle.', cta: 'Slotlar', href: '/slots' },
 }
 
-export default function FavoritesPage() {
+function FavoritesContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { items, count, clear } = useFavorites()
-  const [tab, setTab] = useState<FavType>('event')
+  const initialTab = searchParams.get('tab')
+  const [tab, setTab] = useState<FavType>(isFavType(initialTab) ? initialTab : 'event')
 
   const list = items.filter(i => i.type === tab)
 
@@ -83,6 +89,14 @@ export default function FavoritesPage() {
 
       <BottomNav />
     </div>
+  )
+}
+
+export default function FavoritesPage() {
+  return (
+    <Suspense fallback={<div className="max-w-[430px] mx-auto bg-[#f5f7fa] min-h-screen" />}>
+      <FavoritesContent />
+    </Suspense>
   )
 }
 

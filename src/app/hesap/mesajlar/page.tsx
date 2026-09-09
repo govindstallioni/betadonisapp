@@ -2,49 +2,57 @@
 
 import { useState } from 'react'
 import { PageShell } from '@/components/settings/SettingsUI'
-
-interface Message {
-  id: number
-  from: string
-  subject: string
-  preview: string
-  date: string
-  unread: boolean
-}
-
-const initialMessages: Message[] = [
-  { id: 1, from: 'Betadonis', subject: 'Hoş geldiniz!', preview: 'Betadonis ailesine katıldığınız için teşekkürler. İlk yatırımınıza özel bonusunuz hesabınıza tanımlanmıştır.', date: '14.07.2026', unread: true },
-  { id: 2, from: 'Bonus Ekibi', subject: 'Kayıp bonusunuz hazır', preview: 'Bu haftaki kayıp bonusunuz hesabınıza yüklendi. Detaylar için Bonuslar sayfasını ziyaret edin.', date: '13.07.2026', unread: false },
-  { id: 3, from: 'Destek', subject: 'Belge doğrulama', preview: 'Yüklediğiniz belgeler başarıyla doğrulanmıştır. Artık para çekme işlemi yapabilirsiniz.', date: '11.07.2026', unread: false },
-]
+import { useMessages, type Message } from '@/components/MessagesProvider'
 
 export default function MesajlarPage() {
-  const [messages, setMessages] = useState(initialMessages)
+  const { messages, markRead, send: sendMessage, remove } = useMessages()
+  const [activeFolder, setActiveFolder] = useState<'inbox' | 'sent'>('inbox')
   const [open, setOpen] = useState<Message | null>(null)
   const [compose, setCompose] = useState(false)
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
   const [sent, setSent] = useState(false)
 
+  const visibleMessages = messages.filter(m => m.folder === activeFolder)
+
   const openMessage = (m: Message) => {
-    setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, unread: false } : x)))
+    markRead(m.id)
     setOpen(m)
   }
 
+  const deleteMessage = (id: number) => {
+    remove(id)
+    if (open?.id === id) setOpen(null)
+  }
+
   const send = () => {
+    sendMessage(subject, body)
     setSent(true)
     setSubject(''); setBody('')
-    setTimeout(() => { setSent(false); setCompose(false) }, 1500)
+    setTimeout(() => { setSent(false); setCompose(false); setActiveFolder('sent') }, 1500)
   }
 
   return (
     <PageShell title="Mesajlar">
+      {/* Inbox / Sent tabs */}
+      <div className="flex bg-[#f1f5f9] rounded-full p-[3px] border border-[#e8ecf1] mt-4">
+        {(['inbox', 'sent'] as const).map(f => (
+          <button key={f} type="button" onClick={() => setActiveFolder(f)}
+            className={`flex-1 text-[12px] font-semibold py-[7px] rounded-full transition-all ${activeFolder === f ? 'bg-[#0E8FCF] text-white' : 'text-[#1a2332]'}`}>
+            {f === 'inbox' ? 'Gelen Kutusu' : 'Gönderilenler'}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col gap-2.5 mt-4">
-        {messages.map((m) => (
-          <button
+        {visibleMessages.map((m) => (
+          <div
             key={m.id}
+            role="button"
+            tabIndex={0}
             onClick={() => openMessage(m)}
-            className="flex items-start gap-3 bg-white rounded-xl border border-[#e8ecf1] px-3 py-3 text-left hover:shadow-sm transition-shadow"
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openMessage(m) }}
+            className="flex items-start gap-3 bg-white rounded-xl border border-[#e8ecf1] px-3 py-3 text-left hover:shadow-sm transition-shadow cursor-pointer"
           >
             <div className="w-9 h-9 rounded-full bg-[#edf5ff] flex items-center justify-center flex-shrink-0 text-[#0E8FCF] relative">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></svg>
@@ -57,8 +65,23 @@ export default function MesajlarPage() {
               </div>
               <p className="text-[10px] text-[#737B8C] mt-[2px] line-clamp-2">{m.preview}</p>
             </div>
-          </button>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); deleteMessage(m.id) }}
+              aria-label="Mesajı sil"
+              className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[#94a3b8] hover:bg-[#fef2f2] hover:text-[#e74c3c] transition-colors"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+            </button>
+          </div>
         ))}
+        {visibleMessages.length === 0 && (
+          <p className="text-[12px] text-[#94a3b8] text-center py-8">
+            {activeFolder === 'inbox' ? 'Gelen kutunuzda mesaj yok.' : 'Henüz mesaj göndermediniz.'}
+          </p>
+        )}
       </div>
 
       <button
@@ -74,10 +97,17 @@ export default function MesajlarPage() {
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50" onClick={() => setOpen(null)}>
           <div className="bg-white rounded-t-2xl w-full max-w-[430px] p-5 pb-8" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] text-[#737B8C]">{open.from} · {open.date}</p>
-              <button onClick={() => setOpen(null)} className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </button>
+              <p className="text-[10px] text-[#737B8C]">{open.folder === 'sent' ? 'Kime' : 'Kimden'}: {open.from} · {open.date}</p>
+              <div className="flex items-center gap-2">
+                <button onClick={() => deleteMessage(open.id)} aria-label="Mesajı sil" className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center text-[#94a3b8] hover:bg-[#fef2f2] hover:text-[#e74c3c] transition-colors">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                </button>
+                <button onClick={() => setOpen(null)} className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                </button>
+              </div>
             </div>
             <p className="text-[15px] font-bold text-[#1a2332]">{open.subject}</p>
             <p className="text-[12px] text-[#4a5568] leading-relaxed mt-2">{open.preview}</p>

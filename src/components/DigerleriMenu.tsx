@@ -26,6 +26,7 @@ const iHorse = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path
 const iWheel = <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="2" fill="#fff" /><path d="M12 3v6M12 15v6M3 12h6M15 12h6M5.6 5.6l4.2 4.2M14.2 14.2l4.2 4.2M18.4 5.6l-4.2 4.2M9.8 14.2l-4.2 4.2" /></svg>
 const iPartner = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
 const iPromo = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zm0 0h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" /></svg>
+const iHelp = <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 0 1 4.9.75c0 1.66-2.4 1.9-2.4 3.5" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
 
 // Casino sub-menu (dropdown) items.
 const casinoChildren = [
@@ -59,8 +60,9 @@ export const digerleriItems: DigerleriItem[] = [
   { title: 'Canlı Oyunlar', desc: 'Her saniye yeni kazanç', href: '/live-casino', color: '#0891b2', icon: iDice },
   { title: 'Golden Race', desc: 'Kazanırken eğlenmek, kontrol sende', href: '/golden-race', color: '#d97706', icon: iHorse },
   { title: 'Şans Çarkı', desc: 'Hergün senin için nakit ödül, boş yok', href: '/sans-carki', color: '#f59e0b', icon: iWheel },
-  { title: 'Ortaklık', desc: 'Finansal ekosistemin ortağı ol', href: '/bilgi/ortaklik', color: '#27ae60', icon: iPartner },
+  { title: 'Ortaklık', desc: 'Finansal ekosistemin ortağı ol', href: '/ortaklik', color: '#27ae60', icon: iPartner },
   { title: 'Promosyonlar', desc: 'Güncel bonuslar ve özel kampanyaları keşfedin', href: '/promosyonlar', color: '#0E8FCF', icon: iPromo },
+  { title: 'Yardım ve Destek', desc: 'SSS, canlı destek, iletişim ve şikayet', href: '/yardim', color: '#0E8FCF', icon: iHelp },
 ]
 
 const Chevron = ({ open }: { open?: boolean }) => (

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, type ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
 
 // ── Quick-bar filters ──────────────────────────────────────────
 const filters = [
@@ -238,7 +239,19 @@ const categories = [
   },
 ]
 
+// Maps a quick-bar pill to the page it opens ("relevant pages you have
+// created" — the existing Sporlar list / per-sport tournament browser).
+const QUICK_FILTER_HREF: Record<string, string> = {
+  'Tümü': '/prematch',
+  'Futbol': '/live/sport?name=Futbol',
+  'Basketbol': '/live/sport?name=Basketbol',
+  'Tenis': '/live/sport?name=Tenis',
+  // LiveSportScreen's own sport list uses "Buz Hokeyi" (with a space).
+  'Buzhokeyi': `/live/sport?name=${encodeURIComponent('Buz Hokeyi')}`,
+}
+
 export default function QuickFilters() {
+  const router = useRouter()
   const [active, setActive]     = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -272,7 +285,7 @@ export default function QuickFilters() {
         {filters.slice(0, 5).map((f, i) => (
           <button
             key={f.label}
-            onClick={() => setActive(i)}
+            onClick={() => { setActive(i); router.push(QUICK_FILTER_HREF[f.label]) }}
             className={`flex flex-col items-center justify-center gap-[5px] flex-1 min-h-[60px] py-[6px] rounded-[10px] transition-all ${
               active === i ? 'bg-[#0E8FCF]' : 'bg-white'
             }`}

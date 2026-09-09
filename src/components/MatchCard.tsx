@@ -3,15 +3,27 @@
 import Link from 'next/link'
 import NotifyBell from './NotifyBell'
 import LiveTag from './LiveTag'
+import FavoriteStar from './FavoriteStar'
 import { useBetSlip } from './BetSlipProvider'
 import { Match, halfText } from '@/data/liveData'
+
+export type OddsMarket = 'MS' | 'ALTUST' | 'CS' | 'BERABER'
+
+const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: Match) => Match['odds'] }> = {
+  MS: { label: '1X2', pick: (m) => m.odds },
+  ALTUST: { label: 'Alt/Üst', pick: (m) => m.altUst },
+  CS: { label: 'Çifte Şans', pick: (m) => m.cifteSans },
+  BERABER: { label: 'Beraberlik', pick: (m) => m.beraber },
+}
 
 // Reusable single match card in the ls1.png style. Renders full-width so it
 // works both in a single-column stack and inside a 2-column grid. Odds pills
 // are wired to the global betslip; the whole card links to the match detail.
-export default function MatchCard({ match, compact = false }: { match: Match; compact?: boolean }) {
+export default function MatchCard({ match, compact = false, market = 'MS' }: { match: Match; compact?: boolean; market?: OddsMarket }) {
   const { has, toggle } = useBetSlip()
   const sub = halfText(match.half)
+  const { label: marketLabel, pick } = MARKET_CONFIG[market]
+  const displayOdds = pick(match)
 
   return (
     <Link
@@ -32,9 +44,21 @@ export default function MatchCard({ match, compact = false }: { match: Match; co
           )}
           <NotifyBell size={12} />
           <LiveTag />
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
+          <FavoriteStar
+            size={12}
+            item={{
+              type: 'event',
+              id: match.id,
+              title: `${match.team1} - ${match.team2}`,
+              subtitle: match.league,
+              href: `/match?id=${match.id}`,
+              logo1: match.logo1,
+              logo2: match.logo2,
+              score1: match.score1,
+              score2: match.score2,
+              isLive: true,
+            }}
+          />
         </div>
       </div>
 
@@ -68,12 +92,12 @@ export default function MatchCard({ match, compact = false }: { match: Match; co
         )}
       </div>
 
-      {/* Odds (1X2) */}
+      {/* Odds (active market) */}
       <div className="px-[10px] pb-[10px]">
         <div className="flex gap-[5px]">
-          {match.odds.map((odd, j) => {
+          {displayOdds.map((odd, j) => {
             const disabled = odd.value === '—'
-            const id = `${match.id}::1X2::${odd.label}`
+            const id = `${match.id}::${marketLabel}::${odd.label}`
             const sel = has(id)
             return (
               <span
@@ -83,7 +107,7 @@ export default function MatchCard({ match, compact = false }: { match: Match; co
                 onClick={(e) => {
                   e.preventDefault(); e.stopPropagation()
                   if (disabled) return
-                  toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1 })
+                  toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: marketLabel, pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: true })
                 }}
                 className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border ${disabled ? 'bg-[#f4f6f9] border-[#eef1f5] cursor-default' : `cursor-pointer ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}`}
               >

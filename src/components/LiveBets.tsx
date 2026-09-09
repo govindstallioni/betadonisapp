@@ -211,7 +211,7 @@ export default function LiveBets() {
                       tabIndex={0}
                       onClick={(e) => {
                         e.preventDefault(); e.stopPropagation()
-                        toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1 })
+                        toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: true })
                       }}
                       className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border cursor-pointer ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}
                     >

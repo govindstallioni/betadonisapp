@@ -18,6 +18,8 @@ const depositLimits: LimitRow[] = [
 
 const lossLimits: LimitRow[] = [
   { key: 'lossDaily', label: 'Günlük Kayıp Limiti', desc: 'Bir günde kaybedebileceğiniz tutar', unit: 'TRY' },
+  { key: 'lossWeekly', label: 'Haftalık Kayıp Limiti', desc: 'Bir hafta içinde kaybedebileceğiniz tutar', unit: 'TRY' },
+  { key: 'lossMonthly', label: 'Aylık Kayıp Limiti', desc: 'Bir ay içinde kaybedebileceğiniz tutar', unit: 'TRY' },
   { key: 'session', label: 'Oturum Süresi', desc: 'Kesintisiz oyun oturumu süresi', unit: 'dk' },
 ]
 

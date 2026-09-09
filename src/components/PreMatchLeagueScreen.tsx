@@ -243,7 +243,7 @@ export default function PreMatchLeagueScreen() {
                     const sel = has(id)
                     return (
                       <button key={odd.label}
-                        onClick={() => toggle({ id, league: fixture.league, match: `${fixture.home.name} - ${fixture.away.name}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1 })}
+                        onClick={() => toggle({ id, league: fixture.league, match: `${fixture.home.name} - ${fixture.away.name}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: false })}
                         className={`flex flex-col items-start px-[10px] py-[7px] rounded-[8px] border transition-all ${
                           sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#f4f7fb] border-[#e8ecf1] hover:border-[#0E8FCF]'
                         }`}>

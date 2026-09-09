@@ -1,13 +1,13 @@
 export default function DailyWheel() {
   const segments = [
-    { color: '#DC2626', label: '500₺' },
-    { color: '#D97706', label: '100₺' },
-    { color: '#059669', label: '250₺' },
-    { color: '#2563EB', label: '50₺' },
-    { color: '#7C3AED', label: '1000₺' },
-    { color: '#DB2777', label: '75₺' },
-    { color: '#DC2626', label: '200₺' },
-    { color: '#D97706', label: '150₺' },
+    { color: '#2563EB', label: '10€' },
+    { color: '#0891B2', label: 'TEKRAR' },
+    { color: '#059669', label: '5€' },
+    { color: '#7C3AED', label: '15€' },
+    { color: '#F59E0B', label: '+1 GÜN' },
+    { color: '#D97706', label: '2€' },
+    { color: '#DB2777', label: '17€' },
+    { color: '#6B7280', label: 'BOŞ' },
   ]
 
   return (

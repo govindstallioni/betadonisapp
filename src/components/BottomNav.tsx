@@ -82,17 +82,8 @@ const iHorse = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path
 const iWheel = <img src="/icons/top.svg" alt="" width={20} height={20} style={{ objectFit: 'contain' }} />
 const iPartner = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
 
-// Account (Diğerleri) icons — blue on light bg, use currentColor
-const iLimit = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" /></svg>
-const iProfile = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
-const iHistory = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><polyline points="12 7 12 12 15 15" /></svg>
-const iBonus = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" /><path d="M12 8C12 5 10 3 8 3a2.5 2.5 0 0 0 0 5M12 8c0-3 2-5 4-5a2.5 2.5 0 0 1 0 5" /></svg>
-const iMessage = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.9-.9L3 21l1.9-5.6A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z" /></svg>
-const iTicket = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9a3 3 0 0 0 0 6v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2z" /><path d="M13 5v14" strokeDasharray="2 2" /></svg>
-const iUpload = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-const iBell = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+// Diğerleri icons — blue on light bg, use currentColor
 const iInfo = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
-const iLogout = <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
 
 // ── Menu tabs ──────────────────────────────────────────────────
 
@@ -119,7 +110,7 @@ const trendItems = [
   { title: 'Canlı Oyunlar', desc: 'Her saniye yeni kazanç', href: '#', color: '#0891b2', icon: iDice },
   { title: 'Golden Race', desc: 'Kazanırken eğlenmek, kontrol sende', href: '#', color: '#d97706', icon: iHorse },
   { title: 'Şans Çarkı', desc: 'Hergün senin için nakit ödül, boş yok', href: '#', color: '#f59e0b', icon: iWheel },
-  { title: 'Ortaklık', desc: 'Finansal ekosistemin ortağı ol', href: '/bilgi/ortaklik', color: '#27ae60', icon: iPartner },
+  { title: 'Ortaklık', desc: 'Finansal ekosistemin ortağı ol', href: '/ortaklik', color: '#27ae60', icon: iPartner },
 ]
 
 // ── Sporlar tab items ──────────────────────────────────────────
@@ -164,17 +155,6 @@ const slotItems = [
 
 // ── Diğerleri (account) ────────────────────────────────────────
 
-const accountActions = [
-  { title: 'LİMİT BELİRLEME', desc: 'Limitlerinizi belirleyin veya hesabınızı kapatın', href: '/hesap/limitler', icon: iLimit },
-  { title: 'PROFİL BİLGİLERİ', desc: 'Şifrenizi yenileyin ve bilgilerinizi güncelleyin', href: '/hesap/profil', icon: iProfile },
-  { title: 'HAREKETLER', desc: 'Tüm oyun ve finansal hareketlerinizi inceleyin', href: '/history', icon: iHistory },
-  { title: 'BONUSLAR', desc: 'Aktif ve geçmiş bonuslarınızı kontrol edin', href: '/hesap/bonuslar', icon: iBonus },
-  { title: 'MESAJLAR', desc: 'Yeni mesaj gönderin ve gelen yanıtları inceleyin', href: '/hesap/mesajlar', icon: iMessage },
-  { title: 'KUPONLARIM', desc: 'Kazanan ve bekleyen kuponları inceleyin', href: '/kupon', icon: iTicket },
-  { title: 'BELGE YÜKLEME', desc: 'Hesap doğrulama belgelerinizi yükleyin', href: '/hesap/belgeler', icon: iUpload },
-  { title: 'Bildirimler', desc: 'Bildirimlerini açtığınız etkinlikleri görün', href: '/hesap/bildirimler', icon: iBell },
-]
-
 const infoLinks = [
   { title: 'Betadonis Hakkında', href: '/bilgi/hakkinda' },
   { title: 'Şartlar ve Koşullar', href: '/bilgi/sartlar' },
@@ -183,10 +163,7 @@ const infoLinks = [
   { title: 'Gizlilik Politikası', href: '/bilgi/gizlilik' },
   { title: 'VIP Statü', href: '/bilgi/vip' },
   { title: 'Bonuslar', href: '/bilgi/bonuslar' },
-  { title: 'Ortaklık', href: '/bilgi/ortaklik' },
 ]
-
-const fmt = (n: number) => `${n.toFixed(2)} TRY`
 
 // ── Reusable list row ──────────────────────────────────────────
 
@@ -219,7 +196,7 @@ export default function BottomNav() {
   const [activeMenuTab, setActiveMenuTab] = useState(0)
   const pathname = usePathname()
   const router = useRouter()
-  const { isLoggedIn, balance, logout } = useAuth()
+  const { isLoggedIn } = useAuth()
   const { open: openBetSlip, count: slipCount } = useBetSlip()
 
   useEffect(() => {
@@ -369,131 +346,35 @@ export default function BottomNav() {
             {/* ── Diğerleri tab ── */}
             {activeMenuTab === 5 && (
               <div className="flex flex-col gap-3">
-                {/* Canonical navigation list (shared with /digerleri) */}
+                {/* Canonical navigation list (shared with /digerleri) — My
+                    Account intentionally has no entry point here; it lives
+                    behind the header's own person icon. */}
                 <DigerleriMenu onNavigate={navigateFromMenu} />
 
-                {/* Account section — kept reachable below the nav list */}
-                <div className="flex items-center gap-2 px-1 pt-2 pb-1">
-                  <span className="text-[#0E8FCF]">{iProfile}</span>
-                  <p className="text-[12px] font-bold text-[#1a2332] leading-tight">Hesabım</p>
+                {/* Bilgi */}
+                <div>
+                  <div className="flex items-center gap-2 px-1 pt-1 pb-2">
+                    <span className="text-[#0E8FCF]">{iInfo}</span>
+                    <div>
+                      <p className="text-[12px] font-bold text-[#1a2332] leading-tight">Bilgi</p>
+                      <p className="text-[9px] text-[#737B8C]">Kurallar, politikalar ve kurumsal bilgiler</p>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
+                    {infoLinks.map((item, idx) => (
+                      <button
+                        key={item.title}
+                        onClick={() => navigateFromMenu(item.href)}
+                        className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-[#f8fafc] transition-colors ${idx < infoLinks.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}
+                      >
+                        <span className="text-[12px] font-medium text-[#1a2332] flex-1 text-left">{item.title}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0c8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="m9 18 6-6-6-6" />
+                        </svg>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                {isLoggedIn ? (
-                  <>
-                    {/* Balance card */}
-                    <div className="bg-white rounded-xl border border-[#e8ecf1] px-4 py-3.5">
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-[12px] font-semibold text-[#1a2332]">Çekilebilir Tutar:</span>
-                        <span className="text-[12px] font-bold text-[#0E8FCF]">{fmt(balance.withdrawable)}</span>
-                      </div>
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-[12px] font-semibold text-[#1a2332]">Bonus Tutarı:</span>
-                        <span className="text-[12px] font-bold text-[#1a2332]">{fmt(balance.bonus)}</span>
-                      </div>
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-[12px] font-semibold text-[#1a2332]">Bonuslarda Kilitlenmiş:</span>
-                        <span className="text-[12px] font-bold text-[#1a2332]">{fmt(balance.locked)}</span>
-                      </div>
-                      <div className="h-px bg-[#eef1f5] my-1.5" />
-                      <div className="flex items-center justify-between py-1">
-                        <span className="text-[13px] font-bold text-[#1a2332]">Toplam:</span>
-                        <span className="text-[13px] font-bold text-[#0E8FCF]">{fmt(balance.total)}</span>
-                      </div>
-                    </div>
-
-                    {/* Account actions */}
-                    <div className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
-                      {accountActions.map((item, idx) => (
-                        <button
-                          key={item.title}
-                          onClick={() => navigateFromMenu(item.href)}
-                          className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-[#f8fafc] transition-colors ${idx < accountActions.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}
-                        >
-                          <div className="w-9 h-9 rounded-full bg-[#edf5ff] flex items-center justify-center flex-shrink-0 text-[#0E8FCF]">
-                            {item.icon}
-                          </div>
-                          <div className="flex-1 text-left min-w-0">
-                            <p className="text-[12px] font-semibold text-[#1a2332] leading-tight">{item.title}</p>
-                            <p className="text-[9px] text-[#737B8C] mt-[2px]">{item.desc}</p>
-                          </div>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0c8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="m9 18 6-6-6-6" />
-                          </svg>
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Bilgi */}
-                    <div>
-                      <div className="flex items-center gap-2 px-1 pt-1 pb-2">
-                        <span className="text-[#0E8FCF]">{iInfo}</span>
-                        <div>
-                          <p className="text-[12px] font-bold text-[#1a2332] leading-tight">Bilgi</p>
-                          <p className="text-[9px] text-[#737B8C]">Kurallar, politikalar ve kurumsal bilgiler</p>
-                        </div>
-                      </div>
-                      <div className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
-                        {infoLinks.map((item, idx) => (
-                          <button
-                            key={item.title}
-                            onClick={() => navigateFromMenu(item.href)}
-                            className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-[#f8fafc] transition-colors ${idx < infoLinks.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}
-                          >
-                            <span className="text-[12px] font-medium text-[#1a2332] flex-1 text-left">{item.title}</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0c8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="m9 18 6-6-6-6" />
-                            </svg>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* ÇIKIŞ */}
-                    <button
-                      onClick={() => { logout(); setMenuOpen(false) }}
-                      className="w-full h-[46px] rounded-xl border border-[#e8ecf1] bg-white text-[#e74c3c] text-[13px] font-semibold flex items-center justify-center gap-2 hover:bg-[#fef2f2] transition-colors mt-1"
-                    >
-                      <span className="text-[#e74c3c]">{iLogout}</span>
-                      ÇIKIŞ
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {/* Logged-out prompt */}
-                    <div className="bg-gradient-to-r from-[#0E8FCF] to-[#2da8e6] rounded-xl px-4 py-4">
-                      <p className="text-[13px] font-bold text-white leading-tight">Hesabınıza giriş yapın</p>
-                      <p className="text-[10px] text-white/80 mt-1 mb-3">Bakiyenizi, kuponlarınızı ve bonuslarınızı görmek için giriş yapın.</p>
-                      <div className="flex items-center gap-2.5">
-                        <Link href="/login" onClick={() => setMenuOpen(false)} className="flex-1 h-[38px] rounded-full bg-white text-[#0E8FCF] text-[12px] font-semibold flex items-center justify-center">Giriş Yap</Link>
-                        <Link href="/register" onClick={() => setMenuOpen(false)} className="flex-1 h-[38px] rounded-full bg-white/15 border border-white/40 text-white text-[12px] font-semibold flex items-center justify-center">Kayıt Ol</Link>
-                      </div>
-                    </div>
-
-                    {/* Bilgi (public) */}
-                    <div>
-                      <div className="flex items-center gap-2 px-1 pt-1 pb-2">
-                        <span className="text-[#0E8FCF]">{iInfo}</span>
-                        <div>
-                          <p className="text-[12px] font-bold text-[#1a2332] leading-tight">Bilgi</p>
-                          <p className="text-[9px] text-[#737B8C]">Kurallar, politikalar ve kurumsal bilgiler</p>
-                        </div>
-                      </div>
-                      <div className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
-                        {infoLinks.map((item, idx) => (
-                          <button
-                            key={item.title}
-                            onClick={() => navigateFromMenu(item.href)}
-                            className={`w-full flex items-center gap-3 px-3 py-3 hover:bg-[#f8fafc] transition-colors ${idx < infoLinks.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}
-                          >
-                            <span className="text-[12px] font-medium text-[#1a2332] flex-1 text-left">{item.title}</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c0c8d4" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="m9 18 6-6-6-6" />
-                            </svg>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
               </div>
             )}
 

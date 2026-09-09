@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageShell, Toggle } from '@/components/settings/SettingsUI'
+import { useNotifications } from '@/components/NotificationsProvider'
 
 interface NotifEvent {
   id: number
@@ -22,6 +23,7 @@ const initialEvents: NotifEvent[] = [
 
 export default function BildirimlerPage() {
   const router = useRouter()
+  const { notifications, markRead } = useNotifications()
   const [events, setEvents] = useState(initialEvents)
   const [on, setOn] = useState<Record<number, boolean>>({ 1: true, 2: true, 3: true, 4: true })
 
@@ -30,7 +32,31 @@ export default function BildirimlerPage() {
 
   return (
     <PageShell title="Bildirimler">
-      <div className="bg-[#edf5ff] rounded-xl border border-[#0E8FCF]/20 px-3.5 py-3 mt-4 flex gap-2.5">
+      {/* System / promo notifications */}
+      <p className="text-[12px] font-bold text-[#0E8FCF] px-1 pt-4 pb-2">Bildirimlerim</p>
+      <div className="flex flex-col gap-2.5">
+        {notifications.map((n) => (
+          <button
+            key={n.id}
+            onClick={() => markRead(n.id)}
+            className="flex items-start gap-3 bg-white rounded-xl border border-[#e8ecf1] px-3 py-3 text-left hover:shadow-sm transition-shadow"
+          >
+            <div className="w-9 h-9 rounded-full bg-[#edf5ff] flex items-center justify-center flex-shrink-0 text-[#0E8FCF] relative">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+              {n.unread && <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#e74c3c] border-2 border-white" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <p className={`text-[12px] ${n.unread ? 'font-bold' : 'font-semibold'} text-[#1a2332] truncate`}>{n.title}</p>
+                <span className="text-[9px] text-[#b0b8c4] flex-shrink-0 ml-2">{n.date}</span>
+              </div>
+              <p className="text-[10px] text-[#737B8C] mt-[2px] line-clamp-2">{n.body}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-[#edf5ff] rounded-xl border border-[#0E8FCF]/20 px-3.5 py-3 mt-5 flex gap-2.5">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.8" className="flex-shrink-0 mt-0.5"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
         <p className="text-[11px] text-[#1a2332] leading-relaxed">Bildirimlerini açtığınız etkinlikleri buradan görün. Maç başında ve gol anlarında haberdar olun.</p>
       </div>

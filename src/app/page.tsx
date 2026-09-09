@@ -9,6 +9,7 @@ import QuickFilters from '@/components/QuickFilters'
 import GameCategories from '@/components/GameCategories'
 import LiveBets from '@/components/LiveBets'
 import TopPreMatch from '@/components/TopPreMatch'
+import TodaysParlays from '@/components/TodaysParlays'
 import TopTournaments from '@/components/TopTournaments'
 import TopProviders from '@/components/TopProviders'
 import CasinoCategories from '@/components/CasinoCategories'
@@ -37,15 +38,16 @@ function HomeContent() {
       </div>
       <main className="px-4 pb-24">
         <div className="mt-2"><QuickFilters /></div>
-        <div className="mt-3"><PromoBanners /></div>
-        <div className="mt-4"><MegaJackpot /></div>
-        <div className="mt-4"><TopEvents /></div>
+        {!sportsOnly && <div className="mt-3"><PromoBanners /></div>}
+        {!sportsOnly && <div className="mt-4"><MegaJackpot /></div>}
+        {!sportsOnly && <div className="mt-4"><TopEvents /></div>}
         {!sportsOnly && <div className="mt-4"><SonKazananlar /></div>}
         <div className="mt-5"><LiveBets /></div>
         <div className="mt-3"><TopPreMatch /></div>
+        <div className="mt-3"><TodaysParlays /></div>
         {!sportsOnly && <div className="mt-3"><GameCategories /></div>}
         {!sportsOnly && <div className="mt-3"><CarkiKazananlar /></div>}
-        <div className="mt-3"><TopTournaments /></div>
+        {!sportsOnly && <div className="mt-3"><TopTournaments /></div>}
         {!sportsOnly && (
           <>
             <div className="mt-3"><TopProviders /></div>

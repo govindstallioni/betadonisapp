@@ -86,6 +86,7 @@ export default function LiveMatchDetail() {
     market: marketName,
     pick: odd.label,
     baseOdd: parseFloat(odd.value) || 1,
+    isLive: true,
   })
 
   return (

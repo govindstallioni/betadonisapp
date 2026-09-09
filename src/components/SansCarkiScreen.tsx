@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import SpinWheel from './SpinWheel'
+import DayMultiplierStrip from './DayMultiplierStrip'
 
 const perks = [
   { t: 'Her gün ücretsiz çevirme', d: 'Günde bir kez çarkı çevir, boş yok' },
@@ -25,6 +26,7 @@ export default function SansCarkiScreen() {
 
       <div className="px-4 pt-4 pb-24">
         <SpinWheel />
+        <DayMultiplierStrip />
 
         {/* Perks */}
         <div className="mt-5 flex flex-col gap-[8px]">

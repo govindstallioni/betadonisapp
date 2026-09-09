@@ -141,6 +141,7 @@ function BottomButton() {
   const router = useRouter()
   const { login } = useAuth()
   const handleRegister = () => {
+    try { localStorage.setItem('bta_welcome_bubble_pending', '1') } catch {}
     login()
     router.push('/')
   }

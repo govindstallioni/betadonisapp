@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/components/AuthProvider'
 
 const actionRoutes: Record<string, string> = {
   deposit:     '/kupon/deposit',
@@ -74,6 +75,7 @@ const actions = [
 
 export default function KuponScreen() {
   const router = useRouter()
+  const { balance } = useAuth()
   const [loadSheetOpen, setLoadSheetOpen] = useState(false)
   const [code, setCode] = useState('')
 
@@ -112,7 +114,9 @@ export default function KuponScreen() {
               </div>
               <div>
                 <p className="text-[13px] font-semibold text-[#1a2332] leading-tight">{action.title}</p>
-                <p className="text-[11px] text-[#737B8C] mt-[2px]">{action.desc}</p>
+                <p className="text-[11px] text-[#737B8C] mt-[2px]">
+                  {action.id === 'deposit' ? `Bakiyeniz: ${balance.total.toLocaleString('tr-TR')} ₺` : action.desc}
+                </p>
               </div>
             </button>
           ))}

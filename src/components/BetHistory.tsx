@@ -4,21 +4,17 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from './AuthProvider'
-import { loadCoupons, saveCoupons, resolveOutcome, type Coupon } from '@/data/coupons'
+import { loadCoupons, saveCoupons, resolveOutcome, fmtDateTime, type Coupon } from '@/data/coupons'
 
-const historyTypes = [
-  { label: 'Bahis Geçmişi' },
-  { label: 'Bekleyen Bahisler' },
+// Section switch — reuses the existing dropdown/bottom-sheet UI, now actually
+// switching the data source instead of being purely cosmetic.
+const sections = [
+  { label: 'Kuponlar' },
+  { label: 'Casino' },
 ]
 
-// Quick-filter tabs shown in the header (see ls2/ls3 reference).
-const tabs = ['Hepsi', 'Kazanmış', 'Bekleyenler']
-
-// İşlem tipi options inside the Filtrele sheet.
-const filterTypes = ['Hepsi', 'Kazanmış', 'Kaybetmiş', 'Bekleyen', 'İptal']
-
 // ── Sample bet data (prototype has no backend) ──────────────────────────
-type BetStatus = 'won' | 'lost' | 'pending' | 'cancelled'
+type BetStatus = 'won' | 'lost' | 'pending' | 'cancelled' | 'refunded'
 
 type Leg = {
   league: string
@@ -115,6 +111,41 @@ const sampleBets: Bet[] = [
       { league: 'İtalya. Serie A', match: 'Juventus - Napoli', pick: 'Maç Sonucu: 2', odd: 3.10, result: 'cancelled' },
     ],
   },
+  {
+    id: 'A0810',
+    type: 'Tekli',
+    status: 'refunded',
+    date: '03.07.2026 17:15',
+    stake: 80,
+    totalOdds: 1.75,
+    payout: 80,
+    legs: [
+      { league: 'Almanya. Bundesliga', match: 'Bayern Münih - Dortmund', pick: 'Toplam: Üst (3.5)', odd: 1.75, result: 'cancelled' },
+    ],
+  },
+]
+
+// ── Casino history (prototype has no backend) ────────────────────────────
+// Reuses the same Bet/BetCard shape as sportsbook bets — one synthetic leg
+// per entry (league → category, match → game, pick → provider) so the
+// existing card UI renders casino transactions with no extra component.
+const sampleCasinoBets: Bet[] = [
+  {
+    id: 'C2210', type: 'Tekli', status: 'won', date: '14.07.2026 22:10', stake: 50, totalOdds: 4.2, payout: 210,
+    legs: [{ league: 'Slot', match: 'Sweet Bonanza', pick: 'Pragmatic Play', odd: 4.2, result: 'won' }],
+  },
+  {
+    id: 'C2198', type: 'Tekli', status: 'lost', date: '13.07.2026 21:05', stake: 100, totalOdds: 1, payout: 0,
+    legs: [{ league: 'Slot', match: 'Gates of Olympus', pick: 'Pragmatic Play', odd: 1, result: 'lost' }],
+  },
+  {
+    id: 'C2180', type: 'Tekli', status: 'pending', date: '15.07.2026 19:40', stake: 25, totalOdds: 1, payout: 25,
+    legs: [{ league: 'Canlı Casino', match: 'Rulet', pick: 'Betadonis Live', odd: 1, result: 'pending' }],
+  },
+  {
+    id: 'C2144', type: 'Tekli', status: 'won', date: '10.07.2026 15:22', stake: 20, totalOdds: 12.5, payout: 250,
+    legs: [{ league: 'Slot', match: 'Big Bass Splash', pick: 'Pragmatic Play', odd: 12.5, result: 'won' }],
+  },
 ]
 
 // Status → Turkish label + badge/amount colors (readable on light & dark).
@@ -123,16 +154,42 @@ const statusMeta: Record<BetStatus, { label: string; color: string; bg: string }
   lost:      { label: 'Kaybetti', color: '#e74c3c', bg: 'rgba(231,76,60,0.12)' },
   pending:   { label: 'Bekliyor', color: '#f39c12', bg: 'rgba(243,156,18,0.15)' },
   cancelled: { label: 'İptal',    color: '#8899aa', bg: 'rgba(136,153,170,0.15)' },
+  refunded:  { label: 'İade',     color: '#7c3aed', bg: 'rgba(124,58,237,0.12)' },
+}
+
+// ── Deposit/withdrawal/other transactions (prototype has no backend) ─────
+type TxKind = 'deposit' | 'withdrawal' | 'other'
+type Transaction = { id: string; kind: TxKind; date: string; amount: number; note: string }
+
+const sampleTransactions: Transaction[] = [
+  { id: 'T3021', kind: 'deposit',    date: '14.07.2026 10:12', amount: 500, note: 'Banka Havalesi ile yatırım' },
+  { id: 'T2991', kind: 'withdrawal', date: '09.07.2026 16:40', amount: -250, note: 'Banka hesabına çekim' },
+  { id: 'T2980', kind: 'other',      date: '06.07.2026 12:05', amount: 25, note: 'Hoş geldin bonusu' },
+]
+
+const txMeta: Record<TxKind, { label: string; color: string; bg: string }> = {
+  deposit:    { label: 'Para Yatırma', color: '#27ae60', bg: 'rgba(39,174,96,0.12)' },
+  withdrawal: { label: 'Para Çekme',   color: '#0E8FCF', bg: 'rgba(14,143,207,0.12)' },
+  other:      { label: 'Diğer',        color: '#8899aa', bg: 'rgba(136,153,170,0.15)' },
 }
 
 // localStorage key for which coupons are expanded (persists across reloads).
 const OPEN_KEY = 'bta_history_open'
 
-// Tab index → status filter, and İşlem Tipi label → status filter.
-const tabStatus: (BetStatus | 'all')[] = ['all', 'won', 'pending']
-const filterStatus: Record<string, BetStatus | 'all'> = {
-  'Hepsi': 'all', 'Kazanmış': 'won', 'Kaybetmiş': 'lost', 'Bekleyen': 'pending', 'İptal': 'cancelled',
-}
+// Unified filter — drives both the top quick pills and the full Filtrele sheet.
+type FilterKey = BetStatus | 'all' | 'deposit_withdrawal' | 'other'
+const filterChips: { key: FilterKey; label: string }[] = [
+  { key: 'all',                label: 'Hepsi' },
+  { key: 'won',                label: 'Kazandı' },
+  { key: 'lost',                label: 'Kaybetti' },
+  { key: 'pending',             label: 'Bekliyor' },
+  { key: 'cancelled',          label: 'İptal' },
+  { key: 'refunded',           label: 'İade' },
+  { key: 'deposit_withdrawal', label: 'Para Yatırma/Çekme' },
+  { key: 'other',              label: 'Diğer' },
+]
+// The 3 quick pills shown directly in the header.
+const quickFilters: FilterKey[] = ['all', 'won', 'pending']
 
 // Turkish currency: 1.250,00 ₺
 function formatTRY(n: number) {
@@ -145,6 +202,11 @@ function formatTRY(n: number) {
 function betDay(date: string) {
   const [d, m, y] = date.split(' ')[0].split('.')
   return `${y}-${m}-${d}`
+}
+
+// "12.07.2026 21:45" → "2026-07-12 21:45" (fully chronologically sortable).
+function sortKey(date: string) {
+  return `${betDay(date)} ${date.split(' ')[1] || '00:00'}`
 }
 
 function SoccerIcon() {
@@ -242,6 +304,29 @@ function BetCard({ bet, open, onToggle }: { bet: Bet; open: boolean; onToggle: (
   )
 }
 
+// Compact single-line row for deposit/withdrawal/other transactions — no
+// legs/odds to expand, so it deliberately doesn't reuse BetCard's chevron.
+function TransactionRow({ tx }: { tx: Transaction }) {
+  const m = txMeta[tx.kind]
+  const positive = tx.amount >= 0
+  return (
+    <div className="bg-white rounded-xl border border-[#e8ecf1] shadow-sm px-3 py-[10px] flex items-center justify-between gap-[8px]">
+      <div className="flex items-center gap-[8px] min-w-0">
+        <span className="text-[10px] font-bold px-[8px] py-[3px] rounded-full flex-shrink-0" style={{ color: m.color, background: m.bg }}>
+          {m.label}
+        </span>
+        <div className="min-w-0">
+          <p className="text-[12px] font-semibold text-[#1a2332] leading-tight truncate">{tx.note}</p>
+          <p className="text-[10px] text-[#94a3b8] mt-[1px]">{tx.date} · No: {tx.id}</p>
+        </div>
+      </div>
+      <span className={`text-[12px] font-bold tabular-nums flex-shrink-0 ${positive ? 'text-[#27ae60]' : 'text-[#1a2332]'}`}>
+        {positive ? '+' : '−'}{formatTRY(Math.abs(tx.amount))}
+      </span>
+    </div>
+  )
+}
+
 function Mascot() {
   return (
     <svg viewBox="0 0 160 160" width="160" height="160">
@@ -298,13 +383,12 @@ function ClockBadge() {
 
 export default function BetHistory() {
   const router = useRouter()
-  const { loaded, isLoggedIn, adjustBalance } = useAuth()
+  const { loaded, isLoggedIn, lastLoginAt, adjustBalance } = useAuth()
   const [coupons, setCoupons] = useState<Coupon[]>([])
-  const [activeHistoryType, setActiveHistoryType] = useState(0)
-  const [showHistoryType, setShowHistoryType] = useState(false)
+  const [activeSection, setActiveSection] = useState(0) // 0 = Kuponlar, 1 = Casino
+  const [showSectionSheet, setShowSectionSheet] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<BetStatus | 'all'>('all')
-  const [filterType, setFilterType] = useState('Hepsi')
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
   const [startDate, setStartDate] = useState('')       // range inputs (uncommitted)
   const [endDate, setEndDate] = useState('')
   const [appliedStart, setAppliedStart] = useState('') // committed on FİLTRELE — filters the list
@@ -354,14 +438,34 @@ export default function BetHistory() {
     return () => clearInterval(iv)
   }, [isLoggedIn, adjustBalance])
 
-  const allBets: Bet[] = [...coupons, ...sampleBets]
+  // Section data source: Kuponlar mixes real+sample bets with financial
+  // transactions; Casino is bet-shaped mock data only (no deposits/etc there).
+  const sectionBets: Bet[] = activeSection === 0 ? [...coupons, ...sampleBets] : sampleCasinoBets
+  const sectionTransactions: Transaction[] = activeSection === 0 ? sampleTransactions : []
 
-  const visibleBets = allBets.filter(b => {
-    const day = betDay(b.date)
-    return (statusFilter === 'all' || b.status === statusFilter) &&
-      (appliedStart === '' || day >= appliedStart) &&
-      (appliedEnd === '' || day <= appliedEnd)
-  })
+  type Row = { kind: 'bet'; data: Bet } | { kind: 'tx'; data: Transaction }
+
+  const inDateRange = (date: string) => {
+    const day = betDay(date)
+    return (appliedStart === '' || day >= appliedStart) && (appliedEnd === '' || day <= appliedEnd)
+  }
+
+  const rows: Row[] = [
+    ...sectionBets.filter(b => inDateRange(b.date)).map(b => ({ kind: 'bet' as const, data: b })),
+    ...sectionTransactions.filter(t => inDateRange(t.date)).map(t => ({ kind: 'tx' as const, data: t })),
+  ]
+
+  const visibleRows = rows
+    .filter(r => {
+      if (activeFilter === 'all') return true
+      if (activeFilter === 'deposit_withdrawal') return r.kind === 'tx' && (r.data.kind === 'deposit' || r.data.kind === 'withdrawal')
+      if (activeFilter === 'other') return r.kind === 'tx' && r.data.kind === 'other'
+      return r.kind === 'bet' && r.data.status === activeFilter
+    })
+    .sort((a, b) => sortKey(b.data.date).localeCompare(sortKey(a.data.date)))
+
+  const visibleBetIds = visibleRows.filter(r => r.kind === 'bet').map(r => r.data.id)
+  const allExpanded = visibleBetIds.length > 0 && visibleBetIds.every(id => openBets.has(id))
 
   function toggleBet(id: string) {
     setOpenBets(prev => {
@@ -371,40 +475,74 @@ export default function BetHistory() {
     })
   }
 
+  function toggleAllBets() {
+    setOpenBets(prev => {
+      if (allExpanded) {
+        const next = new Set(prev)
+        visibleBetIds.forEach(id => next.delete(id))
+        return next
+      }
+      return new Set([...prev, ...visibleBetIds])
+    })
+  }
+
+  function goBack() {
+    if (typeof window !== 'undefined' && window.history.length > 1) router.back()
+    else router.push('/')
+  }
+
   return (
     <div className="max-w-[430px] mx-auto bg-[#edf1f7] min-h-screen relative">
 
       {/* ── Header ── */}
       <div className="bg-white px-4 pt-3 pb-3 border-b border-[#e8ecf1]">
         {/* Title row */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="w-8"/>
-          <button onClick={() => setShowHistoryType(true)} className="flex items-center gap-[4px]">
+        <div className="flex items-center justify-between mb-1">
+          <button onClick={goBack} aria-label="Geri" className="w-8 h-8 flex items-center justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+          </button>
+          <button onClick={() => setShowSectionSheet(true)} className="flex items-center gap-[4px]">
             <span className="text-[16px] font-bold text-[#1a2332]">
-              {historyTypes[activeHistoryType].label}
+              {sections[activeSection].label}
             </span>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="m6 9 6 6 6-6"/>
             </svg>
           </button>
-          <button className="w-8 h-8 flex items-center justify-center">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="3" width="20" height="4" rx="1"/>
-              <rect x="2" y="10" width="20" height="4" rx="1"/>
-              <rect x="2" y="17" width="20" height="4" rx="1"/>
-            </svg>
+          <button onClick={toggleAllBets} aria-label={allExpanded ? 'Tümünü kapat' : 'Tümünü aç'} className="w-8 h-8 flex items-center justify-center">
+            {allExpanded ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m18 15-6-6-6 6"/><path d="m18 21-6-6-6 6"/>
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="3" width="20" height="4" rx="1"/>
+                <rect x="2" y="10" width="20" height="4" rx="1"/>
+                <rect x="2" y="17" width="20" height="4" rx="1"/>
+              </svg>
+            )}
           </button>
         </div>
 
+        {/* Last login */}
+        {isLoggedIn && lastLoginAt && (
+          <p className="text-[10px] text-[#94a3b8] text-center mb-2">Son Giriş: {fmtDateTime(lastLoginAt)}</p>
+        )}
+
         {/* Tabs + Filtrele */}
-        <div className="flex items-center gap-[8px]">
+        <div className="flex items-center gap-[8px] mt-2">
           <div className="flex-1 flex bg-[#f1f5f9] rounded-full p-[3px] border border-[#e8ecf1]">
-            {tabs.map((t, i) => (
-              <button key={t} type="button" onClick={() => { setStatusFilter(tabStatus[i]); setFilterType(filterTypes[i === 0 ? 0 : i === 1 ? 1 : 3]) }}
-                className={`flex-1 text-[12px] font-semibold py-[7px] rounded-full transition-all ${statusFilter === tabStatus[i] ? 'bg-[#0E8FCF] text-white' : 'text-[#1a2332]'}`}>
-                {t}
-              </button>
-            ))}
+            {quickFilters.map(key => {
+              const chip = filterChips.find(f => f.key === key)!
+              return (
+                <button key={key} type="button" onClick={() => setActiveFilter(key)}
+                  className={`flex-1 text-[12px] font-semibold py-[7px] rounded-full transition-all ${activeFilter === key ? 'bg-[#0E8FCF] text-white' : 'text-[#1a2332]'}`}>
+                  {chip.label}
+                </button>
+              )
+            })}
           </div>
           <button onClick={() => setShowFilters(true)}
             className="flex items-center gap-[5px] px-[14px] py-[8px] rounded-full bg-[#f1f5f9] border border-[#e8ecf1] text-[#0E8FCF] text-[12px] font-semibold flex-shrink-0">
@@ -418,11 +556,13 @@ export default function BetHistory() {
 
       {/* ── Content ── */}
       {!loaded ? null : isLoggedIn ? (
-        visibleBets.length > 0 ? (
-          /* Logged-in: bet list */
+        visibleRows.length > 0 ? (
+          /* Logged-in: bet + transaction list */
           <div className="px-3 pt-3 pb-28 flex flex-col gap-[8px]">
-            {visibleBets.map(bet => (
-              <BetCard key={bet.id} bet={bet} open={openBets.has(bet.id)} onToggle={() => toggleBet(bet.id)} />
+            {visibleRows.map(row => row.kind === 'bet' ? (
+              <BetCard key={row.data.id} bet={row.data} open={openBets.has(row.data.id)} onToggle={() => toggleBet(row.data.id)} />
+            ) : (
+              <TransactionRow key={row.data.id} tx={row.data} />
             ))}
           </div>
         ) : (
@@ -455,25 +595,25 @@ export default function BetHistory() {
         </div>
       )}
 
-      {/* ── History Type Bottom Sheet ── */}
-      {showHistoryType && (
+      {/* ── Section Bottom Sheet (Kuponlar / Casino) ── */}
+      {showSectionSheet && (
         <>
           <div className="fixed inset-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-black/40 z-[70]"
-            onClick={() => setShowHistoryType(false)}/>
+            onClick={() => setShowSectionSheet(false)}/>
           <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[80] bg-white rounded-t-2xl animate-slide-up">
             <div className="flex justify-center pt-3 pb-2">
               <div className="w-10 h-1 bg-[#d0d5dd] rounded-full"/>
             </div>
             <h3 className="text-[15px] font-bold text-[#1a2332] text-center pb-3">Geçmiş Türü</h3>
             <div className="px-4 pb-8">
-              {historyTypes.map((type, i) => (
-                <button key={type.label} onClick={() => { setActiveHistoryType(i); setShowHistoryType(false) }}
-                  className={`w-full flex items-center justify-between py-[14px] ${i < historyTypes.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}>
-                  <span className={`text-[13px] font-medium ${activeHistoryType === i ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>
-                    {type.label}
+              {sections.map((s, i) => (
+                <button key={s.label} onClick={() => { setActiveSection(i); setShowSectionSheet(false) }}
+                  className={`w-full flex items-center justify-between py-[14px] ${i < sections.length - 1 ? 'border-b border-[#f0f2f5]' : ''}`}>
+                  <span className={`text-[13px] font-medium ${activeSection === i ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>
+                    {s.label}
                   </span>
-                  <div className={`w-[20px] h-[20px] rounded-full border-2 flex items-center justify-center ${activeHistoryType === i ? 'border-[#0E8FCF]' : 'border-[#d0d5dd]'}`}>
-                    {activeHistoryType === i && <div className="w-[10px] h-[10px] rounded-full bg-[#0E8FCF]"/>}
+                  <div className={`w-[20px] h-[20px] rounded-full border-2 flex items-center justify-center ${activeSection === i ? 'border-[#0E8FCF]' : 'border-[#d0d5dd]'}`}>
+                    {activeSection === i && <div className="w-[10px] h-[10px] rounded-full bg-[#0E8FCF]"/>}
                   </div>
                 </button>
               ))}
@@ -509,10 +649,10 @@ export default function BetHistory() {
               {/* İşlem tipi */}
               <p className="text-[12px] font-semibold text-[#1a2332] mb-[10px]">İşlem Tipi</p>
               <div className="flex flex-wrap gap-[8px] mb-6">
-                {filterTypes.map(t => (
-                  <button key={t} type="button" onClick={() => setFilterType(t)}
-                    className={`px-[16px] py-[8px] rounded-full text-[12px] font-semibold transition-all ${filterType === t ? 'bg-[#0E8FCF] text-white' : 'bg-[#f1f5f9] text-[#1a2332] border border-[#e8ecf1]'}`}>
-                    {t}
+                {filterChips.map(f => (
+                  <button key={f.key} type="button" onClick={() => setActiveFilter(f.key)}
+                    className={`px-[16px] py-[8px] rounded-full text-[12px] font-semibold transition-all ${activeFilter === f.key ? 'bg-[#0E8FCF] text-white' : 'bg-[#f1f5f9] text-[#1a2332] border border-[#e8ecf1]'}`}>
+                    {f.label}
                   </button>
                 ))}
               </div>
@@ -539,8 +679,8 @@ export default function BetHistory() {
               </div>
               <p className="text-[11px] text-[#94a3b8] mb-6">İki tarih arasındaki bahisler gösterilir. Bir alan boş bırakılabilir.</p>
 
-              {/* Apply */}
-              <button type="button" onClick={() => { setStatusFilter(filterStatus[filterType]); setAppliedStart(startDate); setAppliedEnd(endDate); setShowFilters(false) }}
+              {/* Apply — chip selection already applies live; this commits the date range */}
+              <button type="button" onClick={() => { setAppliedStart(startDate); setAppliedEnd(endDate); setShowFilters(false) }}
                 className="w-full py-[13px] rounded-xl text-[13px] font-bold tracking-wide text-white bg-[#0E8FCF]">
                 FİLTRELE
               </button>
