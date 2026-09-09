@@ -19,8 +19,15 @@ const badgeStyles = {
 }
 
 export default function SectionHeader({ title, badge, showAll, count, gamesCount, href }: SectionHeaderProps) {
-  const AllTag = href ? Link : 'button'
-  const allProps = href ? { href } : {}
+  const allClassName = "text-[11px] text-[#0E8FCF] font-semibold bg-white rounded-full px-[12px] py-[4px] hover:bg-[#f0f7ff] transition-colors flex items-center gap-[4px]"
+  const allChildren = (
+    <>
+      Tümü
+      {count !== undefined && (
+        <span className="text-[9px] bg-[#0E8FCF] text-white rounded-full px-[5px] py-[1px] leading-none font-bold">{count}</span>
+      )}
+    </>
+  )
   return (
     <div className="flex items-center justify-between mb-[12px]">
       <div className="flex items-center gap-[8px]">
@@ -38,12 +45,11 @@ export default function SectionHeader({ title, badge, showAll, count, gamesCount
         )}
       </div>
       {showAll && (
-        <AllTag {...allProps} className="text-[11px] text-[#0E8FCF] font-semibold bg-white rounded-full px-[12px] py-[4px] hover:bg-[#f0f7ff] transition-colors flex items-center gap-[4px]">
-          Tümü
-          {count !== undefined && (
-            <span className="text-[9px] bg-[#0E8FCF] text-white rounded-full px-[5px] py-[1px] leading-none font-bold">{count}</span>
-          )}
-        </AllTag>
+        href ? (
+          <Link href={href} className={allClassName}>{allChildren}</Link>
+        ) : (
+          <button className={allClassName}>{allChildren}</button>
+        )
       )}
       {gamesCount && (
         <button className="text-[11px] text-[#0E8FCF] font-semibold hover:text-[#0a6fa0] transition-colors flex items-center gap-[2px]">
