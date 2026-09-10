@@ -19,7 +19,7 @@ const slots: DocSlot[] = [
 ]
 
 const statusMeta: Record<DocStatus, { label: string; color: string }> = {
-  missing:  { label: 'Belge İstenmedi', color: '#8899aa' },
+  missing:  { label: 'Belge Bulunamadı', color: '#8899aa' },
   pending:  { label: 'İnceleniyor',     color: '#f39c12' },
   approved: { label: 'Onaylı',          color: '#27ae60' },
 }

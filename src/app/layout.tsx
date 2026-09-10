@@ -10,6 +10,7 @@ import WheelGuestBubble from '@/components/WheelGuestBubble'
 import WelcomeBubble from '@/components/WelcomeBubble'
 import NotificationBubble from '@/components/NotificationBubble'
 import SiteAddressBanner from '@/components/SiteAddressBanner'
+import LiveSupportWidget from '@/components/LiveSupportWidget'
 import MessagesProvider from '@/components/MessagesProvider'
 import NotificationsProvider from '@/components/NotificationsProvider'
 import AccountPanelProvider from '@/components/AccountPanelProvider'
@@ -50,6 +51,7 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning>
+        <LiveSupportWidget />
         <ThemeProvider>
           <SiteAddressBanner />
           <AuthProvider>
