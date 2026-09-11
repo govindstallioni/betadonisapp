@@ -1,12 +1,12 @@
 import SectionHeader from './SectionHeader'
 
 const tournaments = [
-  { flag: '/flags/turkey.png', league: 'Türkiye. Süper Lig', matches: 6, hasLive: true, hasStream: true },
-  { flag: '/flags/turkey.png', league: 'Türkiye. 1. Lig', matches: 4, hasLive: true, hasStream: false },
-  { flag: '/flags/turkey.png', league: 'Türkiye. Süper Lig', matches: 5, hasLive: true, hasStream: true },
-  { flag: '/flags/turkey.png', league: 'Türkiye. 2. Lig', matches: 3, hasLive: true, hasStream: true },
-  { flag: '/flags/turkey.png', league: 'Türkiye. Kadınlar Ligi', matches: 8, hasLive: false, hasStream: true },
-  { flag: '/flags/turkey.png', league: 'Türkiye. U21 Ligi', matches: 5, hasLive: true, hasStream: false },
+  { flag: '🇹🇷', league: 'Türkiye. Süper Lig', matches: 6, hasLive: true, hasStream: true },
+  { flag: '🇹🇷', league: 'Türkiye. 1. Lig', matches: 4, hasLive: true, hasStream: false },
+  { flag: '🇹🇷', league: 'Türkiye. Süper Lig', matches: 5, hasLive: true, hasStream: true },
+  { flag: '🇹🇷', league: 'Türkiye. 2. Lig', matches: 3, hasLive: true, hasStream: true },
+  { flag: '🇹🇷', league: 'Türkiye. Kadınlar Ligi', matches: 8, hasLive: false, hasStream: true },
+  { flag: '🇹🇷', league: 'Türkiye. U21 Ligi', matches: 5, hasLive: true, hasStream: false },
 ]
 
 // Split into chunks of 3
@@ -18,7 +18,7 @@ for (let i = 0; i < tournaments.length; i += 3) {
 export default function TopTournaments() {
   return (
     <div>
-      <SectionHeader title="CANLI Turnuvalar" badge="Spor" showAll count={38} />
+      <SectionHeader title="CANLI Turnuvalar" badge="Spor" showAll count={38} href="/live/sport" />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {chunks.map((chunk, ci) => (
           <div
@@ -34,7 +34,7 @@ export default function TopTournaments() {
               >
                 {/* Left: flag + league */}
                 <div className="flex items-center gap-[10px] flex-1 min-w-0">
-                  <img src={t.flag} alt="" className="w-[20px] h-[20px] rounded-full object-cover flex-shrink-0" />
+                  <span className="w-[20px] h-[20px] rounded-full bg-[#f1f5f9] flex items-center justify-center text-[12px] flex-shrink-0">{t.flag}</span>
                   <span className="text-[11px] text-[#1a2332] font-medium truncate">{t.league}</span>
                   {t.hasStream && (
                     <div className="flex items-center gap-[3px] bg-[#fde8e8] rounded-full px-[6px] py-[2px] flex-shrink-0">

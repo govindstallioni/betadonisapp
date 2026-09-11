@@ -98,7 +98,7 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="bg-white px-4 pt-4 pb-3 border-b border-[#e8ecf1]">
         <div className="flex items-center">
-          <button onClick={() => router.push('/?menu=open')} className="w-8 h-8 flex items-center justify-center">
+          <button onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="m15 18-6-6 6-6" />
             </svg>

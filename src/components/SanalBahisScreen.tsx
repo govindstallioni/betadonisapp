@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 // ── Sanal Bahis (iframe provider) ───────────────────────────────────────────
 // Like Golden Race and Poker, virtual betting is served by an external provider
@@ -20,7 +20,10 @@ const virtualSports = [
 
 export default function SanalBahisScreen() {
   const router = useRouter()
-  const [active, setActive] = useState(0)
+  const searchParams = useSearchParams()
+  const requestedSport = searchParams.get('sport')
+  const initialActive = Math.max(0, virtualSports.findIndex(s => s.short.toLowerCase() === requestedSport?.toLowerCase()))
+  const [active, setActive] = useState(initialActive)
   const sport = virtualSports[active]
 
   return (

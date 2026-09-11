@@ -198,7 +198,7 @@ export default function SlotsScreen() {
 
           {/* ── Kategoriler ── */}
           <div className="px-4 pt-1">
-            <SectionHeader title="Kategoriler" showAll />
+            <SectionHeader title="Kategoriler" showAll href="/slots/tumu" />
           </div>
           <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
             {kategoriler.map((cat) => (

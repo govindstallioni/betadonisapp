@@ -1,8 +1,10 @@
+import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 
 const categories = [
   {
     name: 'En Popüler',
+    slug: 'populer',
     image: '/categories/01.png',
     bg: 'linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%)',
     icon: (
@@ -14,6 +16,7 @@ const categories = [
   },
   {
     name: 'Masa Oyunları',
+    slug: 'masa-oyunlari',
     image: '/categories/02.png',
     bg: 'linear-gradient(135deg, #a855f7 0%, #6b21a8 100%)',
     icon: (
@@ -27,6 +30,7 @@ const categories = [
   },
   {
     name: 'Video Slots',
+    slug: 'video-slots',
     image: '/categories/03.png',
     bg: 'linear-gradient(135deg, #059669 0%, #064e3b 100%)',
     icon: (
@@ -41,6 +45,7 @@ const categories = [
   },
   {
     name: 'Blackjack',
+    slug: 'blackjack',
     image: '/categories/04.png',
     bg: 'linear-gradient(135deg, #0E8FCF 0%, #1e40af 100%)',
     icon: (
@@ -51,6 +56,7 @@ const categories = [
   },
   {
     name: 'Video Poker',
+    slug: 'video-poker',
     image: '/categories/05.png',
     bg: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
     icon: (
@@ -62,6 +68,7 @@ const categories = [
   },
   {
     name: 'Kazı Kazan',
+    slug: 'kazi-kazan',
     image: '/categories/06.png',
     bg: 'linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%)',
     icon: (
@@ -76,6 +83,7 @@ const categories = [
   },
   {
     name: 'Diğer Oyunlar',
+    slug: 'diger-oyunlar',
     image: '/categories/07.png',
     bg: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
     icon: (
@@ -91,12 +99,13 @@ const categories = [
 export default function CasinoCategories() {
   return (
     <div>
-      <SectionHeader title="Kategoriler" badge="Casino Oyunları" showAll />
+      <SectionHeader title="Kategoriler" badge="Casino Oyunları" showAll href="/slots/tumu" />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {categories.map((cat) => (
-          <div
+          <Link
             key={cat.name}
-            className="flex-shrink-0 w-[80px] rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform relative overflow-hidden"
+            href={`/slots/${cat.slug}`}
+            className="flex-shrink-0 w-[80px] rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform relative overflow-hidden block"
             style={!cat.image ? { background: cat.bg } : undefined}
           >
             {cat.image && (
@@ -109,7 +118,7 @@ export default function CasinoCategories() {
                 {cat.name}
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

@@ -7,13 +7,15 @@ import FavoriteStar from './FavoriteStar'
 import { useBetSlip } from './BetSlipProvider'
 import { Match, halfText } from '@/data/liveData'
 
-export type OddsMarket = 'MS' | 'ALTUST' | 'CS' | 'BERABER'
+export type OddsMarket = 'MS' | 'ALTUST' | 'CS' | 'BERABER' | 'HANDIKAP' | 'KORNER'
 
 const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: Match) => Match['odds'] }> = {
   MS: { label: '1X2', pick: (m) => m.odds },
   ALTUST: { label: 'Alt/Üst', pick: (m) => m.altUst },
   CS: { label: 'Çifte Şans', pick: (m) => m.cifteSans },
   BERABER: { label: 'Beraberlik', pick: (m) => m.beraber },
+  HANDIKAP: { label: 'Handikap', pick: (m) => m.handikap },
+  KORNER: { label: 'Kornerler', pick: (m) => m.korner },
 }
 
 // Reusable single match card in the ls1.png style. Renders full-width so it

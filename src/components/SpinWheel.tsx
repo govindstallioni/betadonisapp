@@ -22,23 +22,23 @@ type Segment = {
 
 const SEGMENTS: Segment[] = [
   { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
-  { wheelLabel: '10€', fullLabel: '10 €', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
+  { wheelLabel: '10₺', fullLabel: '10 ₺', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
   { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
   { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
-  { wheelLabel: '5€', fullLabel: '5 €', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
+  { wheelLabel: '5₺', fullLabel: '5 ₺', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
   { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
-  { wheelLabel: '15€', fullLabel: '15 €', kind: 'cash', amount: 15, color: '#7C3AED', weight: 8 },
-  { wheelLabel: '17€', fullLabel: '17 €', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
+  { wheelLabel: '15₺', fullLabel: '15 ₺', kind: 'cash', amount: 15, color: '#7C3AED', weight: 8 },
+  { wheelLabel: '17₺', fullLabel: '17 ₺', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
   { wheelLabel: 'BOŞ', fullLabel: 'Boş', kind: 'empty', color: '#6B7280', weight: 10 },
   { wheelLabel: '+3 GÜN', fullLabel: '3 Ekstra Gün', kind: 'extraDay', days: 3, color: '#EA580C', weight: 2 },
   { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
-  { wheelLabel: '5€', fullLabel: '5 €', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
-  { wheelLabel: '2€', fullLabel: '2 €', kind: 'cash', amount: 2, color: '#D97706', weight: 22 },
+  { wheelLabel: '5₺', fullLabel: '5 ₺', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
+  { wheelLabel: '2₺', fullLabel: '2 ₺', kind: 'cash', amount: 2, color: '#D97706', weight: 22 },
   { wheelLabel: '+1 GÜN', fullLabel: '1 Ekstra Gün', kind: 'extraDay', days: 1, color: '#F59E0B', weight: 6 },
-  { wheelLabel: '17€', fullLabel: '17 €', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
+  { wheelLabel: '17₺', fullLabel: '17 ₺', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
   { wheelLabel: 'BOŞ', fullLabel: 'Boş', kind: 'empty', color: '#6B7280', weight: 10 },
   { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
-  { wheelLabel: '10€', fullLabel: '10 €', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
+  { wheelLabel: '10₺', fullLabel: '10 ₺', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
 ]
 const N = SEGMENTS.length
 const SEG = 360 / N
@@ -147,17 +147,44 @@ export default function SpinWheel() {
   return (
     <div>
       {/* ── Wheel stage ── */}
-      <div className="relative rounded-2xl overflow-hidden px-4 pt-6 pb-5 flex flex-col items-center"
+      <div className="relative rounded-2xl overflow-hidden px-4 pt-5 pb-5 flex flex-col items-center"
         style={{ background: 'linear-gradient(160deg, #2a0a4a 0%, #0d1b2a 55%, #1a0533 100%)' }}>
+
+        {/* Title plaque */}
+        <div className="relative z-30 rounded-lg px-5 py-[7px] mb-2"
+          style={{
+            background: 'linear-gradient(180deg, #3a3f4a 0%, #14171d 55%, #24272e 100%)',
+            border: '1px solid #565c68',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -2px 3px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.4)',
+          }}>
+          <span className="text-[15px] font-black tracking-[0.12em] text-transparent bg-clip-text"
+            style={{ backgroundImage: 'linear-gradient(180deg, #fff 0%, #cfd3da 60%, #8b909c 100%)', textShadow: '0 1px 0 rgba(0,0,0,0.6)' }}>
+            ŞANS ÇARKI
+          </span>
+        </div>
+
         {/* Pointer */}
         <div className="relative w-[248px] h-[248px] flex items-center justify-center">
-          <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 z-30" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}>
-            <div style={{ width: 0, height: 0, borderLeft: '11px solid transparent', borderRight: '11px solid transparent', borderTop: '20px solid #ffd700' }} />
-          </div>
+          <div className="absolute -top-[3px] left-1/2 -translate-x-1/2 z-30 w-[22px] h-[22px] rotate-45 rounded-[3px]"
+            style={{
+              background: 'linear-gradient(135deg, #fff7d6 0%, #ffd700 35%, #b8860b 75%, #8a6508 100%)',
+              boxShadow: '0 3px 6px rgba(0,0,0,0.5), inset -2px -2px 3px rgba(0,0,0,0.35), inset 2px 2px 3px rgba(255,255,255,0.6)',
+            }} />
 
           {/* Gold outer ring */}
           <div className="absolute inset-[-6px] rounded-full" style={{ background: 'conic-gradient(from 0deg, #b8860b, #ffd700, #b8860b, #ffd700, #b8860b, #ffd700, #b8860b)', padding: '5px' }}>
             <div className="w-full h-full rounded-full" style={{ background: '#1a0533' }} />
+          </div>
+          {/* Bezel rivets */}
+          <div className="absolute inset-[-6px] z-20">
+            {[...Array(20)].map((_, i) => (
+              <div key={i} className="absolute w-[5px] h-[5px] rounded-full" style={{
+                top: '50%', left: '50%',
+                transform: `rotate(${i * 18}deg) translateY(-130px) translate(-50%, -50%)`,
+                background: 'radial-gradient(circle at 35% 30%, #f5f5f5, #9a9a9a 60%, #5a5a5a)',
+                boxShadow: '0 1px 1px rgba(0,0,0,0.5)',
+              }} />
+            ))}
           </div>
           {/* LED dots */}
           <div className="absolute inset-[-2px] z-20">
@@ -182,11 +209,11 @@ export default function SpinWheel() {
                 const x1 = 100 + 100 * Math.cos(a0), y1 = 100 + 100 * Math.sin(a0)
                 const x2 = 100 + 100 * Math.cos(a1), y2 = 100 + 100 * Math.sin(a1)
                 const mid = ((i + 0.5) * SEG - 90) * Math.PI / 180
-                const tx = 100 + 68 * Math.cos(mid), ty = 100 + 68 * Math.sin(mid)
+                const tx = 100 + 82 * Math.cos(mid), ty = 100 + 82 * Math.sin(mid)
                 return (
                   <g key={i}>
-                    <path d={`M100,100 L${x1},${y1} A100,100 0 0,1 ${x2},${y2} Z`} fill={seg.color} stroke="rgba(0,0,0,0.25)" strokeWidth="0.6" />
-                    <text x={tx} y={ty} fill="#fff" fontSize="7.5" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
+                    <path d={`M100,100 L${x1},${y1} A100,100 0 0,1 ${x2},${y2} Z`} fill={i % 2 === 0 ? '#0E8FCF' : '#0a3d5c'} stroke="rgba(0,0,0,0.25)" strokeWidth="0.6" />
+                    <text x={tx} y={ty} fill="#fff" fontSize="6.5" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
                       transform={`rotate(${(i + 0.5) * SEG}, ${tx}, ${ty})`} style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
                       {seg.wheelLabel}
                     </text>
@@ -199,7 +226,7 @@ export default function SpinWheel() {
           {/* Center hub */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[42px] h-[42px] rounded-full z-20 flex items-center justify-center"
             style={{ background: 'radial-gradient(circle at 35% 35%, #ffd700, #b8860b)', border: '3px solid #ffd700', boxShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-            <span className="text-[16px] font-black text-amber-900">€</span>
+            <span className="text-[16px] font-black text-amber-900">₺</span>
           </div>
         </div>
 
@@ -251,7 +278,7 @@ export default function SpinWheel() {
                 <>
                   <div className="text-[34px] mb-1">🎉</div>
                   <p className="text-[13px] text-white/80 font-medium">Tebrikler, kazandın!</p>
-                  <p className="text-[34px] font-black text-[#ffd700] leading-tight mt-1" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{resultAmount} €</p>
+                  <p className="text-[34px] font-black text-[#ffd700] leading-tight mt-1" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>{resultAmount} ₺</p>
                   {resultMultiplier !== 1 && (
                     <p className="text-[11px] text-white/60 font-medium mt-1">{result.fullLabel} × Gün {dayNumber} çarpanı (x{resultMultiplier})</p>
                   )}

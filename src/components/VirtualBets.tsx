@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 
 const virtualSports = [
@@ -9,12 +10,13 @@ const virtualSports = [
 export default function VirtualBets() {
   return (
     <div>
-      <SectionHeader title="Sanal Bahisler" badge="Spor" showAll />
+      <SectionHeader title="Sanal Bahisler" badge="Spor" showAll href="/sanal-bahis" />
       <div className="flex flex-col gap-[10px]">
         {virtualSports.map((sport) => (
-          <div
+          <Link
             key={sport.name}
-            className="w-full rounded-2xl overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-transform relative"
+            href={`/sanal-bahis?sport=${encodeURIComponent(sport.name)}`}
+            className="block w-full rounded-2xl overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-transform relative"
           >
             <img
               src={sport.image}
@@ -37,7 +39,7 @@ export default function VirtualBets() {
             <span className="absolute bottom-[12px] left-[14px] text-[16px] font-medium text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
               {sport.name}
             </span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

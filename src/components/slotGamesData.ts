@@ -107,6 +107,8 @@ export const monthProviderGames = providerOfMonth
 
 export function gamesFor(slug: string): Game[] {
   if (slug === 'tumu') return ALL_GAMES
+  // "Provider of the month" page: every game from that provider, not just the curated rail.
+  if (slug === 'saglayici-pragmatic-play') return ALL_GAMES.filter(g => g.provider === 'Pragmatic Play')
   return ALL_GAMES.filter(g => g.tag === slug)
 }
 

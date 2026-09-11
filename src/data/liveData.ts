@@ -28,12 +28,16 @@ export interface Match {
   altUst: MatchOdd[]
   cifteSans: MatchOdd[]
   beraber: MatchOdd[]
+  handikap: MatchOdd[]
+  korner: MatchOdd[]
 }
 
 // Draw-less sports (no "X" outcome) don't have a real Çifte Şans/Beraberlik
 // market either — reuse the same disabled '—' pill convention as the 1X2 X column.
 const NO_DRAW: MatchOdd[] = [{ label: 'Evet', value: '—' }, { label: 'Hayır', value: '—' }]
 const NO_DRAW_CS: MatchOdd[] = [{ label: '1X', value: '—' }, { label: '12', value: '—' }, { label: 'X2', value: '—' }]
+// Corners are a football-only market — every other sport shows the same disabled convention.
+const NO_CORNER: MatchOdd[] = [{ label: 'Alt Korner', value: '—' }, { label: 'Üst Korner', value: '—' }]
 
 const J1 = '/teams/jersey1.png'
 const J2 = '/teams/jersey2.png'
@@ -49,6 +53,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 2.5', value: '1.95' }, { label: 'Üst 2.5', value: '1.80', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.25' }, { label: '12', value: '1.35' }, { label: 'X2', value: '1.90' }],
     beraber: [{ label: 'Evet', value: '3.40' }, { label: 'Hayır', value: '1.28', trend: 'down' }],
+    handikap: [{ label: 'Ev1 (-1)', value: '2.05' }, { label: 'Dep2 (+1)', value: '1.75' }],
+    korner: [{ label: 'Alt 9.5 Korner', value: '1.90' }, { label: 'Üst 9.5 Korner', value: '1.90' }],
   },
   {
     id: 'mci-ars', sport: 'Futbol', league: 'İngiltere, Premier Lig', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
@@ -58,6 +64,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 2.5', value: '1.75', trend: 'up' }, { label: 'Üst 2.5', value: '2.05' }],
     cifteSans: [{ label: '1X', value: '1.30' }, { label: '12', value: '1.40' }, { label: 'X2', value: '1.75' }],
     beraber: [{ label: 'Evet', value: '3.25' }, { label: 'Hayır', value: '1.30' }],
+    handikap: [{ label: 'Ev1 (-1)', value: '3.20' }, { label: 'Dep2 (+1)', value: '1.35' }],
+    korner: [{ label: 'Alt 8.5 Korner', value: '1.85' }, { label: 'Üst 8.5 Korner', value: '1.95' }],
   },
   {
     id: 'rma-bar', sport: 'Futbol', league: 'İspanya, La Liga', flag: '🇪🇸',
@@ -67,6 +75,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 2.5', value: '2.10' }, { label: 'Üst 2.5', value: '1.72', trend: 'down' }],
     cifteSans: [{ label: '1X', value: '1.65' }, { label: '12', value: '1.45' }, { label: 'X2', value: '1.35' }],
     beraber: [{ label: 'Evet', value: '3.60' }, { label: 'Hayır', value: '1.27' }],
+    handikap: [{ label: 'Ev1 (+1)', value: '1.85' }, { label: 'Dep2 (-1)', value: '1.95' }],
+    korner: [{ label: 'Alt 10.5 Korner', value: '1.90' }, { label: 'Üst 10.5 Korner', value: '1.90' }],
   },
   {
     id: 'bay-dor', sport: 'Futbol', league: 'Almanya, Bundesliga', flag: '🇩🇪',
@@ -76,6 +86,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 2.5', value: '2.60' }, { label: 'Üst 2.5', value: '1.45', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.10' }, { label: '12', value: '1.20' }, { label: 'X2', value: '2.70' }],
     beraber: [{ label: 'Evet', value: '4.80' }, { label: 'Hayır', value: '1.18' }],
+    handikap: [{ label: 'Ev1 (-2)', value: '2.10' }, { label: 'Dep2 (+2)', value: '1.70' }],
+    korner: [{ label: 'Alt 11.5 Korner', value: '1.85' }, { label: 'Üst 11.5 Korner', value: '1.95' }],
   },
   {
     id: 'juv-nap', sport: 'Futbol', league: 'İtalya, Serie A', flag: '🇮🇹',
@@ -85,6 +97,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 2.5', value: '1.85' }, { label: 'Üst 2.5', value: '1.90', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.50' }, { label: '12', value: '1.40' }, { label: 'X2', value: '1.55' }],
     beraber: [{ label: 'Evet', value: '3.10' }, { label: 'Hayır', value: '1.29' }],
+    handikap: [{ label: 'Ev1 (-1)', value: '3.40' }, { label: 'Dep2 (+1)', value: '1.30' }],
+    korner: [{ label: 'Alt 9.5 Korner', value: '1.90' }, { label: 'Üst 9.5 Korner', value: '1.90' }],
   },
   // ── Basketbol ──
   {
@@ -95,6 +109,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 210.5', value: '1.88' }, { label: 'Üst 210.5', value: '1.88', trend: 'up' }],
     cifteSans: NO_DRAW_CS,
     beraber: NO_DRAW,
+    handikap: [{ label: 'Ev1 (-4.5)', value: '1.90' }, { label: 'Dep2 (+4.5)', value: '1.90' }],
+    korner: NO_CORNER,
   },
   {
     id: 'fen-efe', sport: 'Basketbol', league: 'EuroLeague', flag: '🌍',
@@ -104,6 +120,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 168.5', value: '1.90' }, { label: 'Üst 168.5', value: '1.86' }],
     cifteSans: NO_DRAW_CS,
     beraber: NO_DRAW,
+    handikap: [{ label: 'Ev1 (+5.5)', value: '1.90' }, { label: 'Dep2 (-5.5)', value: '1.90' }],
+    korner: NO_CORNER,
   },
   // ── Tenis ──
   {
@@ -114,6 +132,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 22.5 Oyun', value: '1.90' }, { label: 'Üst 22.5 Oyun', value: '1.90' }],
     cifteSans: NO_DRAW_CS,
     beraber: NO_DRAW,
+    handikap: [{ label: 'Ev1 (-2.5 Oyun)', value: '1.90' }, { label: 'Dep2 (+2.5 Oyun)', value: '1.90' }],
+    korner: NO_CORNER,
   },
   {
     id: 'swi-gau', sport: 'Tenis', league: 'WTA, Wimbledon', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
@@ -123,6 +143,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 20.5 Oyun', value: '1.85' }, { label: 'Üst 20.5 Oyun', value: '1.95' }],
     cifteSans: NO_DRAW_CS,
     beraber: NO_DRAW,
+    handikap: [{ label: 'Ev1 (-3.5 Oyun)', value: '1.90' }, { label: 'Dep2 (+3.5 Oyun)', value: '1.90' }],
+    korner: NO_CORNER,
   },
   // ── Voleybol ──
   {
@@ -133,6 +155,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 3.5 Set', value: '1.90' }, { label: 'Üst 3.5 Set', value: '1.90' }],
     cifteSans: NO_DRAW_CS,
     beraber: NO_DRAW,
+    handikap: [{ label: 'Ev1 (-1.5 Set)', value: '1.90' }, { label: 'Dep2 (+1.5 Set)', value: '1.90' }],
+    korner: NO_CORNER,
   },
   // ── Buz Hokeyi ──
   {
@@ -143,6 +167,8 @@ export const liveMatches: Match[] = [
     altUst: [{ label: 'Alt 5.5', value: '1.95' }, { label: 'Üst 5.5', value: '1.85', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.55' }, { label: '12', value: '1.30' }, { label: 'X2', value: '1.65' }],
     beraber: [{ label: 'Evet', value: '3.90' }, { label: 'Hayır', value: '1.24' }],
+    handikap: [{ label: 'Ev1 (-1.5)', value: '1.90' }, { label: 'Dep2 (+1.5)', value: '1.90' }],
+    korner: NO_CORNER,
   },
 ]
 

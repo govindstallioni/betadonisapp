@@ -166,11 +166,13 @@ export default function LiveBets() {
                 <span className="text-[10px] text-[#737B8C] font-medium truncate max-w-[110px]">{match.league}</span>
               </div>
               <div className="flex items-center gap-[6px]">
+                {match.hasStream && (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" />
+                  </svg>
+                )}
                 <NotifyBell size={12} />
                 <LiveTag />
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
               </div>
             </div>
 

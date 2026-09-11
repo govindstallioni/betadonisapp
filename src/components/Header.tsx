@@ -111,12 +111,12 @@ export default function Header() {
       {/* Auth / balance row — reflects logged-in state */}
       {loaded && isLoggedIn ? (
         <div className="flex items-center gap-2 px-4 pb-3">
-          <Link href="/kupon" className="flex-1 h-[40px] rounded-full bg-[#edf5ff] border border-[#0E8FCF]/25 flex items-center gap-2 px-3.5" suppressHydrationWarning>
+          <button onClick={openAccountPanel} className="flex-1 h-[40px] rounded-full bg-[#edf5ff] border border-[#0E8FCF]/25 flex items-center gap-2 px-3.5" suppressHydrationWarning>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
               <path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v2" /><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2z" /><circle cx="16.5" cy="12.5" r="1.2" fill="#0E8FCF" stroke="none" />
             </svg>
             <span className="text-[13px] font-bold text-[#1a2332] tabular-nums leading-none">{fmtBalance(balance.total)}</span>
-          </Link>
+          </button>
           <Link href="/kupon/deposit" aria-label="Para Yatır" className="h-[40px] px-4 rounded-full bg-[#27ae60] text-white text-[12px] font-bold flex items-center justify-center gap-1.5 flex-shrink-0" suppressHydrationWarning>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             Para Yatır

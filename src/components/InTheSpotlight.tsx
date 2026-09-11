@@ -91,7 +91,7 @@ const spotlightGames = [
 export default function InTheSpotlight() {
   return (
     <div>
-      <SectionHeader title="Günün Öne Çıkanları" badge="Casino Oyunları" showAll />
+      <SectionHeader title="Günün Öne Çıkanları" badge="Canlı Casino Oyunları" showAll href="/live-casino" />
       <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
         {spotlightGames.map((game) => (
           <Link

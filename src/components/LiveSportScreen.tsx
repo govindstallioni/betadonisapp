@@ -73,6 +73,32 @@ const tournamentMap: Record<string, Tournament[]> = {
   'Buz Hokeyi': iceHockeyTournaments,
 }
 
+// Country name behind each flag — used when grouping the list by country.
+const countryNames: Record<string, string> = {
+  '🇹🇷': 'Türkiye',
+  '🏴󠁧󠁢󠁥󠁮󠁧󠁿': 'İngiltere',
+  '🇪🇸': 'İspanya',
+  '🇩🇪': 'Almanya',
+  '🇮🇹': 'İtalya',
+  '🇫🇷': 'Fransa',
+  '🇮🇩': 'Endonezya',
+  '🇨🇳': 'Çin',
+  '🇵🇱': 'Polonya',
+  '🇩🇿': 'Cezayir',
+  '🇪🇹': 'Etiyopya',
+  '🇮🇳': 'Hindistan',
+  '🇻🇳': 'Vietnam',
+  '🇷🇺': 'Rusya',
+  '🇦🇴': 'Angola',
+  '🇰🇿': 'Kazakistan',
+  '🇺🇸': 'ABD',
+  '🇸🇪': 'İsveç',
+  '🇫🇮': 'Finlandiya',
+  '🌍': 'Dünya',
+  '🏆': 'Uluslararası',
+}
+const countryNameFor = (flag: string) => countryNames[flag] ?? flag
+
 const prematchTournaments: Tournament[] = [
   { id: 101, name: 'Günün Özel Maçları',               flag: '🌍', count: 3 },
   { id: 102, name: 'Günün Maçları',                    flag: '🌍', count: 2 },
@@ -119,32 +145,46 @@ export default function LiveSportScreen() {
   const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  // 1xBet-style multi-select: any number of countries active at once; empty = all.
-  const [countryFilters, setCountryFilters] = useState<Set<string>>(new Set())
-  const [countrySheetOpen, setCountrySheetOpen] = useState(false)
+  // 1xBet-style toggle: regroups the list by country instead of by tournament.
+  const [groupByCountry, setGroupByCountry] = useState(false)
+  const [showGroupToast, setShowGroupToast] = useState(false)
 
   const currentSport = sportTabs[activeSport].label
   const baseTournaments = activeTab === 0 ? (tournamentMap[currentSport] ?? []) : prematchTournaments
 
-  // Distinct countries with how many tournaments each has (shown in the sheet).
-  const flagOptions = [...new Set(baseTournaments.map(t => t.flag))].map(flag => ({
-    flag,
-    count: baseTournaments.filter(t => t.flag === flag).length,
-  }))
+  const tournaments = baseTournaments.filter(t => {
+    return !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.toLowerCase())
+  })
 
-  function toggleCountry(flag: string) {
-    setCountryFilters(prev => {
-      const n = new Set(prev)
-      n.has(flag) ? n.delete(flag) : n.add(flag)
-      return n
+  // Grouped-by-country view: one row per flag, real tournaments nested as its sub-items.
+  const countryGroups: Tournament[] = (() => {
+    const order: string[] = []
+    const byFlag = new Map<string, Tournament>()
+    tournaments.forEach(t => {
+      let group = byFlag.get(t.flag)
+      if (!group) {
+        group = { id: -(order.length + 1), name: countryNameFor(t.flag), flag: t.flag, count: 0, sub: [] }
+        byFlag.set(t.flag, group)
+        order.push(t.flag)
+      }
+      group.count += t.count
+      group.sub!.push(t)
+    })
+    return order.map(flag => byFlag.get(flag)!)
+  })()
+
+  const displayList = groupByCountry ? countryGroups : tournaments
+
+  function toggleGroupByCountry() {
+    setGroupByCountry(prev => {
+      const next = !prev
+      if (next) {
+        setShowGroupToast(true)
+        setTimeout(() => setShowGroupToast(false), 4000)
+      }
+      return next
     })
   }
-
-  const tournaments = baseTournaments.filter(t => {
-    const matchesSearch = !searchQuery.trim() || t.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCountry = countryFilters.size === 0 || countryFilters.has(t.flag)
-    return matchesSearch && matchesCountry
-  })
 
   function toggleExpand(id: number) {
     setExpanded(prev => {
@@ -271,11 +311,8 @@ export default function LiveSportScreen() {
                   <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
                 </svg>
               </button>
-              <button onClick={() => setCountrySheetOpen(true)} className="relative w-9 h-9 flex items-center justify-center">
-                {countryFilters.size > 0 && (
-                  <span className="absolute top-0.5 right-0.5 min-w-[14px] h-[14px] px-[3px] rounded-full bg-[#0E8FCF] text-white text-[8px] font-bold flex items-center justify-center">{countryFilters.size}</span>
-                )}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={countryFilters.size ? '#0E8FCF' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <button onClick={toggleGroupByCountry} aria-label="Ülkeye göre grupla" className="relative w-9 h-9 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={groupByCountry ? '#0E8FCF' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
                   <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                 </svg>
@@ -331,69 +368,31 @@ export default function LiveSportScreen() {
           {sportTabs[activeSport].icon}
         </div>
         <span className="text-[12px] font-bold text-[#1a2332]">{currentSport}</span>
-        {[...countryFilters].map(flag => (
-          <button key={flag} onClick={() => toggleCountry(flag)} className="ml-1 flex items-center gap-1 bg-[#edf5ff] rounded-full px-2 py-[2px]">
-            <span className="text-[11px]">{flag}</span>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="3" strokeLinecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        ))}
       </div>
 
       {/* ── Tournament list ── */}
       <div className="rounded-xl overflow-hidden mx-3 mb-24 shadow-sm">
-        {tournaments.length === 0 ? (
+        {displayList.length === 0 ? (
           <div className="bg-white py-8 text-center">
             <p className="text-[12px] text-[#94a3b8]">Sonuç bulunamadı.</p>
           </div>
         ) : (
-          tournaments.map(t => <TournamentRow key={t.id} t={t} />)
+          displayList.map(t => <TournamentRow key={t.id} t={t} />)
         )}
       </div>
 
-      {/* ── Country filter bottom sheet ── */}
-      {countrySheetOpen && (
-        <>
-          <div className="fixed inset-0 z-[70] bg-black/40" onClick={() => setCountrySheetOpen(false)}/>
-          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[80] bg-white rounded-t-2xl" style={{ maxHeight: '60vh', display: 'flex', flexDirection: 'column' }}>
-            <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-              <div className="w-10 h-1 rounded-full bg-[#e2e8f0]"/>
-            </div>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[#f0f2f5] flex-shrink-0">
-              <h3 className="text-[14px] font-bold text-[#1a2332]">Ülkeye Göre Filtrele</h3>
-              {countryFilters.size > 0 && (
-                <button onClick={() => setCountryFilters(new Set())} className="text-[11px] text-[#ef4444] font-semibold">
-                  Temizle
-                </button>
-              )}
-            </div>
-            <div className="overflow-y-auto flex-1">
-              {flagOptions.map(({ flag, count }) => {
-                const active = countryFilters.has(flag)
-                return (
-                  <button key={flag} onClick={() => toggleCountry(flag)}
-                    className={`w-full flex items-center gap-3 px-4 py-[11px] border-b border-[#f0f2f5] transition-colors ${active ? 'bg-[#edf5ff]' : ''}`}>
-                    {/* Active/inactive checkbox */}
-                    <span className={`w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 ${active ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'border-[#cbd5e1]'}`}>
-                      {active && (
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                      )}
-                    </span>
-                    <span className="text-[20px]">{flag}</span>
-                    <span className={`text-[11px] font-medium ${active ? 'text-[#0E8FCF]' : 'text-[#737B8C]'}`}>{count} turnuva</span>
-                  </button>
-                )
-              })}
-            </div>
-            {/* Apply */}
-            <div className="flex-shrink-0 px-4 py-3 border-t border-[#f0f2f5]">
-              <button onClick={() => setCountrySheetOpen(false)} className="w-full h-[42px] rounded-full bg-[#0E8FCF] text-white text-[13px] font-bold">
-                {countryFilters.size > 0 ? `Göster (${countryFilters.size})` : 'Tümünü Göster'}
-              </button>
-            </div>
+      {/* ── "Grouped by country" toast ── */}
+      {showGroupToast && (
+        <div className="fixed bottom-[84px] left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[406px] z-[80] bg-[#0E8FCF] text-white rounded-xl shadow-lg px-4 py-3 flex items-start gap-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0 mt-[1px]">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <div className="flex-1">
+            <p className="text-[12px] font-bold leading-tight">Ülkeye göre gruplama etkinleştirildi</p>
+            <p className="text-[10px] opacity-90 leading-snug mt-[3px]">Artık turnuvalar ve bunların içindeki etkinlikler ülkeye göre gruplandırılıyor.</p>
           </div>
-        </>
+          <button onClick={() => setShowGroupToast(false)} className="text-[11px] font-bold flex-shrink-0 self-center">TAMAM</button>
+        </div>
       )}
     </div>
   )

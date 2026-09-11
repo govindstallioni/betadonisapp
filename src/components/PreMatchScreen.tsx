@@ -9,7 +9,7 @@ import { SPORT_ICONS } from './sportIcons'
 import { liveMatches } from '@/data/liveData'
 import { preMatches, preMatchSportCats } from '@/data/prematchData'
 
-const tabs = ['CANLI', 'Maç Öncesi']
+const tabs = ['CANLI', 'Maç Öncesi', 'E-Spor']
 
 type ListTab = 'popular' | 'upcoming'
 
@@ -157,6 +157,9 @@ const sports = [
   { label: 'Sanal Beyzbol',      count: 18,  icon: <img src="/icons/vrtrdrBaseball_5.png"    width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Beyzbol" /> },
   { label: 'Sanal Köpek Yarışı', count: 36,  icon: <img src="/icons/vrtrdrGreyhounds_5.png"  width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Köpek Yarışı" /> },
   { label: 'Virtual HorseRacing',count: 42,  icon: <img src="/icons/vrtrdrHorseRacing_5.png" width={20} height={20} style={{ objectFit: 'contain' }} alt="Virtual HorseRacing" /> },
+]
+
+const esportGames = [
   { label: 'Dota 2',             count: 28,  icon: <img src="/icons/dota2_5.png"             width={20} height={20} style={{ objectFit: 'contain' }} alt="Dota 2" /> },
   { label: 'Call of Duty',       count: 14,  icon: <img src="/icons/callOfDuty_5.png"        width={20} height={20} style={{ objectFit: 'contain' }} alt="Call of Duty" /> },
   { label: 'King Of Glory',      count: 11,  icon: <img src="/icons/kingOfGlory_5.png"       width={20} height={20} style={{ objectFit: 'contain' }} alt="King Of Glory" /> },
@@ -188,6 +191,13 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
   const filteredSports = searchQuery.trim()
     ? sports.filter(s => s.label.toLowerCase().includes(searchQuery.toLowerCase()))
     : sports
+
+  const filteredEsportGames = searchQuery.trim()
+    ? esportGames.filter(s => s.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : esportGames
+
+  const isEsportsTab = activeTab === 2
+  const listItems = isEsportsTab ? filteredEsportGames : filteredSports
 
   function openSearch() { setSearchOpen(true) }
   function closeSearch() { setSearchOpen(false); setSearchQuery('') }
@@ -270,8 +280,8 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
         </div>
       </div>
 
-      {/* Spacer for live tab */}
-      {activeTab === 0 && <div className="h-3" />}
+      {/* Spacer for live / esports tabs */}
+      {activeTab !== 1 && <div className="h-3" />}
 
       {/* ── Maç Öncesi top section: canlı preview + popüler/yaklaşan ── */}
       {activeTab === 1 && (
@@ -343,8 +353,8 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
         <p className="px-4 pt-4 pb-1 text-[11px] font-bold text-[#94a3b8] uppercase tracking-wide">Tüm Sporlar</p>
       )}
 
-      {/* Time filters - only for Pre-match and Esports */}
-      {activeTab !== 0 && (
+      {/* Time filters - only for Pre-match */}
+      {activeTab === 1 && (
         <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 py-3">
           {timeFilters.map((filter, i) => (
             <button
@@ -362,18 +372,18 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
         </div>
       )}
 
-      {/* Sports list */}
+      {/* Sports / Esports list */}
       <div className="px-4 pb-24">
         <div className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1]">
-          {filteredSports.length === 0 && (
+          {listItems.length === 0 && (
             <p className="text-[12px] text-[#94a3b8] text-center py-6">Sonuç bulunamadı.</p>
           )}
-          {filteredSports.map((sport, i) => (
+          {listItems.map((sport, i) => (
             <button
               key={sport.label}
               onClick={() => router.push(`/live/sport?name=${encodeURIComponent(sport.label)}${activeTab === 1 ? '&tab=1' : ''}`)}
               className={`w-full flex items-center gap-2.5 px-3 py-[8px] hover:bg-[#f8fafc] transition-colors ${
-                i < filteredSports.length - 1 ? 'border-b border-[#f0f2f5]' : ''
+                i < listItems.length - 1 ? 'border-b border-[#f0f2f5]' : ''
               }`}
             >
               <div className="w-7 h-7 rounded-full bg-[#edf5ff] flex items-center justify-center flex-shrink-0">

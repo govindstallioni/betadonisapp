@@ -34,7 +34,9 @@ const sporPool = [
   { game: 'Porto - Benfica',          image: '/events/champions-league.png', amount: 0 },
 ]
 
-const avatars = ['🧑', '👤', '🎮', '🏆', '⚽', '🎲', '👑', '🃏', '🎯', '🌟']
+// Separate pools so a casino win never shows a football icon and vice versa.
+const casinoAvatars = ['🎰', '🃏', '🎲', '💰', '🎉', '💎', '🏆']
+const sporAvatars = ['⚽', '🥅', '🏆', '🥇', '🎉', '⭐']
 
 function formatAmount(n: number) {
   return n.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -47,19 +49,19 @@ function shuffle<T>(arr: T[]): T[] {
 let uidCounter = 0
 type Winner = { id: number; game: string; image: string; amount: number; avatar: string }
 
-function buildList(pool: typeof casinoPool, count: number): Winner[] {
+function buildList(pool: typeof casinoPool, avatarPool: string[], count: number): Winner[] {
   return shuffle(pool).slice(0, count).map(item => ({
     ...item,
     id: uidCounter++,
-    avatar: avatars[Math.floor(Math.random() * avatars.length)],
+    avatar: avatarPool[Math.floor(Math.random() * avatarPool.length)],
   }))
 }
 
-function randomWinner(pool: typeof casinoPool): Winner {
+function randomWinner(pool: typeof casinoPool, avatarPool: string[]): Winner {
   const item = pool[Math.floor(Math.random() * pool.length)]
   // randomise amount slightly to feel live
   const amount = item.amount > 0 ? +(item.amount * (0.8 + Math.random() * 0.6)).toFixed(2) : 0
-  return { ...item, amount, id: uidCounter++, avatar: avatars[Math.floor(Math.random() * avatars.length)] }
+  return { ...item, amount, id: uidCounter++, avatar: avatarPool[Math.floor(Math.random() * avatarPool.length)] }
 }
 
 export default function EnsonKazananlar() {
@@ -80,14 +82,15 @@ export default function EnsonKazananlar() {
 
   // Populate the initial random lists client-side, after hydration
   useEffect(() => {
-    setCasinoList(buildList(casinoPool, 10))
-    setSporList(buildList(sporPool, 10))
+    setCasinoList(buildList(casinoPool, casinoAvatars, 10))
+    setSporList(buildList(sporPool, sporAvatars, 10))
   }, [])
 
   // Live stream: every 2.5s prepend a new winner, drop the last one
   useEffect(() => {
+    const avatarPool = tab === 'casino' ? casinoAvatars : sporAvatars
     timerRef.current = setInterval(() => {
-      const newItem = randomWinner(pool)
+      const newItem = randomWinner(pool, avatarPool)
       setNewId(newItem.id)
       setList(prev => [newItem, ...prev.slice(0, 9)])
       setTimeout(() => setNewId(null), 500)

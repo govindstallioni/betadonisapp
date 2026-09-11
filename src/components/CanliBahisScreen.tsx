@@ -17,6 +17,8 @@ const MARKET_PILLS: { key: OddsMarket; label: string }[] = [
   { key: 'ALTUST', label: 'Alt/Üst' },
   { key: 'CS', label: 'Çifte Şans' },
   { key: 'BERABER', label: 'Beraberlik' },
+  { key: 'HANDIKAP', label: 'Handikap' },
+  { key: 'KORNER', label: 'Kornerler' },
 ]
 
 export default function CanliBahisScreen() {
@@ -114,27 +116,35 @@ export default function CanliBahisScreen() {
         </div>
 
         {/* Market-shortcut pills */}
-        <div className="flex flex-wrap gap-[6px] px-3 pb-2 border-t border-[#f0f2f5] pt-2">
+        <div className="flex items-center gap-[6px] overflow-x-auto scrollbar-hide px-3 pb-2 border-t border-[#f0f2f5] pt-2">
           {MARKET_PILLS.map((p) => (
             <button
               key={p.key}
               onClick={() => setMarket(p.key)}
-              className={`px-[12px] py-[5px] rounded-full text-[10px] font-semibold transition-all ${market === p.key ? 'bg-[#0E8FCF] text-white shadow-sm' : 'bg-white text-[#1a2332] border border-[#e8ecf1]'}`}
+              className={`flex-shrink-0 px-[12px] py-[5px] rounded-full text-[10px] font-semibold transition-all ${market === p.key ? 'bg-[#0E8FCF] text-white shadow-sm' : 'bg-white text-[#1a2332] border border-[#e8ecf1]'}`}
             >
               {p.label}
             </button>
           ))}
           <button
             onClick={() => setFavOnly((v) => !v)}
-            className={`px-[12px] py-[5px] rounded-full text-[10px] font-semibold transition-all ${favOnly ? 'bg-[#0E8FCF] text-white shadow-sm' : 'bg-white text-[#1a2332] border border-[#e8ecf1]'}`}
+            aria-label="Favoriler"
+            aria-pressed={favOnly}
+            className={`flex-shrink-0 w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all ${favOnly ? 'bg-[#0E8FCF] shadow-sm' : 'bg-white border border-[#e8ecf1]'}`}
           >
-            Favoriler
+            <svg width="13" height="13" viewBox="0 0 24 24" fill={favOnly ? '#fff' : 'none'} stroke={favOnly ? '#fff' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
           </button>
           <button
             onClick={() => setCountrySheetOpen(true)}
-            className={`relative px-[12px] py-[5px] rounded-full text-[10px] font-semibold transition-all ${countryFilters.size > 0 ? 'bg-[#0E8FCF] text-white shadow-sm' : 'bg-white text-[#1a2332] border border-[#e8ecf1]'}`}
+            aria-label="Bölgeye Göre"
+            className={`relative flex-shrink-0 w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all ${countryFilters.size > 0 ? 'bg-[#0E8FCF] shadow-sm' : 'bg-white border border-[#e8ecf1]'}`}
           >
-            Bölgeye Göre
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={countryFilters.size > 0 ? '#fff' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
             {countryFilters.size > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] px-[3px] rounded-full bg-[#e74c3c] text-white text-[8px] font-bold flex items-center justify-center">{countryFilters.size}</span>
             )}
@@ -142,12 +152,15 @@ export default function CanliBahisScreen() {
         </div>
       </div>
 
-      {/* ── Count + layout toggle ── */}
+      {/* ── Sport header + layout toggle ── */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
-        <div className="flex items-center gap-2">
-          <span className="w-[6px] h-[6px] rounded-full bg-[#e74c3c] animate-pulse-dot" />
-          <span className="text-[12px] font-bold text-[#1a2332]">Canlı Etkinlikler</span>
-          <span className="text-[10px] text-[#737B8C] font-semibold">{matches.length}</span>
+        <div className="flex items-center gap-[6px]">
+          <div className="flex-shrink-0 w-[16px] h-[16px] flex items-center justify-center" style={{ transform: 'scale(0.72)', transformOrigin: 'center' }}>
+            {sportIcons[activeSport]}
+          </div>
+          <span className="text-[12px] font-bold text-[#1a2332]">{activeSport.toUpperCase()}</span>
+          <span className="text-[10px] text-[#737B8C] font-semibold">({matches.length})</span>
+          <span className="w-[6px] h-[6px] rounded-full bg-[#e74c3c] animate-pulse-dot ml-1" />
         </div>
         <div className="flex items-center bg-white rounded-full border border-[#e8ecf1] p-[2px]">
           <button onClick={() => setTwoCol(false)} aria-label="Tek sütun" className={`w-7 h-7 rounded-full flex items-center justify-center ${!twoCol ? 'bg-[#0E8FCF]' : ''}`}>
@@ -191,6 +204,16 @@ export default function CanliBahisScreen() {
               </div>
             </div>
             <div className="overflow-y-auto px-4 pb-2">
+              <button
+                onClick={() => setCountryFilters(new Set())}
+                className="w-full flex items-center gap-3 py-[10px] border-b border-[#f0f2f5]"
+              >
+                <span className="text-[20px]">🌐</span>
+                <span className="flex-1 text-left text-[12px] text-[#1a2332] font-medium">Tümü</span>
+                <span className={`w-[18px] h-[18px] rounded-md border flex items-center justify-center ${countryFilters.size === 0 ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'border-[#d0d5dd]'}`}>
+                  {countryFilters.size === 0 && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>}
+                </span>
+              </button>
               {flagOptions.map(({ flag, count }) => {
                 const active = countryFilters.has(flag)
                 return (

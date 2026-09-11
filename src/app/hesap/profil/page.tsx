@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PageShell, Card, SectionLabel } from '@/components/settings/SettingsUI'
+import { PageShell, Card, SectionLabel, Toggle } from '@/components/settings/SettingsUI'
 import { useAuth } from '@/components/AuthProvider'
 
 function Field({ label, value, editable }: { label: string; value: string; editable?: boolean }) {
@@ -49,6 +49,7 @@ export default function ProfilPage() {
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [saved, setSaved] = useState(false)
+  const [newsSms, setNewsSms] = useState(true)
 
   const save = () => {
     setSaved(true)
@@ -72,11 +73,35 @@ export default function ProfilPage() {
 
       <SectionLabel label="Hesap Bilgileri" />
       <Card>
+        <Field label="Unvan" value="Bay" editable />
+        <Field label="Ad" value="Ahmet" editable />
+        <Field label="Soyad" value="Yılmaz" editable />
         <Field label="Kullanıcı Adı" value={username || 'kullanici'} />
         <Field label="E-posta" value="kullanici@betadonis.com" editable />
         <Field label="Telefon" value="+90 5** *** ** 21" editable />
+        <Field label="Güvenlik Sorusu" value="İlk evcil hayvanınızın adı?" editable />
+        <Field label="Güvenlik Cevabı" value="••••••" editable />
+        <Field label="Dil" value="Türkçe" editable />
         <Field label="Adres" value="Kadıköy, İstanbul" editable />
+        <Field label="Ek Adres" value="Daire 4, Kat 2" editable />
+        <Field label="Posta Kutusu" value="34710" editable />
+        <Field label="Ülke" value="Türkiye" editable />
+        <Field label="Şehir" value="İstanbul" editable />
         <Field label="Üyelik Tarihi" value="14.07.2026" />
+      </Card>
+
+      <SectionLabel label="Tercihler" />
+      <Card>
+        <Field label="Bonusların Kullanım Yeri" value="İkisi de (Spor + Casino)" editable />
+        <Field label="Engellenmiş Bonuslar" value="Yok" editable />
+        <Field label="Canlı İzleme Tipi" value="Her Zaman Göster" editable />
+        <div className="flex items-center gap-3 px-3 py-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-medium text-[#1a2332]">Haber / SMS Bildirimleri</p>
+            <p className="text-[10px] text-[#737B8C] mt-[1px]">Kampanya ve duyuruları e-posta veya SMS ile al</p>
+          </div>
+          <Toggle value={newsSms} onChange={setNewsSms} />
+        </div>
       </Card>
 
       <SectionLabel label="Şifre Yenileme" />

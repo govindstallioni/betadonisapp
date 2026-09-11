@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import NotifyBell from '@/components/NotifyBell'
 import FavoriteStar from '@/components/FavoriteStar'
@@ -20,6 +20,7 @@ const matchesData = [
     score1: 2,
     score2: 1,
     isLive: true,
+    hasStream: true,
     minute: "67'",
     half: '2Y',
     dateTime: '04.04.2026 (09:00 pm)',
@@ -35,6 +36,7 @@ const matchesData = [
     score1: 0,
     score2: 0,
     isLive: true,
+    hasStream: true,
     minute: "23'",
     half: '1Y',
     dateTime: '04.04.2026 (10:00 pm)',
@@ -50,6 +52,7 @@ const matchesData = [
     score1: 1,
     score2: 2,
     isLive: true,
+    hasStream: false,
     minute: "78'",
     half: '2Y',
     dateTime: '04.04.2026 (10:00 pm)',
@@ -63,6 +66,7 @@ const matchesData = [
     logo1: '/teams/jersey1.png',
     logo2: '/teams/jersey2.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '04', minutes: '12', seconds: '36' },
     dateTime: '05.04.2026 (08:00 pm)',
   },
@@ -75,6 +79,7 @@ const matchesData = [
     logo1: '/teams/jersey2.png',
     logo2: '/teams/jersey1.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '06', minutes: '45', seconds: '10' },
     dateTime: '06.04.2026 (10:00 pm)',
   },
@@ -87,6 +92,7 @@ const matchesData = [
     logo1: '/teams/jersey1.png',
     logo2: '/teams/jersey2.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '03', minutes: '24', seconds: '15' },
     dateTime: '05.04.2026 (07:30 pm)',
   },
@@ -99,6 +105,7 @@ const matchesData = [
     logo1: '/teams/jersey1.png',
     logo2: '/teams/jersey2.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '03', minutes: '34', seconds: '24' },
     dateTime: '28.03.26 07:30 pm',
   },
@@ -111,6 +118,7 @@ const matchesData = [
     logo1: '/teams/jersey2.png',
     logo2: '/teams/jersey1.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '05', minutes: '12', seconds: '48' },
     dateTime: '28.03.26 10:00 pm',
   },
@@ -123,6 +131,7 @@ const matchesData = [
     logo1: '/teams/jersey1.png',
     logo2: '/teams/jersey2.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '08', minutes: '20', seconds: '10' },
     dateTime: '25.03.26 (09:00 pm)',
   },
@@ -135,6 +144,7 @@ const matchesData = [
     logo1: '/teams/jersey2.png',
     logo2: '/teams/jersey1.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '02', minutes: '45', seconds: '30' },
     dateTime: '26.03.26 (06:00 pm)',
   },
@@ -147,6 +157,7 @@ const matchesData = [
     logo1: '/teams/jersey1.png',
     logo2: '/teams/jersey2.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '01', minutes: '30', seconds: '00' },
     dateTime: '27.03.26 (07:00 pm)',
   },
@@ -159,6 +170,7 @@ const matchesData = [
     logo1: '/teams/jersey2.png',
     logo2: '/teams/jersey1.png',
     isLive: false,
+    hasStream: false,
     countdown: { hours: '03', minutes: '05', seconds: '55' },
     dateTime: '28.03.26 (08:30 pm)',
   },
@@ -396,8 +408,9 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   const { has, toggle } = useBetSlip()
 
   // ── Hero swipeable panel (Genel Bakış / Saha / İstatistik) ──
+  // Matches with a live stream open straight on the Saha (broadcast) slide.
   const heroScrollRef = useRef<HTMLDivElement>(null)
-  const [activeSlide, setActiveSlide] = useState(0)
+  const [activeSlide, setActiveSlide] = useState(match.isLive && match.hasStream ? 1 : 0)
   const scrollToSlide = (i: number) => {
     const el = heroScrollRef.current
     if (!el) return
@@ -409,6 +422,14 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
     if (!el || el.clientWidth === 0) return
     setActiveSlide(Math.round(el.scrollLeft / el.clientWidth))
   }
+
+  // Jump (no animation) to the initial slide once the panel has laid out.
+  useEffect(() => {
+    const el = heroScrollRef.current
+    if (!el || activeSlide === 0) return
+    el.scrollTo({ left: activeSlide * el.clientWidth })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // ── Market info popover ──
   const [infoOpenFor, setInfoOpenFor] = useState<string | null>(null)

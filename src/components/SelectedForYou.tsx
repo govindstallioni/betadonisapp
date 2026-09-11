@@ -26,7 +26,7 @@ const games = [
 export default function SelectedForYou() {
   return (
     <div>
-      <SectionHeader title="Sizin İçin Seçtiklerimiz" badge="Casino Oyunları" showAll />
+      <SectionHeader title="Sizin İçin Seçtiklerimiz" badge="Casino Oyunları" showAll href="/slots/sizin-icin-secilen" />
       <div className="space-y-[10px]">
         {games.map((game) => (
           <Link
