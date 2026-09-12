@@ -6,11 +6,13 @@ import LiveTag from './LiveTag'
 import FavoriteStar from './FavoriteStar'
 import { useBetSlip } from './BetSlipProvider'
 import { Match, halfText } from '@/data/liveData'
+import { MATCH_RESULT } from '@/data/markets'
+import OddLock, { isSuspended } from './OddLock'
 
 export type OddsMarket = 'MS' | 'ALTUST' | 'CS' | 'BERABER' | 'HANDIKAP' | 'KORNER'
 
 const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: Match) => Match['odds'] }> = {
-  MS: { label: '1X2', pick: (m) => m.odds },
+  MS: { label: MATCH_RESULT, pick: (m) => m.odds },
   ALTUST: { label: 'Alt/Üst', pick: (m) => m.altUst },
   CS: { label: 'Çifte Şans', pick: (m) => m.cifteSans },
   BERABER: { label: 'Beraberlik', pick: (m) => m.beraber },
@@ -98,7 +100,7 @@ export default function MatchCard({ match, compact = false, market = 'MS' }: { m
       <div className="px-[10px] pb-[10px]">
         <div className="flex gap-[5px]">
           {displayOdds.map((odd, j) => {
-            const disabled = odd.value === '—'
+            const disabled = isSuspended(odd.value)
             const id = `${match.id}::${marketLabel}::${odd.label}`
             const sel = has(id)
             return (
@@ -109,16 +111,22 @@ export default function MatchCard({ match, compact = false, market = 'MS' }: { m
                 onClick={(e) => {
                   e.preventDefault(); e.stopPropagation()
                   if (disabled) return
-                  toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: marketLabel, pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: true })
+                  toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: marketLabel, pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: true, sport: match.sport })
                 }}
-                className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border ${disabled ? 'bg-[#f4f6f9] border-[#eef1f5] cursor-default' : `cursor-pointer ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}`}
+                className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center border ${disabled ? 'bg-[#f4f6f9] border-[#eef1f5] cursor-default justify-center' : `cursor-pointer justify-between ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}`}
               >
-                <span className={`text-[9px] font-semibold uppercase ${sel ? 'text-white/80' : 'text-[#737B8C]'}`}>{odd.label}</span>
-                <span className={`text-[10px] font-medium flex items-center gap-[2px] ${sel ? 'text-white' : odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
-                  {odd.value}
-                  {!sel && !disabled && odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
-                  {!sel && !disabled && odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
-                </span>
+                {disabled ? (
+                  <OddLock />
+                ) : (
+                  <>
+                    <span className={`text-[9px] font-semibold uppercase ${sel ? 'text-white/80' : 'text-[#737B8C]'}`}>{odd.label}</span>
+                    <span className={`text-[10px] font-medium flex items-center gap-[2px] ${sel ? 'text-white' : odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                      {odd.value}
+                      {!sel && odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
+                      {!sel && odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
+                    </span>
+                  </>
+                )}
               </span>
             )
           })}

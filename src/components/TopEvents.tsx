@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 import { useBetSlip } from './BetSlipProvider'
+import { MATCH_RESULT, matchResultOddId } from '@/data/markets'
 
 interface OddCell { label: string; value: string; trend?: 'up' | 'down' }
 
@@ -145,7 +146,7 @@ export default function TopEvents() {
                   <p className="text-[9px] text-[#737B8C] mb-[5px] truncate">{event.match.team1} - {event.match.team2}</p>
                   <div className="flex gap-[5px]">
                     {event.match.odds.map((odd, j) => {
-                      const id = `${event.match.id}::1X2::${odd.label}`
+                      const id = matchResultOddId(event.match.id, odd.label)
                       const sel = has(id)
                       return (
                         <button
@@ -155,18 +156,17 @@ export default function TopEvents() {
                             id,
                             league: event.match.league,
                             match: `${event.match.team1} - ${event.match.team2}`,
-                            market: '1X2',
+                            market: MATCH_RESULT,
                             pick: odd.label,
                             baseOdd: parseFloat(odd.value) || 1,
                             isLive: false,
+                            sport: 'Futbol',
                           })}
-                          className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border transition-all active:scale-[0.97] ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}
+                          className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border transition-all active:scale-[0.97] ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#edf5ff] border-[#e8ecf1]'}`}
                         >
                           <span className={`text-[9px] font-semibold uppercase ${sel ? 'text-white/80' : 'text-[#737B8C]'}`}>{odd.label}</span>
-                          <span className={`text-[10px] font-medium flex items-center gap-[2px] ${sel ? 'text-white' : odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                          <span className={`text-[10px] font-medium ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
                             {odd.value}
-                            {!sel && odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
-                            {!sel && odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
                           </span>
                         </button>
                       )

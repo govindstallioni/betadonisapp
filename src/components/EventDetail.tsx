@@ -261,13 +261,11 @@ export default function EventDetail({ event }: EventDetailProps) {
                       {match.odds.map((odd, j) => (
                         <span
                           key={j}
-                          className={`flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}
+                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between"
                         >
                           <span className="text-[9px] text-[#737B8C] font-medium uppercase">{odd.label}</span>
-                          <span className={`text-[10px] font-medium flex items-center gap-[2px] ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                          <span className="text-[10px] font-medium text-[#1a2332]">
                             {odd.value}
-                            {odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
-                            {odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
                           </span>
                         </span>
                       ))}
@@ -414,13 +412,11 @@ export default function EventDetail({ event }: EventDetailProps) {
                       {match.odds.map((odd, j) => (
                         <span
                           key={j}
-                          className={`flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}
+                          className="flex-1 bg-[#edf5ff] border border-[#e8ecf1] rounded-lg py-[8px] px-[8px] flex items-center justify-between"
                         >
                           <span className="text-[9px] text-[#737B8C] font-medium uppercase">{odd.label}</span>
-                          <span className={`text-[10px] font-medium flex items-center gap-[2px] ${odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
+                          <span className="text-[10px] font-medium text-[#1a2332]">
                             {odd.value}
-                            {odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
-                            {odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
                           </span>
                         </span>
                       ))}

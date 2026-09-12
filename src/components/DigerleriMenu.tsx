@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useAdc } from './AdcProvider'
+import { fmtAdc } from '@/data/adc'
 
 // ── Shared, canonical "Diğerleri" navigation list ──────────────────────────
 // One source of truth rendered by BOTH the /digerleri page (DigerleriScreen)
@@ -26,6 +28,7 @@ const iHorse = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path
 const iWheel = <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="2" fill="#fff" /><path d="M12 3v6M12 15v6M3 12h6M15 12h6M5.6 5.6l4.2 4.2M14.2 14.2l4.2 4.2M18.4 5.6l-4.2 4.2M9.8 14.2l-4.2 4.2" /></svg>
 const iPartner = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
 const iPromo = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zm0 0h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" /></svg>
+const iAdc = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.2 14.6l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0 0 20.05 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.13 0-.23-.11-.22-.24z" /></svg>
 const iHelp = <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 0 1 4.9.75c0 1.66-2.4 1.9-2.4 3.5" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
 
 // Casino sub-menu (dropdown) items.
@@ -45,6 +48,12 @@ export type DigerleriItem = {
   color: string
   icon: React.ReactNode
   children?: { name: string; href: string }[]
+  /** Visually featured row (gradient card instead of plain white), like the
+   *  client's reference for the Adonis Coin entry (adoniscoins.png). */
+  featured?: boolean
+  /** When set, the row's desc is live and read from state at render time
+   *  rather than taken from this static list. */
+  live?: 'adc'
 }
 
 export const digerleriItems: DigerleriItem[] = [
@@ -61,6 +70,7 @@ export const digerleriItems: DigerleriItem[] = [
   { title: 'Golden Race', desc: 'Kazanırken eğlenmek, kontrol sende', href: '/golden-race', color: '#d97706', icon: iHorse },
   { title: 'Şans Çarkı', desc: 'Hergün senin için nakit ödül, boş yok', href: '/sans-carki', color: '#f59e0b', icon: iWheel },
   { title: 'Ortaklık', desc: 'Finansal ekosistemin ortağı ol', href: '/ortaklik', color: '#27ae60', icon: iPartner },
+  { title: 'Adonis Coin Kodları', desc: 'Promosyon Puanları: 0 ADC PUAN', href: '/adonis-coin', color: '#0891b2', icon: iAdc, featured: true, live: 'adc' },
   { title: 'Promosyonlar', desc: 'Güncel bonuslar ve özel kampanyaları keşfedin', href: '/promosyonlar', color: '#0E8FCF', icon: iPromo },
   { title: 'Yardım ve Destek', desc: 'SSS, canlı destek, iletişim ve şikayet', href: '/yardim', color: '#0E8FCF', icon: iHelp },
 ]
@@ -75,6 +85,7 @@ const Chevron = ({ open }: { open?: boolean }) => (
 // ── Shared list renderer ────────────────────────────────────────────────────
 export default function DigerleriMenu({ onNavigate }: { onNavigate: (href: string) => void }) {
   const [casinoOpen, setCasinoOpen] = useState(false)
+  const { loaded, available } = useAdc()
 
   return (
     <div className="flex flex-col gap-[8px]">
@@ -114,18 +125,29 @@ export default function DigerleriMenu({ onNavigate }: { onNavigate: (href: strin
           )
         }
 
+        const desc = item.live === 'adc'
+          ? `Promosyon Puanları: ${loaded ? fmtAdc(available) : 0} ADC PUAN`
+          : item.desc
+
         return (
           <button
             key={item.title}
             onClick={() => onNavigate(item.href!)}
-            className="flex items-center gap-3 bg-white rounded-xl px-3 py-3 border border-[#e8ecf1] hover:bg-[#f8fafc] transition-colors w-full"
+            className={`flex items-center gap-3 rounded-xl px-3 py-3 border transition-colors w-full ${
+              item.featured
+                ? 'border-transparent bg-gradient-to-r from-[#0891b2] to-[#0e7490] active:scale-[0.99]'
+                : 'bg-white border-[#e8ecf1] hover:bg-[#f8fafc]'
+            }`}
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: item.color }}>
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: item.featured ? 'rgba(255,255,255,0.2)' : item.color }}
+            >
               {item.icon}
             </div>
             <div className="flex-1 text-left min-w-0">
-              <p className="text-[12px] font-semibold text-[#1a2332] leading-tight">{item.title}</p>
-              <p className="text-[9px] text-[#737B8C] mt-[2px]">{item.desc}</p>
+              <p className={`text-[12px] font-semibold leading-tight ${item.featured ? 'text-white' : 'text-[#1a2332]'}`}>{item.title}</p>
+              <p className={`text-[9px] mt-[2px] ${item.featured ? 'text-white/75' : 'text-[#737B8C]'}`}>{desc}</p>
             </div>
             <Chevron />
           </button>

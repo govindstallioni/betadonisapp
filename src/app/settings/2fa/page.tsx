@@ -2,9 +2,14 @@
 
 import { useState } from 'react'
 import { PageShell } from '@/components/settings/SettingsUI'
+import { useSecurity } from '@/components/SecurityProvider'
 
 export default function TwoFactorPage() {
-  const [enabled, setEnabled] = useState(false)
+  // Persisted (task 26): the security checklist counts this item, so it cannot
+  // live in a local useState that resets on every navigation.
+  const { state, setTwoFactor } = useSecurity()
+  const enabled = state.twoFactor
+  const setEnabled = setTwoFactor
   const [setup, setSetup] = useState(false)
   const [code, setCode] = useState('')
 

@@ -2,15 +2,19 @@
 
 import Link from 'next/link'
 import NotifyBell from './NotifyBell'
-import LiveTag from './LiveTag'
+import StreamTag from './StreamTag'
 import FavoriteStar from './FavoriteStar'
 import { SPORT_ICONS } from './sportIcons'
 import { useBetSlip } from './BetSlipProvider'
 import { PreMatch } from '@/data/prematchData'
+import { MATCH_RESULT, matchResultOddId } from '@/data/markets'
+import OddLock, { isSuspended } from './OddLock'
 
 // Reusable pre-match fixture card — same anatomy as MatchCard (league header,
-// teams, odds row) but for upcoming (non-live) matches: date/time instead of
-// a live score/minute, and no live-only affordances (LiveTag stays, minute doesn't).
+// teams, odds row) but for upcoming (non-live) matches: date/time instead of a
+// live score/minute, and no live-only affordances at all. Pre-match odds are
+// fixed until kick-off, so they never flash green/red and carry no trend arrow;
+// `hasStream` shows a neutral "İZLE" tag, never the red pulsing CANLI pill.
 export default function PreMatchCard({ match, className = '' }: { match: PreMatch; className?: string }) {
   const { has, toggle } = useBetSlip()
 
@@ -29,7 +33,7 @@ export default function PreMatchCard({ match, className = '' }: { match: PreMatc
         </div>
         <div className="flex items-center gap-[6px] flex-shrink-0">
           <NotifyBell size={12} />
-          {match.hasStream && <LiveTag />}
+          {match.hasStream && <StreamTag />}
           <FavoriteStar
             size={12}
             item={{
@@ -68,8 +72,8 @@ export default function PreMatchCard({ match, className = '' }: { match: PreMatc
       <div className="px-[10px] pb-[10px]">
         <div className="flex gap-[5px]">
           {match.odds.map((odd, j) => {
-            const disabled = odd.value === '—'
-            const id = `${match.id}::1X2::${odd.label}`
+            const disabled = isSuspended(odd.value)
+            const id = matchResultOddId(match.id, odd.label)
             const sel = has(id)
             return (
               <span
@@ -79,16 +83,20 @@ export default function PreMatchCard({ match, className = '' }: { match: PreMatc
                 onClick={(e) => {
                   e.preventDefault(); e.stopPropagation()
                   if (disabled) return
-                  toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: false })
+                  toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: MATCH_RESULT, pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: false, sport: match.sport })
                 }}
-                className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border ${disabled ? 'bg-[#f4f6f9] border-[#eef1f5] cursor-default' : `cursor-pointer ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}`}
+                className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center border ${disabled ? 'bg-[#f4f6f9] border-[#eef1f5] cursor-default justify-center' : `cursor-pointer justify-between ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#edf5ff] border-[#e8ecf1]'}`}`}
               >
-                <span className={`text-[9px] font-semibold uppercase ${sel ? 'text-white/80' : 'text-[#737B8C]'}`}>{odd.label}</span>
-                <span className={`text-[10px] font-medium flex items-center gap-[2px] ${sel ? 'text-white' : odd.trend === 'up' ? 'text-[#27ae60]' : odd.trend === 'down' ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>
-                  {odd.value}
-                  {!sel && !disabled && odd.trend === 'up' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#27ae60"><path d="M7 14l5-5 5 5z" /></svg>}
-                  {!sel && !disabled && odd.trend === 'down' && <svg width="8" height="8" viewBox="0 0 24 24" fill="#e74c3c"><path d="M7 10l5 5 5-5z" /></svg>}
-                </span>
+                {disabled ? (
+                  <OddLock />
+                ) : (
+                  <>
+                    <span className={`text-[9px] font-semibold uppercase ${sel ? 'text-white/80' : 'text-[#737B8C]'}`}>{odd.label}</span>
+                    <span className={`text-[10px] font-medium ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
+                      {odd.value}
+                    </span>
+                  </>
+                )}
               </span>
             )
           })}

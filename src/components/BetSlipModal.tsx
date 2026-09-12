@@ -7,6 +7,8 @@ import { useAuth } from './AuthProvider'
 import { addCoupon, fmtDateTime, round2, type Coupon } from '@/data/coupons'
 import { Toggle } from './settings/SettingsUI'
 import LiveTag from './LiveTag'
+import { useAdc } from './AdcProvider'
+import { fmtAdc, codeIneligibleReason, type AdcCode } from '@/data/adc'
 
 // ── Helpers ────────────────────────────────────────────────────
 function fmt(n: number) {
@@ -109,6 +111,7 @@ function Row({ s, onRemove, tab, amount, onAmountChange }: {
 export default function BetSlipModal() {
   const { selections, isOpen, close, remove, clear } = useBetSlip()
   const { isLoggedIn, balance, adjustBalance } = useAuth()
+  const { qualifyBet, codes, markCodeUsed } = useAdc()
   const [tab, setTab] = useState<Tab>('Kombine')
   const [stakeSingleById, setStakeSingleById] = useState<Record<string, string>>({})
   const [stakeKombine, setStakeKombine] = useState('10')
@@ -116,11 +119,26 @@ export default function BetSlipModal() {
   const [confirmOddsChanges, setConfirmOddsChanges] = useState(false)
   const [ackOdds, setAckOdds] = useState<Record<string, number>>({})
 
-  // flow: idle (editing) → confirming (9s live check) → placed (success screen)
-  const [flow, setFlow] = useState<'idle' | 'confirming' | 'placed'>('idle')
+  // flow: idle (editing) → awaitingConfirm (Onayla/Geri, no timer yet) →
+  // confirming (9s live check, only after Onayla) → placed (success screen)
+  const [flow, setFlow] = useState<'idle' | 'awaitingConfirm' | 'confirming' | 'placed'>('idle')
   const [countdown, setCountdown] = useState(CONFIRM_SECONDS)
-  const [pending, setPending] = useState<{ stakeTotal: number; ret: number; makeCoupon: () => Coupon } | null>(null)
-  const [placedSummary, setPlacedSummary] = useState<{ betCount: number; totalOddsDisplay: string; stakeTotal: number; ret: number } | null>(null)
+  // Set when an odds move cancelled a confirmation in progress, so the slip can
+  // explain the interruption instead of just snapping back to editing.
+  const [aborted, setAborted] = useState(false)
+  // ── Adonis Coin free bet (task 27, item 7) ──
+  // A purchased code was a receipt you could look at and nothing more:
+  // markCodeUsed had no caller anywhere in the app. Applying one here turns the
+  // coupon into a free bet — the code's value becomes the stake, the balance is
+  // not debited, and the code is burned on placement.
+  const [appliedCode, setAppliedCode] = useState<AdcCode | null>(null)
+  const [codeSheet, setCodeSheet] = useState(false)
+  // Frozen at the moment the user pressed play. Everything the receipt prints
+  // must come from here, not from `active`: live odds keep drifting through the
+  // 9s wait, so reading any of it live produced a receipt whose Toplam Oran did
+  // not match its own Olası Kazanç.
+  const [pending, setPending] = useState<{ betCount: number; totalOddsDisplay: string; stakeTotal: number; ret: number; makeCoupon: () => Coupon; freeBetCode?: string } | null>(null)
+  const [placedSummary, setPlacedSummary] = useState<{ betCount: number; totalOddsDisplay: string; stakeTotal: number; ret: number; adcReleased: number } | null>(null)
 
   const n = selections.length
   const hasLocked = selections.some(s => s.locked)
@@ -206,14 +224,58 @@ export default function BetSlipModal() {
     }
   })()
 
-  const insufficient = isLoggedIn && active.stakeTotal > balance.withdrawable
-  const blocked = active.disabled || insufficient
+  // ── Free-bet wiring ──
+  const couponShape = {
+    tab,
+    legs: n,
+    sports: selections.map(sel => sel.sport),
+    totalOdds: tab === 'Kombine' ? kombine.combined : (active.stakeTotal > 0 ? active.ret / active.stakeTotal : 0),
+  }
+  const codeRows = codes.map(c => ({ code: c, reason: codeIneligibleReason(c, couponShape) }))
+  const usableCodes = codeRows.filter(r => r.reason === null)
+
+  // Drop an applied code the moment the coupon stops qualifying — editing the
+  // slip after applying must not leave a stale free bet attached.
+  useEffect(() => {
+    if (appliedCode && codeIneligibleReason(appliedCode, couponShape) !== null) setAppliedCode(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appliedCode, n, tab, selections])
+
+  const freeBet = appliedCode !== null
+  // The free bet replaces the stake entirely; the return follows from the same
+  // odds the coupon already shows.
+  const effStake = freeBet ? appliedCode!.value : active.stakeTotal
+  const effRet = freeBet ? round2(appliedCode!.value * couponShape.totalOdds) : active.ret
+
+  // The coupon Geçmiş stores must record what was actually staked. A free bet
+  // rebuilds it at the code's value rather than the typed amount.
+  const makeEffectiveCoupon = () =>
+    freeBet
+      ? buildCoupon(tab, effStake, effRet, couponShape.totalOdds)
+      : active.makeCoupon()
+
+  const insufficient = isLoggedIn && !freeBet && effStake > balance.withdrawable
+  // A free bet supplies the stake, so "Bahis miktarı girin." no longer applies;
+  // the structural checks (legs, suspended markets) still do.
+  const blocked = (freeBet ? (n === 0 || hasLocked || (tab !== 'Tekli' && n < 2)) : active.disabled) || insufficient
   const blockedReason = insufficient ? 'Yetersiz bakiye — lütfen para yatırın.' : active.disabledReason
 
-  function doPlace(a: { stakeTotal: number; ret: number; makeCoupon: () => Coupon }) {
-    adjustBalance(-a.stakeTotal)
-    addCoupon(a.makeCoupon())
-    setPlacedSummary({ betCount: active.betCount, totalOddsDisplay: active.totalOddsDisplay, stakeTotal: a.stakeTotal, ret: a.ret })
+  function doPlace(a: { betCount: number; totalOddsDisplay: string; stakeTotal: number; ret: number; makeCoupon: () => Coupon; freeBetCode?: string }) {
+    // A free bet costs the user nothing, so there is no balance movement.
+    if (!a.freeBetCode) adjustBalance(-a.stakeTotal)
+    const coupon = a.makeCoupon()
+    addCoupon(coupon)
+    // Adonis Coin, layer 2: points accrued on deposit stay "bekleyen" until a
+    // real bet of at least 100 ₺ at 1.50+ odds is placed. Judged on the coupon
+    // as a whole — a Tekli leg can sit under 1.50 on its own, and the brief
+    // speaks about a bet, not a leg. (Tekli/Sistem report their effective
+    // average odds as totalOdds, which is the right aggregate here.)
+    // A free bet must NOT release pending ADC: pending points are unlocked by
+    // real money at risk, and letting a free bet do it would let ADC unlock
+    // more ADC.
+    const adcReleased = a.freeBetCode ? 0 : qualifyBet(coupon.stake, coupon.totalOdds)
+    if (a.freeBetCode) markCodeUsed(a.freeBetCode)
+    setPlacedSummary({ betCount: a.betCount, totalOddsDisplay: a.totalOddsDisplay, stakeTotal: a.stakeTotal, ret: a.ret, adcReleased })
     setFlow('placed')
   }
 
@@ -225,20 +287,37 @@ export default function BetSlipModal() {
 
   function handlePrimary() {
     if (blocked) return
+    setAborted(false)
     if (oddsChanged && !confirmOddsChanges) {
       acknowledgeOdds()
       return
     }
     if (hasLive) {
-      setPending({ stakeTotal: active.stakeTotal, ret: active.ret, makeCoupon: active.makeCoupon })
-      setCountdown(CONFIRM_SECONDS)
-      setFlow('confirming')
+      setPending({ betCount: active.betCount, totalOddsDisplay: active.totalOddsDisplay, stakeTotal: effStake, ret: effRet, makeCoupon: makeEffectiveCoupon, freeBetCode: appliedCode?.code })
+      setFlow('awaitingConfirm')
       return
     }
-    doPlace(active)
+    doPlace({ betCount: active.betCount, totalOddsDisplay: active.totalOddsDisplay, stakeTotal: effStake, ret: effRet, makeCoupon: makeEffectiveCoupon, freeBetCode: appliedCode?.code })
   }
 
-  // 9-second live-bet countdown
+  // Onayla: from the awaitingConfirm prompt, this is what actually starts the
+  // 9s wait; from the confirming countdown itself, it finishes early.
+  function handleConfirmClick() {
+    if (flow === 'awaitingConfirm') {
+      setCountdown(CONFIRM_SECONDS)
+      setFlow('confirming')
+    } else if (flow === 'confirming' && pending) {
+      doPlace(pending)
+    }
+  }
+
+  function handleBackClick() {
+    setFlow('idle')
+    setPending(null)
+    setAborted(false)
+  }
+
+  // 9-second live-bet countdown — only runs once the user has pressed Onayla.
   useEffect(() => {
     if (flow !== 'confirming') return
     if (countdown <= 0) {
@@ -248,6 +327,29 @@ export default function BetSlipModal() {
     const t = setTimeout(() => setCountdown(c => c - 1), 1000)
     return () => clearTimeout(t)
   }, [flow, countdown])
+
+  // If live odds move while awaiting confirmation or mid-countdown, abort back
+  // to idle instead of placing the bet with stale numbers. This used to happen
+  // silently: the prompt or the running timer simply vanished and the user was
+  // back at the slip with no idea why, which reads as the button being broken.
+  // Live odds drift on ~55% of 2.5s ticks, so this fires often.
+  useEffect(() => {
+    if (flow !== 'awaitingConfirm' && flow !== 'confirming') return
+    if (!oddsChanged) return
+    // "Oran değişikliklerini onayla" means the user has opted into accepting
+    // odds movement. Honour that here too: take the new price and carry on.
+    // Without this the confirmation aborted on every drift — and live odds move
+    // on ~55% of 2.5s ticks, so a live bet was close to unplaceable even with
+    // the toggle on.
+    if (confirmOddsChanges) {
+      acknowledgeOdds()
+      return
+    }
+    setFlow('idle')
+    setPending(null)
+    setAborted(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flow, oddsChanged, confirmOddsChanges])
 
   function dismiss() {
     setFlow('idle')
@@ -333,18 +435,40 @@ export default function BetSlipModal() {
                 <div className="flex items-center justify-between text-[12px]"><span className="text-[#737B8C]">Normal Olası Kazanç (TRY)</span><span className="font-bold text-[#1a2332] tabular-nums">{fmt(placedSummary.ret)}</span></div>
               </div>
             </div>
+            {placedSummary.adcReleased > 0 && (
+              <div className="mb-3 flex items-center gap-2.5 rounded-xl bg-[#eaf5fc] px-3 py-2.5">
+                <span className="w-7 h-7 rounded-full bg-[#0E8FCF] flex items-center justify-center flex-shrink-0 text-white text-[11px] font-bold">₳</span>
+                <p className="text-[10px] text-[#737B8C] leading-relaxed flex-1">
+                  <span className="font-bold text-[#0E8FCF]">{fmtAdc(placedSummary.adcReleased)} ADC</span> kullanılabilir hale geldi.
+                  Adonis Coin mağazasından ücretsiz bahis kodlarına dönüştürebilirsiniz.
+                </p>
+              </div>
+            )}
             <button onClick={dismiss} className="w-full py-[13px] rounded-xl text-[13px] font-bold text-white bg-[#0E8FCF]">Tamam</button>
           </div>
         ) : (
           <>
             {/* Odds-change banner */}
+            {flow === 'idle' && aborted && (
+              <div className="mx-4 mt-3 rounded-lg bg-[#fff7ed] border border-[#f39c12]/40 text-[#9a6212] text-[11px] font-semibold text-center py-[9px] px-3 flex-shrink-0">
+                Oran değiştiği için onay iptal edildi. Yeni oranla tekrar deneyin.
+              </div>
+            )}
+
             {flow === 'idle' && oddsChanged && !confirmOddsChanges && (
               <div className="mx-4 mt-3 rounded-lg bg-[#f39c12] text-white text-[12px] font-bold text-center py-[9px] flex-shrink-0">
                 Kupon Değişiklik Onayı Bekliyor
               </div>
             )}
 
-            {/* 9s live-confirmation banner */}
+            {/* Awaiting-confirm prompt — shown before the timer starts */}
+            {flow === 'awaitingConfirm' && (
+              <div className="mx-4 mt-3 rounded-lg bg-[#1a2332] text-white text-[12px] font-semibold text-center py-[9px] px-3 flex-shrink-0">
+                Bahsi onaylıyor musunuz?
+              </div>
+            )}
+
+            {/* 9s live-confirmation banner — only after Onayla is pressed */}
             {flow === 'confirming' && (
               <div className="mx-4 mt-3 rounded-lg bg-[#1a2332] text-white text-[12px] font-semibold text-center py-[9px] px-3 flex-shrink-0">
                 Bekleyiniz ({countdown}) ...
@@ -355,7 +479,7 @@ export default function BetSlipModal() {
             )}
 
             {/* Scrollable body */}
-            <div className={`flex-1 overflow-y-auto transition-opacity ${flow === 'confirming' ? 'opacity-40 pointer-events-none' : ''}`}>
+            <div className={`flex-1 overflow-y-auto transition-opacity ${flow === 'confirming' || flow === 'awaitingConfirm' ? 'opacity-40 pointer-events-none' : ''}`}>
               {/* Selections */}
               <div className="bg-white">
                 {selections.map(s => (
@@ -413,6 +537,36 @@ export default function BetSlipModal() {
               </div>
             </div>
 
+            {/* Adonis Coin free-bet row (task 27, item 7) */}
+            {isLoggedIn && codes.length > 0 && flow === 'idle' && (
+              <div className="px-4 pt-2 flex-shrink-0">
+                {appliedCode ? (
+                  <div className="flex items-center gap-2.5 rounded-xl bg-[#e8f5e9] border border-[#27ae60]/30 px-3 py-2.5">
+                    <span className="w-7 h-7 rounded-full bg-[#1c7a52] flex items-center justify-center flex-shrink-0 text-white text-[11px] font-bold">₳</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-bold text-[#1a2332] truncate">{appliedCode.name}</p>
+                      <p className="text-[10px] text-[#1c7a52] font-semibold">{appliedCode.code} · {fmt(appliedCode.value)} free bet</p>
+                    </div>
+                    <button onClick={() => setAppliedCode(null)} className="text-[11px] font-bold text-[#e74c3c] flex-shrink-0">Kaldır</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setCodeSheet(true)}
+                    className="w-full flex items-center gap-2.5 rounded-xl bg-[#edf5ff] border border-[#0E8FCF]/25 px-3 py-2.5 text-left">
+                    <span className="w-7 h-7 rounded-full bg-[#0E8FCF] flex items-center justify-center flex-shrink-0 text-white text-[11px] font-bold">₳</span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-[11px] font-bold text-[#1a2332]">Adonis Coin kodu kullan</span>
+                      <span className="block text-[10px] text-[#737B8C]">
+                        {usableCodes.length > 0
+                          ? `${usableCodes.length} kod bu kupona uygulanabilir`
+                          : 'Bu kupona uygun kod yok'}
+                      </span>
+                    </span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0"><path d="m9 18 6-6-6-6" /></svg>
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Footer — summary + action */}
             <div className="border-t border-[#e8ecf1] bg-white px-4 pt-3 pb-4 flex-shrink-0">
               <div className="flex items-center justify-between text-[12px] mb-[6px]">
@@ -420,12 +574,12 @@ export default function BetSlipModal() {
                 <span className="font-bold text-[#1a2332] tabular-nums">{active.oddsValue}</span>
               </div>
               <div className="flex items-center justify-between text-[12px] mb-[6px]">
-                <span className="text-[#737B8C]">Toplam Bahis</span>
-                <span className="font-bold text-[#1a2332] tabular-nums">{fmt(active.stakeTotal)}</span>
+                <span className="text-[#737B8C]">{freeBet ? 'Free Bet' : 'Toplam Bahis'}</span>
+                <span className="font-bold tabular-nums" style={{ color: freeBet ? '#1c7a52' : undefined }}>{fmt(effStake)}</span>
               </div>
               <div className="flex items-center justify-between text-[13px] mb-2">
                 <span className="text-[#737B8C] font-semibold">Muhtemel Kazanç</span>
-                <span className="font-extrabold text-[#0E8FCF] tabular-nums">{fmt(active.ret)}</span>
+                <span className="font-extrabold text-[#0E8FCF] tabular-nums">{fmt(effRet)}</span>
               </div>
 
               {isLoggedIn ? (
@@ -435,10 +589,13 @@ export default function BetSlipModal() {
                     <span className={`font-semibold tabular-nums ${insufficient ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>{fmt(balance.withdrawable)}</span>
                   </div>
 
-                  {flow === 'confirming' ? (
+                  {flow === 'awaitingConfirm' || flow === 'confirming' ? (
                     <div className="flex gap-[10px]">
-                      <button onClick={() => { if (pending) doPlace(pending) }} className="flex-1 py-[13px] rounded-xl text-[13px] font-bold text-white bg-[#0E8FCF]">ONAYLA</button>
-                      <button onClick={() => { setFlow('idle'); setPending(null) }} className="flex-1 py-[13px] rounded-xl text-[13px] font-bold text-white bg-[#e74c3c]">GERİ</button>
+                      <button onClick={handleConfirmClick} disabled={blocked}
+                        className={`flex-1 py-[13px] rounded-xl text-[13px] font-bold text-white transition-all ${blocked ? 'bg-[#dce8f5] text-[#94a3b8] cursor-not-allowed' : 'bg-[#0E8FCF]'}`}>
+                        {flow === 'confirming' ? 'HEMEN ONAYLA' : 'ONAYLA'}
+                      </button>
+                      <button onClick={handleBackClick} className="flex-1 py-[13px] rounded-xl text-[13px] font-bold text-white bg-[#e74c3c]">GERİ</button>
                     </div>
                   ) : (
                     <>
@@ -450,7 +607,7 @@ export default function BetSlipModal() {
                         }`}>
                         {oddsChanged && !confirmOddsChanges ? 'DEĞİŞİKLİKLERİ ONAYLA' : 'BAHİS KUPONUNU OYNA'}
                       </button>
-                      {blocked && !oddsChanged && blockedReason && (
+                      {blocked && blockedReason && (
                         <p className="text-[10px] text-[#e08a12] text-center mt-2">{blockedReason}</p>
                       )}
                       {insufficient && (
@@ -476,6 +633,42 @@ export default function BetSlipModal() {
           </>
         )}
       </div>
+
+      {/* Code picker — ineligible codes stay listed with the reason, so
+          "why can't I use this?" is answered without leaving the slip. */}
+      {codeSheet && (
+        <>
+          <div className="fixed inset-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-black/40 z-[95]" onClick={() => setCodeSheet(false)} />
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[96] bg-white rounded-t-2xl max-h-[72vh] flex flex-col animate-slide-up">
+            <div className="flex justify-center pt-3 pb-2 flex-shrink-0"><div className="w-10 h-1 bg-[#d0d5dd] rounded-full" /></div>
+            <h3 className="text-[15px] font-bold text-[#1a2332] text-center pb-1 flex-shrink-0">Adonis Coin Kodlarım</h3>
+            <p className="text-[11px] text-[#737B8C] text-center pb-3 px-6 flex-shrink-0">Kod, kupon tutarınızın yerine geçer. Bakiyenizden düşülmez.</p>
+            <div className="overflow-y-auto px-4 pb-8">
+              {codeRows.map(({ code: c, reason }) => {
+                const ok = reason === null
+                return (
+                  <button
+                    key={c.code}
+                    disabled={!ok}
+                    onClick={() => { setAppliedCode(c); setCodeSheet(false) }}
+                    className={`w-full flex items-center gap-3 rounded-xl border px-3 py-3 mb-2 text-left transition-colors ${
+                      ok ? 'bg-white border-[#0E8FCF]/35' : 'bg-[#f8fafc] border-[#e8ecf1] opacity-70 cursor-not-allowed'
+                    }`}
+                  >
+                    <span className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-[13px] font-bold ${ok ? 'bg-[#0E8FCF] text-white' : 'bg-[#e3ebf3] text-[#94a3b8]'}`}>₳</span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-[12px] font-bold text-[#1a2332] truncate">{c.name}</span>
+                      <span className="block text-[10px] text-[#737B8C] truncate">{c.code} · {c.sport} · min. {c.minOdds.toFixed(2)} oran</span>
+                      {!ok && <span className="block text-[10px] text-[#b8341f] font-semibold mt-[2px]">{reason}</span>}
+                    </span>
+                    <span className={`text-[13px] font-bold tabular-nums flex-shrink-0 ${ok ? 'text-[#1c7a52]' : 'text-[#94a3b8]'}`}>{fmt(c.value)}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </>
   )
 }

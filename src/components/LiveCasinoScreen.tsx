@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import SectionHeader from '@/components/SectionHeader'
 import { gameHref } from './gameHref'
+import { artFallback } from './placeholderGameArt'
 
 // ── Data ────────────────────────────────────────────────────────────────────
 type Table = {
@@ -19,42 +20,65 @@ type Table = {
   promo?: boolean
 }
 
-const promoBanners = [
-  { title: 'Diamond Roulette', image: '/canli-casino/10.png' },
-  { title: 'VIP Blackjack', image: '/canli-casino/11.png' },
-  { title: 'Poker Lobby', image: '/canli-casino/9.png' },
-]
-
+// Task 21: tables, names and artwork are the real catalogue from the client's
+// own live-casino lobby (betadonis1296.com/tr/canli-casino/lobby). Selection is
+// 40 tables spread across the chips below, marquee providers first. Dealer
+// names, player counts and min-bets stay local — the lobby does not expose them.
 const categoryChips = ['Tümü', 'Rulet', 'Blackjack', 'Bakara', 'Poker', 'Oyun Şovları', 'Dragon Tiger']
 
 const allTables: Table[] = [
-  { name: 'Lightning Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/1.jpg', dealer: 'Ayşe', players: 1242, minBet: '5 ₺', promo: true },
-  { name: 'Immersive Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/2.jpg', dealer: 'Mert', players: 876, minBet: '10 ₺' },
-  { name: 'Instant Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/3.jpg', dealer: 'Elif', players: 543, minBet: '5 ₺' },
-  { name: 'Blackjack Azure', category: 'Blackjack', provider: 'Pragmatic Play Live', image: '/canli-casino/4.jpg', dealer: 'Deniz', players: 312, minBet: '25 ₺' },
-  { name: 'VIP Blackjack 16', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/5.jpg', dealer: 'Kaan', players: 198, minBet: '50 ₺', promo: true },
-  { name: 'Speed Blackjack', category: 'Blackjack', provider: 'Ezugi', image: '/canli-casino/6.jpg', dealer: 'Sena', players: 421, minBet: '20 ₺' },
-  { name: 'Texas Hold’em', category: 'Poker', provider: 'Evolution', image: '/canli-casino/7.jpg', dealer: 'Burak', players: 267, minBet: '15 ₺' },
-  { name: 'Casino Hold’em', category: 'Poker', provider: 'Playtech', image: '/canli-casino/8.jpg', dealer: 'Ceren', players: 154, minBet: '10 ₺', promo: true },
-  { name: 'Speed Baccarat', category: 'Bakara', provider: 'Evolution', image: '/canli-casino/9.png', dealer: 'Efe', players: 689, minBet: '20 ₺' },
-  { name: 'Dragon Tiger', category: 'Dragon Tiger', provider: 'Ezugi', image: '/canli-casino/10.png', dealer: 'Zeynep', players: 733, minBet: '5 ₺' },
+  { name: 'Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/roulette.webp', dealer: 'Ayşe', players: 457, minBet: '25 ₺', promo: true },
+  { name: 'Roulette Live', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/roulette-live.webp', dealer: 'Mert', players: 976, minBet: '20 ₺' },
+  { name: 'Auto Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/auto-roulette.webp', dealer: 'Elif', players: 1101, minBet: '10 ₺' },
+  { name: 'Speed Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/speed-roulette.webp', dealer: 'Deniz', players: 1092, minBet: '50 ₺' },
+  { name: 'Greek Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/greek-roulette.webp', dealer: 'Kaan', players: 495, minBet: '50 ₺', promo: true },
+  { name: 'Dansk Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/dansk-roulette.webp', dealer: 'Sena', players: 1200, minBet: '10 ₺' },
+  { name: 'Norsk Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/norsk-roulette.webp', dealer: 'Burak', players: 126, minBet: '5 ₺' },
+  { name: 'Hindi Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/hindi-roulette.webp', dealer: 'Ceren', players: 879, minBet: '50 ₺' },
+  { name: 'Lotus Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/lotus-roulette.webp', dealer: 'Efe', players: 996, minBet: '5 ₺', promo: true },
+  { name: 'Svensk Roulette', category: 'Rulet', provider: 'Evolution', image: '/canli-casino/svensk-roulette.webp', dealer: 'Zeynep', players: 416, minBet: '10 ₺' },
+  { name: 'Blackjack A', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-a.webp', dealer: 'James', players: 596, minBet: '5 ₺' },
+  { name: 'Blackjack B', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-b.webp', dealer: 'Lucy', players: 1014, minBet: '25 ₺' },
+  { name: 'Blackjack C', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-c.webp', dealer: 'Mia', players: 1381, minBet: '25 ₺', promo: true },
+  { name: 'Easy Blackjack', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/easy-blackjack.webp', dealer: 'Alex', players: 189, minBet: '20 ₺' },
+  { name: 'Blackjack VIP1', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-vip1.webp', dealer: 'Noah', players: 1226, minBet: '25 ₺' },
+  { name: 'Blackjack VIP2', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-vip2.webp', dealer: 'Derya', players: 357, minBet: '20 ₺' },
+  { name: 'Blackjack VIP3', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-vip3.webp', dealer: 'Emre', players: 167, minBet: '10 ₺', promo: true },
+  { name: 'Blackjack VIP4', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-vip4.webp', dealer: 'Selin', players: 301, minBet: '5 ₺' },
+  { name: 'Blackjack VIP5', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-vip5.webp', dealer: 'Onur', players: 160, minBet: '25 ₺' },
+  { name: 'Blackjack VIP6', category: 'Blackjack', provider: 'Evolution', image: '/canli-casino/blackjack-vip6.webp', dealer: 'Buse', players: 449, minBet: '50 ₺' },
+  { name: 'Baccarat A', category: 'Bakara', provider: 'Evolution', image: '/canli-casino/baccarat-a.webp', dealer: 'Ayşe', players: 822, minBet: '25 ₺', promo: true },
+  { name: 'Baccarat B', category: 'Bakara', provider: 'Evolution', image: '/canli-casino/baccarat-b.webp', dealer: 'Mert', players: 1112, minBet: '10 ₺' },
+  { name: 'Peek Baccarat', category: 'Bakara', provider: 'Evolution', image: '/canli-casino/peek-baccarat.webp', dealer: 'Elif', players: 502, minBet: '5 ₺' },
+  { name: 'Speed Baccarat A', category: 'Bakara', provider: 'Evolution', image: '/canli-casino/speed-baccarat-a.webp', dealer: 'Deniz', players: 1082, minBet: '10 ₺' },
+  { name: 'Speed Baccarat B', category: 'Bakara', provider: 'Evolution', image: '/canli-casino/speed-baccarat-b.webp', dealer: 'Kaan', players: 272, minBet: '10 ₺', promo: true },
+  { name: 'Speed Baccarat C', category: 'Bakara', provider: 'Evolution', image: '/canli-casino/speed-baccarat-c.webp', dealer: 'Sena', players: 547, minBet: '50 ₺' },
+  { name: 'Poker', category: 'Poker', provider: 'Evolution', image: '/canli-casino/poker.webp', dealer: 'Burak', players: 265, minBet: '5 ₺' },
+  { name: 'Three Card Poker', category: 'Poker', provider: 'Evolution', image: '/canli-casino/three-card-poker.webp', dealer: 'Ceren', players: 1267, minBet: '25 ₺' },
+  { name: 'Triple Card Poker', category: 'Poker', provider: 'Evolution', image: '/canli-casino/triple-card-poker.webp', dealer: 'Efe', players: 1264, minBet: '25 ₺', promo: true },
+  { name: '2 Hand Casino Holdem', category: 'Poker', provider: 'Evolution', image: '/canli-casino/2-hand-casino-holdem.webp', dealer: 'Zeynep', players: 531, minBet: '20 ₺' },
+  { name: 'Emperor Dragon Tiger', category: 'Dragon Tiger', provider: 'Evolution', image: '/canli-casino/emperor-dragon-tiger.webp', dealer: 'James', players: 419, minBet: '50 ₺' },
+  { name: 'Dragon Tiger Phoenix', category: 'Dragon Tiger', provider: 'Evolution', image: '/canli-casino/dragon-tiger-phoenix.webp', dealer: 'Lucy', players: 958, minBet: '20 ₺' },
+  { name: 'Lightning Dragon Tiger', category: 'Dragon Tiger', provider: 'Evolution', image: '/canli-casino/lightning-dragon-tiger.webp', dealer: 'Mia', players: 867, minBet: '25 ₺', promo: true },
 ]
 
 const gameShows: Table[] = [
-  { name: 'Crazy Time', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/1.jpg', dealer: 'James', players: 8421, minBet: '2 ₺', show: true, promo: true },
-  { name: 'Monopoly Live', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/2.jpg', dealer: 'Lucy', players: 5310, minBet: '2 ₺', show: true },
-  { name: 'Sweet Bonanza CandyLand', category: 'Oyun Şovları', provider: 'Pragmatic Play Live', image: '/canli-casino/11.png', dealer: 'Mia', players: 4102, minBet: '5 ₺', show: true, promo: true },
-  { name: 'Mega Wheel', category: 'Oyun Şovları', provider: 'Pragmatic Play Live', image: '/canli-casino/9.png', dealer: 'Alex', players: 2876, minBet: '2 ₺', show: true },
-  { name: 'Dream Catcher', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/3.jpg', dealer: 'Noah', players: 1988, minBet: '5 ₺', show: true },
+  { name: 'Crazy Time', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/crazy-time.webp', dealer: 'Ayşe', players: 8107, minBet: '5 ₺', show: true, promo: true },
+  { name: 'Funky Time', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/funky-time.webp', dealer: 'Mert', players: 6604, minBet: '5 ₺', show: true },
+  { name: 'Crazy Balls', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/crazy-balls.webp', dealer: 'Elif', players: 7166, minBet: '5 ₺', show: true },
+  { name: 'Crazy Time A', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/crazy-time-a.webp', dealer: 'Deniz', players: 4219, minBet: '2 ₺', show: true },
+  { name: 'Balloon Race', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/balloon-race.webp', dealer: 'Kaan', players: 5302, minBet: '5 ₺', show: true, promo: true },
+  { name: 'Monopoly Live', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/monopoly-live.webp', dealer: 'Sena', players: 4023, minBet: '5 ₺', show: true },
+  { name: 'Dream Catcher', category: 'Oyun Şovları', provider: 'Evolution', image: '/canli-casino/dream-catcher.webp', dealer: 'Burak', players: 4574, minBet: '2 ₺', show: true },
 ]
 
 const kategoriler = [
-  { name: 'Rulet', image: '/canli-casino/1.jpg' },
-  { name: 'Blackjack', image: '/canli-casino/4.jpg' },
-  { name: 'Bakara', image: '/canli-casino/9.png' },
-  { name: 'Poker', image: '/canli-casino/7.jpg' },
-  { name: 'Dragon Tiger', image: '/canli-casino/10.png' },
-  { name: 'Oyun Şovları', image: '/canli-casino/11.png' },
+  { name: 'Rulet', image: '/canli-casino/roulette.webp' },
+  { name: 'Blackjack', image: '/canli-casino/blackjack-a.webp' },
+  { name: 'Bakara', image: '/canli-casino/baccarat-a.webp' },
+  { name: 'Poker', image: '/canli-casino/poker.webp' },
+  { name: 'Dragon Tiger', image: '/canli-casino/emperor-dragon-tiger.webp' },
+  { name: 'Oyun Şovları', image: '/canli-casino/crazy-time.webp' },
 ]
 
 const providers = [
@@ -72,8 +96,8 @@ const providers = [
 function TableCard({ t, w = 'w-full' }: { t: Table; w?: string }) {
   return (
     <Link href={gameHref(t.name, t.image, t.provider)} className={`flex-shrink-0 ${w} bg-white rounded-xl overflow-hidden border border-[#e8ecf1] block`}>
-      <div className="relative w-full aspect-[4/3] overflow-hidden">
-        <img src={t.image} alt={t.name} className="w-full h-full object-cover" />
+      <div className="relative w-full aspect-[1/1] overflow-hidden">
+        <img src={t.image} alt={t.name} className="w-full h-full object-cover" onError={artFallback(t.name, t.provider)} />
         {/* CANLI badge */}
         <span className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-[#e74c3c] rounded px-[5px] py-[2px]">
           <span className="w-1 h-1 rounded-full bg-white animate-pulse-dot" />
@@ -172,18 +196,11 @@ export default function LiveCasinoScreen() {
         </div>
       ) : (
         <>
-          {/* ── Promo banners ── */}
-          <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 py-3">
-            {promoBanners.map((banner, i) => (
-              <div key={i} className="flex-shrink-0 w-[110px]">
-                <div className="w-full h-[100px] rounded-xl overflow-hidden"><img src={banner.image} alt={banner.title} className="w-full h-full object-cover" /></div>
-                <p className="text-[8px] font-medium text-[#1a2332] mt-[3px] leading-tight text-center line-clamp-2">{banner.title}</p>
-              </div>
-            ))}
-          </div>
+          {/* Task 30: the promo-card strip that sat here is removed per the
+              client's marked reference (canlicasino.png). */}
 
           {/* ── Category chips + Providers ── */}
-          <div className="flex gap-[6px] overflow-x-auto scrollbar-hide px-4 pb-3 items-center">
+          <div className="flex gap-[6px] overflow-x-auto scrollbar-hide px-4 pt-3 pb-3 items-center">
             <button onClick={() => setProvidersOpen(true)} className="flex-shrink-0 flex items-center gap-1.5 rounded-full px-[12px] py-[6px] text-[10px] font-semibold bg-[#1a2332] text-white">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
               Sağlayıcılar
@@ -237,8 +254,8 @@ export default function LiveCasinoScreen() {
               <div className="flex gap-[8px] overflow-x-auto scrollbar-hide">
                 {allTables.filter(t => t.provider === 'Evolution').slice(0, 4).map((t, i) => (
                   <Link key={i} href={gameHref(t.name, t.image, t.provider)} className="flex-shrink-0 w-[100px]">
-                    <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden">
-                      <img src={t.image} alt={t.name} className="w-full h-full object-cover" />
+                    <div className="relative w-full aspect-[1/1] rounded-lg overflow-hidden">
+                      <img src={t.image} alt={t.name} className="w-full h-full object-cover" onError={artFallback(t.name, t.provider)} />
                       <span className="absolute top-1 left-1 bg-[#e74c3c] text-white text-[6px] font-bold px-[4px] py-[1px] rounded uppercase">Canlı</span>
                     </div>
                     <p className="text-[9px] font-semibold text-white mt-[3px] leading-tight truncate">{t.name}</p>

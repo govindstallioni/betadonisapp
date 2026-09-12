@@ -1,20 +1,24 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import LiveTag from './LiveTag'
+import StreamTag from './StreamTag'
 import { useBetSlip } from './BetSlipProvider'
+import { MATCH_RESULT, MATCH_RESULT_PICKS, matchResultOddId } from '@/data/markets'
 
 const timeFilters = ['Tümü', '30 dk', '1 saat', '2 saat', '6 saat', '12 saat', '24 saat']
 
 type ClubBadge = { abbr: string; color: string; bg: string }
+// Pre-match only: these fixtures have not kicked off, so there is deliberately
+// no live score/minute here and no live-styled copy. `matchId` points at the
+// corresponding MatchDetailScreen entry so tapping a card opens the bet detail.
 type Fixture = {
   id: number
+  matchId: string
   league: string
   date: string
-  live?: boolean
-  score?: string
-  minute?: string
+  hasStream?: boolean
   home: { name: string; badge: ClubBadge }
   away: { name: string; badge: ClubBadge }
   odds: { w1: string; x: string; w2: string }
@@ -24,15 +28,18 @@ const fixturesByLeague: Record<string, Fixture[]> = {
   default: [
     {
       id: 1,
+      matchId: 'ars-atm',
+      hasStream: true,
       league: 'UEFA Şampiyonlar Ligi',
       date: '06.05.26 12:30',
-      live: true, score: '1 : 1', minute: "63'",
       home: { name: 'Arsenal',         badge: { abbr: 'ARS', color: '#fff',    bg: '#EF0107' } },
       away: { name: 'Atletico Madrid', badge: { abbr: 'ATM', color: '#fff',    bg: '#CB3524' } },
       odds: { w1: '1.686', x: '4.11', w2: '5.58' },
     },
     {
       id: 2,
+      matchId: 'bay-psg',
+      hasStream: false,
       league: 'UEFA Şampiyonlar Ligi',
       date: '07.05.26 12:30',
       home: { name: 'Bayern Münih',        badge: { abbr: 'BAY', color: '#fff', bg: '#DC052D' } },
@@ -43,15 +50,18 @@ const fixturesByLeague: Record<string, Fixture[]> = {
   'Türkiye. Süper Lig': [
     {
       id: 3,
+      matchId: 'gal-fen-pm',
+      hasStream: true,
       league: 'Türkiye. Süper Lig',
       date: '08.05.26 21:00',
-      live: true, score: '2 : 1', minute: "78'",
       home: { name: 'Galatasaray', badge: { abbr: 'GS',  color: '#fff', bg: '#e90000' } },
       away: { name: 'Fenerbahçe', badge: { abbr: 'FB',  color: '#fff', bg: '#003580' } },
       odds: { w1: '2.35', x: '3.20', w2: '3.10' },
     },
     {
       id: 4,
+      matchId: 'bes-tra',
+      hasStream: true,
       league: 'Türkiye. Süper Lig',
       date: '09.05.26 19:00',
       home: { name: 'Beşiktaş',    badge: { abbr: 'BJK', color: '#fff', bg: '#000000' } },
@@ -62,15 +72,18 @@ const fixturesByLeague: Record<string, Fixture[]> = {
   'İngiltere. Premier Ligi': [
     {
       id: 5,
+      matchId: 'mci-liv',
+      hasStream: true,
       league: 'İngiltere. Premier Ligi',
       date: '10.05.26 18:30',
-      live: true, score: '0 : 0', minute: "21'",
       home: { name: 'Manchester City', badge: { abbr: 'MCI', color: '#fff', bg: '#6CABDD' } },
       away: { name: 'Liverpool',       badge: { abbr: 'LIV', color: '#fff', bg: '#C8102E' } },
       odds: { w1: '1.95', x: '3.60', w2: '4.20' },
     },
     {
       id: 6,
+      matchId: 'che-mun',
+      hasStream: false,
       league: 'İngiltere. Premier Ligi',
       date: '10.05.26 21:00',
       home: { name: 'Chelsea',          badge: { abbr: 'CHE', color: '#fff', bg: '#034694' } },
@@ -196,7 +209,7 @@ export default function PreMatchLeagueScreen() {
               <div className="flex items-center gap-2 px-3 py-[7px] border-b border-[#f0f4f8]">
                 <SportIcon />
                 <span className="flex-1 text-[11px] font-medium text-[#737B8C] truncate">{fixture.league}</span>
-                {fixture.live && <LiveTag />}
+                {fixture.hasStream && <StreamTag />}
                 <button onClick={() => toggleNotify(fixture.id)} className="w-7 h-7 flex items-center justify-center">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill={isNotified ? '#0E8FCF' : 'none'} stroke="#0E8FCF" strokeWidth="1.8">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -209,45 +222,46 @@ export default function PreMatchLeagueScreen() {
                 </button>
               </div>
 
-              {/* Teams + score row */}
-              <div className="flex items-center px-3 pt-[10px] pb-[4px] gap-[6px]">
-                {/* Home */}
-                <span className="text-[12px] font-bold text-[#1a2332] flex-1 text-right truncate">{fixture.home.name}</span>
-                <TShirt bg={fixture.home.badge.bg} color={fixture.home.badge.color} abbr={fixture.home.badge.abbr} side="home"/>
+              {/* Teams + kick-off — tapping opens the bet detail for this fixture */}
+              <Link href={`/match?id=${fixture.matchId}`} className="block">
+                <div className="flex items-center px-3 pt-[10px] pb-[4px] gap-[6px]">
+                  {/* Home */}
+                  <span className="text-[12px] font-bold text-[#1a2332] flex-1 text-right truncate">{fixture.home.name}</span>
+                  <TShirt bg={fixture.home.badge.bg} color={fixture.home.badge.color} abbr={fixture.home.badge.abbr} side="home"/>
 
-                {/* Score / date */}
-                <div className="flex flex-col items-center flex-shrink-0 mx-[2px]">
-                  <span className={`text-[13px] font-extrabold tabular-nums leading-tight ${fixture.live ? 'text-[#e74c3c]' : 'text-[#1a2332]'}`}>{fixture.live ? fixture.score : '0 : 0'}</span>
-                  {fixture.live && fixture.minute && <span className="text-[8px] font-semibold text-[#e74c3c] leading-none mt-[1px]">{fixture.minute}</span>}
+                  <div className="flex flex-col items-center flex-shrink-0 mx-[2px]">
+                    <span className="text-[12px] font-bold text-[#737B8C] leading-tight">VS</span>
+                  </div>
+
+                  <TShirt bg={fixture.away.badge.bg} color={fixture.away.badge.color} abbr={fixture.away.badge.abbr} side="away"/>
+                  {/* Away */}
+                  <span className="text-[12px] font-bold text-[#1a2332] flex-1 truncate">{fixture.away.name}</span>
                 </div>
 
-                <TShirt bg={fixture.away.badge.bg} color={fixture.away.badge.color} abbr={fixture.away.badge.abbr} side="away"/>
-                {/* Away */}
-                <span className="text-[12px] font-bold text-[#1a2332] flex-1 truncate">{fixture.away.name}</span>
-              </div>
-
-              {/* Date / live status */}
-              <p className={`text-center text-[10px] font-medium pb-[6px] ${fixture.live ? 'text-[#e74c3c]' : 'text-[#737B8C]'}`}>
-                {fixture.live ? `Canlı · ${fixture.minute} dakika` : fixture.date}
-              </p>
+                {/* Kick-off date/time — pre-match only, never a live status line */}
+                <p className="text-center text-[10px] font-medium pb-[6px] text-[#737B8C]">{fixture.date}</p>
+              </Link>
 
               {/* Odds */}
               <div className="px-3 pb-[10px]">
                 <div className="grid grid-cols-3 gap-[5px]">
                   {[
-                    { label: 'EV1', value: fixture.odds.w1 },
-                    { label: 'X',   value: fixture.odds.x  },
-                    { label: 'DEP2',value: fixture.odds.w2 },
+                    { label: MATCH_RESULT_PICKS.home, value: fixture.odds.w1 },
+                    { label: MATCH_RESULT_PICKS.draw, value: fixture.odds.x  },
+                    { label: MATCH_RESULT_PICKS.away, value: fixture.odds.w2 },
                   ].map(odd => {
-                    const id = `pm-${fixture.id}::1X2::${odd.label}`
+                    // Keyed on the fixture's real match id (not a local `pm-N`)
+                    // so a pick made here is the same slip entry as the one made
+                    // on that fixture's detail page.
+                    const id = matchResultOddId(fixture.matchId, odd.label)
                     const sel = has(id)
                     return (
                       <button key={odd.label}
-                        onClick={() => toggle({ id, league: fixture.league, match: `${fixture.home.name} - ${fixture.away.name}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: false })}
+                        onClick={() => toggle({ id, league: fixture.league, match: `${fixture.home.name} - ${fixture.away.name}`, market: MATCH_RESULT, pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: false, sport: 'Futbol' })}
                         className={`flex flex-col items-start px-[10px] py-[7px] rounded-[8px] border transition-all ${
                           sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : 'bg-[#f4f7fb] border-[#e8ecf1] hover:border-[#0E8FCF]'
                         }`}>
-                        <span className={`text-[9px] font-medium leading-none mb-[3px] ${sel ? 'text-white/80' : 'text-[#94a3b8]'}`}>{odd.label}</span>
+                        <span className={`text-[9px] font-medium uppercase leading-none mb-[3px] ${sel ? 'text-white/80' : 'text-[#94a3b8]'}`}>{odd.label}</span>
                         <span className={`text-[12px] font-extrabold tabular-nums leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>{odd.value}</span>
                       </button>
                     )

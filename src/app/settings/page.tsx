@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSecurity } from '@/components/SecurityProvider'
 import Link from 'next/link'
 
 // ── Section data ───────────────────────────────────────────────
@@ -13,7 +14,9 @@ const hesapItems = [
 
 const guvenlikItems = [
   { title: 'Pinkodu ve biyometri', desc: '', href: '/settings/pin', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z" /></svg> },
-  { title: 'Kimlik Doğrulayıcı', desc: 'Etkinleştirilmedi', descColor: '#e74c3c', href: '/settings/2fa', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg> },
+  // desc/descColor are filled in at render time from the security state —
+  // 2FA now persists (task 26), so a hardcoded "Etkinleştirilmedi" would lie.
+  { title: 'Kimlik Doğrulayıcı', desc: '', descColor: '#e74c3c', href: '/settings/2fa', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" /></svg> },
   { title: 'Güvenlik Ayarları', desc: '', href: '/settings/security', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" /></svg> },
   { title: 'Oturum Açma Geçmişi', desc: '', href: '/settings/login-history', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" /></svg> },
 ]
@@ -70,6 +73,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 
 export default function SettingsPage() {
   const router = useRouter()
+  const { loaded, state, doneCount, total, secured } = useSecurity()
   const [matchNotify, setMatchNotify] = useState(true)
   const [favoriteNotify, setFavoriteNotify] = useState(true)
   const [phoneSubscribe, setPhoneSubscribe] = useState(false)
@@ -120,9 +124,28 @@ export default function SettingsPage() {
         {/* Güvenlik */}
         <SectionLabel label="Güvenlik" />
         <SettingsCard>
-          {guvenlikItems.map((item, i) => (
-            <SettingsRow key={item.title} title={item.title} desc={item.desc || undefined} descColor={item.descColor} icon={item.icon} onClick={() => handleRow(item.href)} last={i === guvenlikItems.length - 1} />
-          ))}
+          {guvenlikItems.map((item, i) => {
+            // Live status for the two rows the security checklist tracks.
+            // Until the provider restores, keep the static desc — otherwise the
+            // row flashes a red "0/6" at a user who has everything enabled.
+            const desc = !loaded
+              ? item.desc
+              : item.href === '/settings/2fa'
+                ? (state.twoFactor ? 'Etkin' : 'Etkinleştirilmedi')
+                : item.href === '/settings/security'
+                  ? (secured ? 'Tüm adımlar tamam' : `${doneCount}/${total} adım tamamlandı`)
+                  : item.desc
+            const descColor = !loaded
+              ? item.descColor
+              : item.href === '/settings/2fa'
+                ? (state.twoFactor ? '#27ae60' : '#e74c3c')
+                : item.href === '/settings/security'
+                  ? (secured ? '#27ae60' : '#e74c3c')
+                  : item.descColor
+            return (
+              <SettingsRow key={item.title} title={item.title} desc={desc || undefined} descColor={descColor} icon={item.icon} onClick={() => handleRow(item.href)} last={i === guvenlikItems.length - 1} />
+            )
+          })}
         </SettingsCard>
 
         {/* Bahis Ayarları */}

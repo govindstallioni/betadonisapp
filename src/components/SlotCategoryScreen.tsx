@@ -5,6 +5,7 @@ import Link from 'next/link'
 import FavoriteStar from '@/components/FavoriteStar'
 import { gameHref } from '@/components/gameHref'
 import { gamesFor, SLOT_CATEGORIES, EXTRA_CATEGORY_LABELS } from '@/components/slotGamesData'
+import { artFallback } from './placeholderGameArt'
 
 const LABELS: Record<string, string> = {
   ...Object.fromEntries(SLOT_CATEGORIES.map(c => [c.slug, c.label])),
@@ -42,8 +43,8 @@ export default function SlotCategoryScreen() {
           <div className="grid grid-cols-2 gap-[10px]">
             {games.map((game, i) => (
               <Link href={gameHref(game.name, game.image, game.provider)} key={`${game.name}-${i}`} className="bg-white rounded-xl overflow-hidden border border-[#e8ecf1] block">
-                <div className="relative w-full aspect-[4/3] overflow-hidden">
-                  <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
+                <div className="relative w-full aspect-[1/1] overflow-hidden">
+                  <img src={game.image} alt={game.name} className="w-full h-full object-cover" onError={artFallback(game.name, game.provider)} />
                   {game.promo && <span className="absolute top-2 left-2 bg-[#e74c3c] text-white text-[8px] font-bold px-[6px] py-[2px] rounded-md uppercase">Promo</span>}
                 </div>
                 <div className="px-2.5 py-2 flex items-center">

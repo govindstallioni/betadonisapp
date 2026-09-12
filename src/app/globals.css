@@ -39,6 +39,21 @@
   }
 }
 
+/* ── Task 23: never show a scrollbar (page or any inner scroller) ──
+   Deliberately unlayered so Tailwind's layer ordering can't override it.
+   Scrolling itself is untouched: touch drag and mouse wheel both still work. */
+html,
+body,
+* {
+  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;  /* legacy Edge / IE */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;             /* Chrome / Safari / Edge */
+}
+
 /* Dark mode overrides */
 html.dark {
   --color-bg: #0f1419;
@@ -783,4 +798,93 @@ html.dark .auth-hero {
   .animate-marquee {
     animation: marquee 14s linear infinite;
   }
+}
+
+/* ── Dark-mode coverage sweep ───────────────────────────────────────────────
+   The html.dark overrides above work off an ENUMERATED class list, so any
+   pale light-palette class not named in it stays light on a dark page. An
+   audit of src/ found 21 such classes in use across 59 places — the ADC
+   preview strip on the deposit form was the one that made it visible.
+
+   Each is mapped to the same dark value as the already-covered class of its
+   own hue family, so light mode is completely untouched by this block.
+
+   Note these are BASE classes. hover:/active: variants are handled further
+   up and are a separate list — adding a colour here does not cover its
+   hover twin, or the reverse. */
+
+/* Pale blue panels, notices and info strips */
+html.dark .bg-\[\#eaf5fc\],
+html.dark .bg-\[\#e6f3fb\],
+html.dark .bg-\[\#e8f0fb\],
+html.dark .bg-\[\#eef7fc\],
+html.dark .bg-\[\#f0f7ff\],
+html.dark .bg-\[\#e0f0ff\],
+html.dark .bg-\[\#eef3f8\] {
+  background-color: #1e2a3a !important;
+}
+
+/* Pale green success/confirmation blocks */
+html.dark .bg-\[\#e8f7ef\],
+html.dark .bg-\[\#eafaf1\] {
+  background-color: rgba(39, 174, 96, 0.12) !important;
+}
+
+/* Pale red error blocks */
+html.dark .bg-\[\#fef2f2\] {
+  background-color: rgba(231, 76, 60, 0.15) !important;
+}
+
+/* Pale amber warning blocks */
+html.dark .bg-\[\#fff6e5\],
+html.dark .bg-\[\#fef3c7\] {
+  background-color: rgba(245, 158, 11, 0.14) !important;
+}
+
+/* Off-white card and section surfaces */
+html.dark .bg-\[\#f0f5fa\],
+html.dark .bg-\[\#f0f4f8\],
+html.dark .bg-\[\#e8ecf0\] {
+  background-color: #1a2535 !important;
+}
+
+/* Mid-grey furniture: toggle tracks, drag handles, inactive tab strips */
+html.dark .bg-\[\#e2e8f0\],
+html.dark .bg-\[\#dbe6f0\],
+html.dark .bg-\[\#e3ebf3\],
+html.dark .bg-\[\#e0e5ec\],
+html.dark .bg-\[\#d0d5dd\],
+html.dark .bg-\[\#d7dde5\] {
+  background-color: #2a3a4a !important;
+}
+
+/* ── Sweep, part 2: text and borders on the surfaces darkened above ──────────
+   Darkening a pale banner is only half the job. These accent text colours
+   exist solely for those pale tints (dark red on pink, dark green on mint),
+   so once the tint went dark they became dark-on-dark — an 18-place contrast
+   regression introduced by the block above. Each maps to the light twin of
+   its own hue. Saturated brand accents (#e74c3c, #27ae60, #0E8FCF) are left
+   alone: they already read on both grounds and are used far more widely. */
+
+html.dark .text-\[\#b91c1c\] { color: #f87171 !important; }   /* red */
+html.dark .text-\[\#1a7a43\] { color: #4ade80 !important; }   /* green */
+html.dark .text-\[\#92400e\] { color: #fbbf24 !important; }   /* amber */
+html.dark .text-\[\#8a6212\] { color: #fbbf24 !important; }   /* amber */
+html.dark .text-\[\#0a6fa0\] { color: #5fb8e8 !important; }   /* blue */
+html.dark .text-\[\#6b7280\] { color: #8899aa !important; }   /* grey */
+
+/* Pale borders that stayed light around a now-dark surface. */
+html.dark .border-\[\#d0d5dd\],
+html.dark .border-\[\#c0c8d4\],
+html.dark .border-\[\#d0d7e0\],
+html.dark .border-\[\#c0c6d4\] {
+  border-color: #2a3a4a !important;
+}
+html.dark .border-\[\#f0f4f8\],
+html.dark .border-\[\#f4f6f9\],
+html.dark .border-\[\#e8eaef\] {
+  border-color: #253040 !important;
+}
+html.dark .border-\[\#fecaca\] {
+  border-color: rgba(231, 76, 60, 0.35) !important;
 }

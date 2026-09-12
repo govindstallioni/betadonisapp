@@ -16,6 +16,7 @@ const iMessage = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" str
 const iTicket = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9a3 3 0 0 0 0 6v2a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2z" /><path d="M13 5v14" strokeDasharray="2 2" /></svg>
 const iUpload = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
 const iBell = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+const iPhone = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
 const iLogout = <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
 
 const accountActions = [
@@ -27,6 +28,7 @@ const accountActions = [
   { title: 'KUPONLARIM', desc: 'Kazanan ve bekleyen kuponları inceleyin', href: '/kupon', icon: iTicket },
   { title: 'BELGE YÜKLEME', desc: 'Hesap doğrulama belgelerinizi yükleyin', href: '/hesap/belgeler', icon: iUpload },
   { title: 'Bildirimler', desc: 'Bildirimlerini açtığınız etkinlikleri görün', href: '/hesap/bildirimler', icon: iBell },
+  { title: 'SİZİ ARAYALIM', desc: 'Numaranızı bırakın, müşteri temsilcimiz sizi arasın', href: '/hesap/sizi-arayalim', icon: iPhone },
 ]
 
 const fmt = (n: number) => `${n.toFixed(2)} TRY`

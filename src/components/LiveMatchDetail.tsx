@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useBetSlip } from '@/components/BetSlipProvider'
+import { MATCH_RESULT } from '@/data/markets'
 
 const matchData = {
   league: 'Futbol. ABD. USL',
@@ -25,7 +26,7 @@ type Market = {
 
 const markets: Market[] = [
   {
-    id: '1x2', name: '1X2',
+    id: '1x2', name: MATCH_RESULT,
     rows: [[
       { label: 'W1', value: '5.97' },
       { label: 'X',  value: '4.31' },
@@ -87,6 +88,7 @@ export default function LiveMatchDetail() {
     pick: odd.label,
     baseOdd: parseFloat(odd.value) || 1,
     isLive: true,
+    sport: 'Futbol',
   })
 
   return (

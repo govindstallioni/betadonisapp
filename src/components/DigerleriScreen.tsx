@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import DigerleriMenu from './DigerleriMenu'
+import SecurityBanner from './SecurityBanner'
 
 export default function DigerleriScreen() {
   const router = useRouter()
@@ -23,6 +24,13 @@ export default function DigerleriScreen() {
             </svg>
           </button>
         </div>
+      </div>
+
+      {/* Security nudge (task 26) — a warning, so it sits above the hero.
+          Rendered here rather than inside DigerleriMenu: that list is the
+          canonical set of destinations shared with the BottomNav overlay. */}
+      <div className="px-4 pt-3">
+        <SecurityBanner />
       </div>
 
       {/* Hero */}

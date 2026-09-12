@@ -185,6 +185,10 @@ export const liveSportCats: SportCat[] = [
   { label: 'Voleybol', count: 92 },
   { label: 'Buz Hokeyi', count: 248 },
   { label: 'Masa Tenisi', count: 541 },
+  { label: 'Amerikan Futbolu', count: 156 },
+  { label: 'Hentbol', count: 74 },
+  { label: 'Beyzbol', count: 112 },
+  { label: 'Kriket', count: 89 },
 ]
 
 export function halfText(half: Match['half']) {

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { useBetSlip } from '@/components/BetSlipProvider'
 import DigerleriMenu from '@/components/DigerleriMenu'
+import SecurityBanner from '@/components/SecurityBanner'
 
 // ── Bottom nav items ───────────────────────────────────────────
 
@@ -346,6 +347,11 @@ export default function BottomNav() {
             {/* ── Diğerleri tab ── */}
             {activeMenuTab === 5 && (
               <div className="flex flex-col gap-3">
+                {/* Security nudge (task 26) — same banner /digerleri shows,
+                    added here as its own call site so DigerleriMenu stays a
+                    pure navigation list. */}
+                <SecurityBanner />
+
                 {/* Canonical navigation list (shared with /digerleri) — My
                     Account intentionally has no entry point here; it lives
                     behind the header's own person icon. */}

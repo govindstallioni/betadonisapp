@@ -8,6 +8,8 @@ import SectionHeader from './SectionHeader'
 import { SPORT_ICONS } from './sportIcons'
 import { liveMatches } from '@/data/liveData'
 import { preMatches, preMatchSportCats } from '@/data/prematchData'
+import { RegionButton, RegionSheet, flagOptionsFrom } from './RegionFilter'
+import OnboardingTour from './OnboardingTour'
 
 const tabs = ['CANLI', 'Maç Öncesi', 'E-Spor']
 
@@ -183,10 +185,29 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
   const [searchQuery, setSearchQuery] = useState('')
   const [listTab, setListTab] = useState<ListTab>('popular')
   const [activeSport, setActiveSport] = useState(preMatchSportCats[0].label)
+  // "Bölgeye Göre" — same activation logic as live betting (see RegionFilter).
+  const [countryFilters, setCountryFilters] = useState<Set<string>>(new Set())
+  const [countrySheetOpen, setCountrySheetOpen] = useState(false)
   const router = useRouter()
 
   const sportMatches = preMatches.filter(m => m.sport === activeSport)
-  const listMatches = listTab === 'popular' ? sportMatches.filter(m => m.popular) : sportMatches
+  // Region options come from the whole fixture set, not just the active sport
+  // (same as live betting). If they were per-sport, a filter picked under one
+  // sport would empty another sport's list while its country vanished from the
+  // sheet, leaving no way to see or clear what was filtering.
+  const flagOptions = flagOptionsFrom(preMatches)
+  const byRegion = countryFilters.size > 0
+    ? sportMatches.filter(m => countryFilters.has(m.flag))
+    : sportMatches
+  const listMatches = listTab === 'popular' ? byRegion.filter(m => m.popular) : byRegion
+
+  function toggleCountry(flag: string) {
+    setCountryFilters(prev => {
+      const n = new Set(prev)
+      n.has(flag) ? n.delete(flag) : n.add(flag)
+      return n
+    })
+  }
 
   const filteredSports = searchQuery.trim()
     ? sports.filter(s => s.label.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -204,6 +225,7 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
+      <OnboardingTour />
       {/* Header */}
       <div className="bg-white px-4 pt-4 pb-3">
         {searchOpen ? (
@@ -312,20 +334,32 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
             </div>
           </div>
 
-          {/* 5 sport-icon filter row */}
-          <div className="flex gap-[6px] overflow-x-auto scrollbar-hide px-4 pt-3">
+          {/* Sport header + "Bölgeye Göre" region filter (task 24 item 7) —
+              same activation logic and shared flag set as live betting. */}
+          <div className="flex items-center justify-between px-4 pt-3">
+            <div className="flex items-center gap-[6px]">
+              <span className="text-[12px] font-bold text-[#1a2332]">{activeSport.toUpperCase()}</span>
+              <span className="text-[10px] text-[#737B8C] font-semibold">({listMatches.length})</span>
+            </div>
+            <RegionButton count={countryFilters.size} onClick={() => setCountrySheetOpen(true)} />
+          </div>
+
+          {/* Sport-icon filter row — 7 equal columns that fit the phone width
+              without scrolling (~51px each at 390px). Labels are allowed to
+              wrap to a second line so "Buz Hokeyi" survives the narrow column. */}
+          <div className="grid grid-cols-7 gap-[2px] px-3 pt-3">
             {preMatchSportCats.map((s) => {
               const active = activeSport === s.label
               return (
                 <button
                   key={s.label}
                   onClick={() => setActiveSport(s.label)}
-                  className={`flex flex-col items-center gap-[3px] flex-shrink-0 min-w-[58px] py-[6px] px-1 rounded-xl transition-colors ${active ? 'bg-[#edf5ff]' : ''}`}
+                  className={`flex flex-col items-center gap-[3px] min-w-0 py-[6px] px-[1px] rounded-xl transition-colors ${active ? 'bg-[#edf5ff]' : ''}`}
                 >
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center ${active ? 'bg-[#0E8FCF] text-white' : 'bg-[#f1f5f9] text-[#0E8FCF]'}`}>
-                    {SPORT_ICONS[s.label]}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${active ? 'bg-[#0E8FCF] text-white' : 'bg-[#f1f5f9] text-[#0E8FCF]'}`} style={{ fontSize: 0 }}>
+                    <span className="scale-[0.8] origin-center inline-flex">{SPORT_ICONS[s.label]}</span>
                   </div>
-                  <span className={`text-[9px] font-semibold leading-none whitespace-nowrap ${active ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>{s.label}</span>
+                  <span className={`text-[8px] font-semibold leading-[1.15] text-center w-full ${active ? 'text-[#0E8FCF]' : 'text-[#1a2332]'}`}>{s.label}</span>
                 </button>
               )
             })}
@@ -398,6 +432,16 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
           ))}
         </div>
       </div>
+
+      {/* ── "Bölgeye Göre" filter sheet ── */}
+      <RegionSheet
+        open={countrySheetOpen}
+        options={flagOptions}
+        selected={countryFilters}
+        onToggle={toggleCountry}
+        onClear={() => setCountryFilters(new Set())}
+        onClose={() => setCountrySheetOpen(false)}
+      />
     </div>
   )
 }

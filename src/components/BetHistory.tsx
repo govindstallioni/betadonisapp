@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from './AuthProvider'
 import { loadCoupons, saveCoupons, resolveOutcome, fmtDateTime, type Coupon } from '@/data/coupons'
+import { loadWithdrawals, fmtFull as fmtWithdrawalDate, WITHDRAW_STATUS_LABEL } from '@/data/withdrawals'
 
 // Section switch — reuses the existing dropdown/bottom-sheet UI, now actually
 // switching the data source instead of being purely cosmetic.
@@ -161,9 +162,11 @@ const statusMeta: Record<BetStatus, { label: string; color: string; bg: string }
 type TxKind = 'deposit' | 'withdrawal' | 'other'
 type Transaction = { id: string; kind: TxKind; date: string; amount: number; note: string }
 
+// Withdrawals are NOT listed here — they come from the real bta_withdrawals
+// store (see withdrawalRows below) so Geçmiş and the Para Çekme screen can
+// never tell the user two different stories.
 const sampleTransactions: Transaction[] = [
   { id: 'T3021', kind: 'deposit',    date: '14.07.2026 10:12', amount: 500, note: 'Banka Havalesi ile yatırım' },
-  { id: 'T2991', kind: 'withdrawal', date: '09.07.2026 16:40', amount: -250, note: 'Banka hesabına çekim' },
   { id: 'T2980', kind: 'other',      date: '06.07.2026 12:05', amount: 25, note: 'Hoş geldin bonusu' },
 ]
 
@@ -385,6 +388,8 @@ export default function BetHistory() {
   const router = useRouter()
   const { loaded, isLoggedIn, lastLoginAt, adjustBalance } = useAuth()
   const [coupons, setCoupons] = useState<Coupon[]>([])
+  // Real withdrawal requests, shown alongside the sample transactions.
+  const [withdrawalRows, setWithdrawalRows] = useState<Transaction[]>([])
   const [activeSection, setActiveSection] = useState(0) // 0 = Kuponlar, 1 = Casino
   const [showSectionSheet, setShowSectionSheet] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -411,6 +416,21 @@ export default function BetHistory() {
     if (!hydrated) return
     try { localStorage.setItem(OPEN_KEY, JSON.stringify([...openBets])) } catch {}
   }, [openBets, hydrated])
+
+  // Real withdrawal requests → the same Transaction shape the list already
+  // renders, so they sit under the "Para Yatırma/Çekme" filter with the rest.
+  useEffect(() => {
+    if (!isLoggedIn) { setWithdrawalRows([]); return }
+    setWithdrawalRows(
+      loadWithdrawals().map(w => ({
+        id: w.id,
+        kind: 'withdrawal' as const,
+        date: fmtWithdrawalDate(w.at),
+        amount: -w.amount,
+        note: `${w.method} · ${WITHDRAW_STATUS_LABEL[w.status]}`,
+      }))
+    )
+  }, [isLoggedIn])
 
   // Load real placed coupons and settle any that are due (win/lose). Winnings
   // are credited to the balance once, when a coupon flips pending → won.
@@ -441,7 +461,7 @@ export default function BetHistory() {
   // Section data source: Kuponlar mixes real+sample bets with financial
   // transactions; Casino is bet-shaped mock data only (no deposits/etc there).
   const sectionBets: Bet[] = activeSection === 0 ? [...coupons, ...sampleBets] : sampleCasinoBets
-  const sectionTransactions: Transaction[] = activeSection === 0 ? sampleTransactions : []
+  const sectionTransactions: Transaction[] = activeSection === 0 ? [...withdrawalRows, ...sampleTransactions] : []
 
   type Row = { kind: 'bet'; data: Bet } | { kind: 'tx'; data: Transaction }
 

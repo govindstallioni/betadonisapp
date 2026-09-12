@@ -5,6 +5,7 @@ import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 import NotifyBell from './NotifyBell'
 import LiveTag from './LiveTag'
+import { MATCH_RESULT, matchResultOddId } from '@/data/markets'
 import { useBetSlip } from './BetSlipProvider'
 
 interface LiveMatch {
@@ -204,7 +205,7 @@ export default function LiveBets() {
             <div className="px-[10px] pb-[10px]">
               <div className="flex gap-[5px]">
                 {match.odds.map((odd, j) => {
-                  const id = `${matchIds[i]}::1X2::${odd.label}`
+                  const id = matchResultOddId(matchIds[i], odd.label)
                   const sel = has(id)
                   return (
                     <span
@@ -213,7 +214,7 @@ export default function LiveBets() {
                       tabIndex={0}
                       onClick={(e) => {
                         e.preventDefault(); e.stopPropagation()
-                        toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: '1X2', pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: true })
+                        toggle({ id, league: match.league, match: `${match.team1} - ${match.team2}`, market: MATCH_RESULT, pick: odd.label, baseOdd: parseFloat(odd.value) || 1, isLive: true, sport: 'Futbol' })
                       }}
                       className={`flex-1 rounded-lg py-[6px] px-[8px] flex items-center justify-between border cursor-pointer ${sel ? 'bg-[#0E8FCF] border-[#0E8FCF]' : `bg-[#edf5ff] border-[#e8ecf1] ${odd.trend === 'up' ? 'animate-flash-green' : odd.trend === 'down' ? 'animate-flash-red' : ''}`}`}
                     >

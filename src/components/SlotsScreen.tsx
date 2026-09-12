@@ -9,17 +9,18 @@ import { gameHref } from '@/components/gameHref'
 import { useFavorites } from '@/components/FavoritesProvider'
 import { useAuth } from '@/components/AuthProvider'
 import {
-  promoBanners, kategoriler, providers,
+  kategoriler, providers,
   popularSlots, forYouGames, crashGames, monthProviderGames, ALL_GAMES,
   SLOT_CATEGORIES, gamesFor, countFor,
 } from '@/components/slotGamesData'
+import { artFallback } from './placeholderGameArt'
 
 // ── Small game card (used by horizontal rails) ──────────────────────────────
 function GameThumb({ game, w = 'w-[110px]' }: { game: { name: string; provider: string; image: string; promo?: boolean }; w?: string }) {
   return (
     <Link href={gameHref(game.name, game.image, game.provider)} className={`flex-shrink-0 ${w}`}>
-      <div className="relative w-full aspect-[3/4] rounded-xl overflow-hidden border border-[#e8ecf1]">
-        <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
+      <div className="relative w-full aspect-[1/1] rounded-xl overflow-hidden border border-[#e8ecf1]">
+        <img src={game.image} alt={game.name} className="w-full h-full object-cover" onError={artFallback(game.name, game.provider)} />
         {game.promo && (
           <span className="absolute top-1.5 left-1.5 bg-[#e74c3c] text-white text-[7px] font-bold px-[5px] py-[2px] rounded uppercase">Promo</span>
         )}
@@ -122,21 +123,11 @@ export default function SlotsScreen() {
             </div>
           </div>
 
-          {/* ── Promo banners ── */}
-          <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 py-3">
-            {promoBanners.map((banner, i) => (
-              <div key={i} className="flex-shrink-0 w-[100px]">
-                <div className="w-full h-[120px] rounded-xl overflow-hidden relative">
-                  <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
-                  {banner.badge && <span className="absolute top-2 left-2 bg-[#0E8FCF] text-white text-[8px] font-medium px-[6px] py-[2px] rounded-full">{banner.badge}</span>}
-                </div>
-                <p className="text-[9px] font-medium text-[#1a2332] mt-[4px] leading-tight text-center line-clamp-2">{banner.title}</p>
-              </div>
-            ))}
-          </div>
+          {/* Task 30: the promo-card strip that sat here is removed per the
+              client's marked reference (slotlar.png). */}
 
           {/* ── Category chips + Providers ── */}
-          <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 pb-3 items-center">
+          <div className="flex gap-[8px] overflow-x-auto scrollbar-hide px-4 pt-3 pb-3 items-center">
             <button onClick={() => setProvidersOpen(true)} className="flex-shrink-0 flex items-center gap-1.5 rounded-full px-[12px] py-[7px] text-[10px] font-semibold bg-[#1a2332] text-white">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
               Sağlayıcılar
@@ -186,8 +177,8 @@ export default function SlotsScreen() {
               <div className="flex gap-[8px] overflow-x-auto scrollbar-hide">
                 {monthProviderGames.map((g, i) => (
                   <Link key={i} href={gameHref(g.name, g.image, g.provider)} className="flex-shrink-0 w-[100px]">
-                    <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden">
-                      <img src={g.image} alt={g.name} className="w-full h-full object-cover" />
+                    <div className="relative w-full aspect-[1/1] rounded-lg overflow-hidden">
+                      <img src={g.image} alt={g.name} className="w-full h-full object-cover" onError={artFallback(g.name, g.provider)} />
                     </div>
                     <p className="text-[9px] font-semibold text-white mt-[3px] leading-tight truncate">{g.name}</p>
                   </Link>
@@ -220,7 +211,7 @@ export default function SlotsScreen() {
             {crashGames.map((g, i) => (
               <Link key={i} href={gameHref(g.name, g.image, g.provider)} className="flex-shrink-0 w-[120px]">
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-[#e8ecf1]">
-                  <img src={g.image} alt={g.name} className="w-full h-full object-cover" />
+                  <img src={g.image} alt={g.name} className="w-full h-full object-cover" onError={artFallback(g.name, g.provider)} />
                   <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-[#22c55e] text-[10px] font-bold px-[6px] py-[2px] rounded-md tabular-nums">{g.mult}</span>
                 </div>
                 <p className="text-[10px] font-semibold text-[#1a2332] mt-[4px] leading-tight truncate">{g.name}</p>

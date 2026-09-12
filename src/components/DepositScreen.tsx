@@ -4,56 +4,55 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import WheelPromoModal from '@/components/WheelPromoModal'
+import { useAdc } from './AdcProvider'
+import { adcForDeposit, adcRateFor, fmtAdc } from '@/data/adc'
+import { MethodLogo, type LogoKey } from './PaymentLogos'
 
-const accountNumber = '1612620843'
-
-type Method = { id: number; name: string; badge?: string; fee: string; min: number; max: number }
+// ── Payment methods ─────────────────────────────────────────────────────────
+// Task 29: names, type labels, fees and floors for the first four come from the
+// live site's own deposit grid (parayatirma.png). The reference shows a FLAT
+// grid — no ÖNERİLEN / BANKA TRANSFERİ / KRİPTO PARA / E-CÜZDAN headers — so the
+// sections are gone and "Para Yatırma Grupları" now filters by the reference's
+// own type vocabulary instead. The methods below the fold in that screenshot are
+// still unknown, so the rest of our list is kept as-is rather than deleted.
 type MethodType = 'bank' | 'crypto' | 'ewallet'
+type Method = {
+  id: number
+  name: string
+  type: MethodType
+  /** The parenthesised type under the name, as the reference prints it. */
+  typeLabel: string
+  logo?: LogoKey
+  fee: string
+  min: number
+  max: number
+}
 
-const paymentSections: { title: string; type: MethodType; methods: Method[] }[] = [
-  {
-    title: 'ÖNERİLEN', type: 'bank',
-    methods: [
-      { id: 1, name: 'Halk Bank', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 2, name: 'Hızlı Banka Havale-EFT-FAST 7/24', badge: 'cashback 10%', fee: 'Ücretsiz', min: 2000, max: 100000 },
-      { id: 3, name: 'Instant QR', fee: 'Ücretsiz', min: 100, max: 50000 },
-      { id: 4, name: 'Vakıf Bank', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 5, name: 'YapıKredi', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 6, name: 'Tether on Tron', fee: 'Ağ Ücreti', min: 500, max: 500000 },
-      { id: 7, name: 'TRON', fee: 'Ağ Ücreti', min: 500, max: 500000 },
-    ],
-  },
-  {
-    title: 'BANKA TRANSFERİ', type: 'bank',
-    methods: [
-      { id: 8, name: 'Halk Bank', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 9, name: 'Hızlı Banka Havale-EFT-FAST 7/24', badge: 'cashback 10%', fee: 'Ücretsiz', min: 2000, max: 100000 },
-      { id: 10, name: 'VIP Havale', fee: 'Ücretsiz', min: 5000, max: 250000 },
-      { id: 11, name: 'Türkiye İş Bankası', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 12, name: 'Enpara', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 13, name: 'Trink Para Havale EFT 7/24', fee: 'Ücretsiz', min: 500, max: 100000 },
-      { id: 14, name: 'Garanti BBVA', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 15, name: 'Ziraat Bankası', fee: 'Ücretsiz', min: 250, max: 100000 },
-      { id: 16, name: 'Akbank', fee: 'Ücretsiz', min: 250, max: 100000 },
-    ],
-  },
-  {
-    title: 'KRİPTO PARA', type: 'crypto',
-    methods: [
-      { id: 17, name: 'Bitcoin', fee: 'Ağ Ücreti', min: 500, max: 1000000 },
-      { id: 18, name: 'Ethereum', fee: 'Ağ Ücreti', min: 500, max: 1000000 },
-      { id: 19, name: 'USDT (TRC20)', fee: 'Ücretsiz', min: 500, max: 500000 },
-      { id: 20, name: 'USDT (ERC20)', fee: 'Ağ Ücreti', min: 500, max: 500000 },
-    ],
-  },
-  {
-    title: 'E-CÜZDAN', type: 'ewallet',
-    methods: [
-      { id: 21, name: 'Papara', fee: 'Ücretsiz', min: 1000, max: 100000 },
-      { id: 22, name: 'PayFix', fee: 'Ücretsiz', min: 1000, max: 100000 },
-      { id: 23, name: 'CMT', fee: 'Ücretsiz', min: 1000, max: 100000 },
-    ],
-  },
+const methods: Method[] = [
+  // ── Confirmed against parayatirma.png ──
+  { id: 2, name: 'HAVALE EFT (MPAY)', type: 'bank', typeLabel: 'Havale/Eft', logo: 'havaleEft', fee: 'Ücretsiz', min: 2000, max: 100000 },
+  { id: 24, name: 'MPAY (FAST)', type: 'bank', typeLabel: 'Havale/Eft', logo: 'fast', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 13, name: 'HIZLI HAVALE', type: 'bank', typeLabel: 'Havale/Eft', logo: 'hizli', fee: 'Ücretsiz', min: 500, max: 100000 },
+  { id: 21, name: 'Papara (MPAY)', type: 'ewallet', typeLabel: 'Online Papara', logo: 'papara', fee: 'Ücretsiz', min: 1000, max: 100000 },
+  // ── Below the fold in the reference — kept from our own list, unverified ──
+  { id: 1, name: 'Halk Bank', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 3, name: 'Instant QR', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 100, max: 50000 },
+  { id: 4, name: 'Vakıf Bank', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 5, name: 'YapıKredi', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 10, name: 'VIP Havale', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 5000, max: 250000 },
+  { id: 11, name: 'Türkiye İş Bankası', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 12, name: 'Enpara', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 14, name: 'Garanti BBVA', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 15, name: 'Ziraat Bankası', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 16, name: 'Akbank', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 6, name: 'Tether on Tron', type: 'crypto', typeLabel: 'Kripto', fee: 'Ağ Ücreti', min: 500, max: 500000 },
+  { id: 7, name: 'TRON', type: 'crypto', typeLabel: 'Kripto', fee: 'Ağ Ücreti', min: 500, max: 500000 },
+  { id: 17, name: 'Bitcoin', type: 'crypto', typeLabel: 'Kripto', fee: 'Ağ Ücreti', min: 500, max: 1000000 },
+  { id: 18, name: 'Ethereum', type: 'crypto', typeLabel: 'Kripto', fee: 'Ağ Ücreti', min: 500, max: 1000000 },
+  { id: 19, name: 'USDT (TRC20)', type: 'crypto', typeLabel: 'Kripto', fee: 'Ücretsiz', min: 500, max: 500000 },
+  { id: 20, name: 'USDT (ERC20)', type: 'crypto', typeLabel: 'Kripto', fee: 'Ağ Ücreti', min: 500, max: 500000 },
+  { id: 22, name: 'PayFix', type: 'ewallet', typeLabel: 'Online Cüzdan', fee: 'Ücretsiz', min: 1000, max: 100000 },
+  { id: 23, name: 'CMT', type: 'ewallet', typeLabel: 'Online Cüzdan', fee: 'Ücretsiz', min: 1000, max: 100000 },
 ]
 
 const QUICK = [100, 250, 500, 1000, 2500, 5000]
@@ -62,63 +61,35 @@ const MIN = 50
 const MAX = 100000
 
 const fmt = (n: number) => n.toLocaleString('tr-TR')
+/** The reference grid groups with commas ("Min 2,000 TRY"), not the tr-TR dot
+ *  the rest of the app uses. Only the red-boxed card block uses this. */
+const fmtRef = (n: number) => n.toLocaleString('en-US')
 
-// ── Per-method colored initials badge — bank.zip (real logos) returned a
-// 404 page, not an archive, so specific methods get a distinct, deterministic
-// badge instead of one shared type-icon. ──
-const BADGE_COLORS = ['#0E8FCF', '#27ae60', '#e74c3c', '#f59e0b', '#7c3aed', '#0891b2', '#d97706', '#c026d3', '#16a34a', '#2563eb']
-function initials(name: string) {
-  const words = name.split(/[\s()/-]+/).filter(Boolean)
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
-  return name.slice(0, 2).toUpperCase()
-}
-function badgeColor(name: string) {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0
-  return BADGE_COLORS[hash % BADGE_COLORS.length]
-}
-function MethodBadge({ name, size = 44 }: { name: string; size?: number }) {
-  return (
-    <div
-      className="rounded-full flex items-center justify-center flex-shrink-0 text-white font-extrabold"
-      style={{ width: size, height: size, background: badgeColor(name), fontSize: size * 0.34 }}
-    >
-      {initials(name)}
-    </div>
-  )
-}
+// The reference replaces our section headers with the parenthesised type, so the
+// groups sheet filters on that instead — order of first appearance.
+const GROUPS = ['Tümü', ...Array.from(new Set(methods.map(m => m.typeLabel)))]
 
-function CopyField({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false)
-  const copy = () => { navigator.clipboard?.writeText(value).catch(() => {}); setCopied(true); setTimeout(() => setCopied(false), 1600) }
-  return (
-    <div className="flex items-center justify-between gap-2 px-3 py-2.5 border-b border-[#f0f2f5] last:border-b-0">
-      <div className="min-w-0">
-        <p className="text-[9px] text-[#737B8C] uppercase tracking-wide">{label}</p>
-        <p className="text-[12px] font-semibold text-[#1a2332] truncate">{value}</p>
-      </div>
-      <button onClick={copy} className="flex-shrink-0 text-[10px] font-semibold flex items-center gap-1" style={{ color: copied ? '#27ae60' : '#0E8FCF' }}>
-        {copied ? '✓ Kopyalandı' : 'Kopyala'}
-      </button>
-    </div>
-  )
-}
-
-const GROUPS = ['Tümü', ...paymentSections.map(s => s.title)]
 
 export default function DepositScreen() {
   const router = useRouter()
   const { balance, adjustBalance, recordFirstDeposit } = useAuth()
-  const [selected, setSelected] = useState<(Method & { type: MethodType }) | null>(null)
+  const { accrueDeposit } = useAdc()
+  const [selected, setSelected] = useState<Method | null>(null)
   const [amount, setAmount] = useState('')
   const [bonus, setBonus] = useState(0)
-  const [done, setDone] = useState<null | { ref: string; amount: number; method: string }>(null)
+  const [done, setDone] = useState<null | { ref: string; amount: number; method: string; adc: number }>(null)
   const [groupFilter, setGroupFilter] = useState('Tümü')
   const [showGroups, setShowGroups] = useState(false)
   const [showWheelUnlock, setShowWheelUnlock] = useState(false)
 
   const amt = Number(amount) || 0
-  const valid = amt >= MIN && amt <= MAX
+  // The reference prints a different Min per method, so validate against the
+  // selected method's own floor rather than one global MIN for every card.
+  const minAmt = selected ? selected.min : MIN
+  const maxAmt = selected ? selected.max : MAX
+  const valid = amt >= minAmt && amt <= maxAmt
+  const inRange = QUICK.filter(v => v >= minAmt && v <= maxAmt)
+  const quicks = inRange.length >= 3 ? inRange : [minAmt, minAmt * 2, minAmt * 5].filter(v => v <= maxAmt)
 
   const confirm = () => {
     if (!selected || !valid) return
@@ -128,7 +99,11 @@ export default function DepositScreen() {
     adjustBalance(amt, bonusAmt)
     // First deposit ever unlocks the 14-day Lucky Wheel — show the promo popup once.
     if (recordFirstDeposit()) setShowWheelUnlock(true)
-    setDone({ ref, amount: amt, method: selected.name })
+    // Adonis Coin accrues on the DEPOSIT alone — never deposit + bonus, which
+    // would push the house cost past the brief's 0.25–1.25% ceiling. It lands
+    // as "bekleyen" until a qualifying bet finalises it (see AdcProvider).
+    const adc = accrueDeposit(amt)
+    setDone({ ref, amount: amt, method: selected.name, adc })
   }
 
   const reset = () => { setSelected(null); setAmount(''); setBonus(0); setDone(null) }
@@ -148,8 +123,15 @@ export default function DepositScreen() {
             <Line k="Tutar" v={`${fmt(done.amount)} ₺`} />
             <Line k="Yöntem" v={done.method} />
             <Line k="Referans No" v={done.ref} />
-            <Line k="Durum" v="Beklemede" vColor="#f39c12" last />
+            <Line k="Durum" v="Beklemede" vColor="#f39c12" last={done.adc === 0} />
+            {done.adc > 0 && <Line k="Adonis Coin" v={`+${fmtAdc(done.adc)} ADC`} vColor="#0E8FCF" last />}
           </div>
+          {done.adc > 0 && (
+            <p className="text-[10px] text-[#737B8C] mt-2 leading-relaxed px-2">
+              {fmtAdc(done.adc)} ADC hesabınıza <span className="font-semibold text-[#1a2332]">bekleyen puan</span> olarak eklendi.
+              En az 100 ₺ ve 1.50 oranlı bir bahis yaptığınızda kullanılabilir hale gelecek.
+            </p>
+          )}
           <button onClick={reset} className="w-full mt-6 py-[13px] bg-[#0E8FCF] text-white text-[13px] font-semibold rounded-xl">Yeni Yatırım</button>
           <button onClick={() => router.push('/')} className="w-full mt-2.5 py-[13px] text-[#0E8FCF] text-[13px] font-semibold">Ana Sayfaya Dön</button>
         </div>
@@ -166,10 +148,10 @@ export default function DepositScreen() {
         <div className="px-4 pt-4 pb-28 flex flex-col gap-3">
           {/* Selected method */}
           <div className="bg-white rounded-xl border border-[#e8ecf1] px-3 py-3 flex items-center gap-3">
-            <MethodBadge name={selected.name} size={40} />
+            <MethodLogo name={selected.name} logo={selected.logo} size={62} />
             <div className="flex-1">
               <p className="text-[13px] font-semibold text-[#1a2332]">{selected.name}</p>
-              <p className="text-[10px] text-[#737B8C]">Min {fmt(MIN)} ₺ · Max {fmt(MAX)} ₺</p>
+              <p className="text-[10px] text-[#737B8C]">({selected.typeLabel}) · Min {fmt(selected.min)} ₺ · Max {fmt(selected.max)} ₺</p>
             </div>
             <button onClick={() => setSelected(null)} className="text-[11px] font-semibold text-[#0E8FCF]">Değiştir</button>
           </div>
@@ -188,7 +170,7 @@ export default function DepositScreen() {
               <span className="text-[20px] font-bold text-[#737B8C]">₺</span>
             </div>
             <div className="grid grid-cols-3 gap-2 mt-3">
-              {QUICK.map(v => (
+              {quicks.map(v => (
                 <button key={v} onClick={() => setAmount(String(v))}
                   className={`py-2 rounded-lg text-[12px] font-semibold transition-colors ${amt === v ? 'bg-[#0E8FCF] text-white' : 'bg-[#f1f5f9] text-[#1a2332]'}`}>
                   {fmt(v)} ₺
@@ -196,7 +178,24 @@ export default function DepositScreen() {
               ))}
             </div>
             {amount && !valid && (
-              <p className="text-[10px] text-[#e74c3c] mt-2">Tutar {fmt(MIN)} ₺ ile {fmt(MAX)} ₺ arasında olmalıdır.</p>
+              <p className="text-[10px] text-[#e74c3c] mt-2">Tutar {fmt(minAmt)} ₺ ile {fmt(maxAmt)} ₺ arasında olmalıdır.</p>
+            )}
+
+            {/* Adonis Coin preview — the tier is chosen by THIS deposit's size. */}
+            {valid && (
+              <div className="mt-3 flex items-center gap-2.5 rounded-xl bg-[#edf5ff] px-3 py-2.5">
+                <span className="w-7 h-7 rounded-full bg-[#0E8FCF] flex items-center justify-center flex-shrink-0 text-white text-[11px] font-bold">₳</span>
+                <p className="text-[10px] text-[#737B8C] leading-relaxed flex-1">
+                  {adcForDeposit(amt) > 0 ? (
+                    <>
+                      Bu yatırımdan <span className="font-bold text-[#0E8FCF]">{fmtAdc(adcForDeposit(amt))} ADC</span> kazanacaksınız
+                      <span className="text-[#94a3b8]"> ({adcRateFor(amt)} ADC / 100 ₺)</span>
+                    </>
+                  ) : (
+                    <>Adonis Coin kazanmak için en az <span className="font-semibold text-[#1a2332]">100 ₺</span> yatırmalısınız.</>
+                  )}
+                </p>
+              </div>
             )}
           </div>
 
@@ -213,35 +212,10 @@ export default function DepositScreen() {
             ))}
           </div>
 
-          {/* Payment details */}
-          <div className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
-            <p className="px-4 py-2.5 text-[11px] font-bold text-[#0E8FCF] border-b border-[#f0f2f5]">
-              {selected.type === 'crypto' ? 'Gönderim Adresi' : selected.type === 'ewallet' ? 'Hesap Bilgileri' : 'Havale Bilgileri'}
-            </p>
-            {selected.type === 'bank' && (
-              <>
-                <CopyField label="Alıcı Ad Soyad" value="BETADONİS ÖDEME A.Ş." />
-                <CopyField label="IBAN" value="TR76 0006 2000 1234 5678 9012 34" />
-                <CopyField label="Açıklama (Zorunlu)" value={accountNumber} />
-              </>
-            )}
-            {selected.type === 'crypto' && (
-              <>
-                <CopyField label="Ağ" value={selected.name.includes('ERC') ? 'ERC20 (Ethereum)' : selected.name.includes('TRC') || selected.name.includes('Tron') ? 'TRC20 (Tron)' : selected.name} />
-                <CopyField label="Cüzdan Adresi" value="TQ5Nfkj2m8pWc3vXyZ9aBnR7dHgLpEeUu" />
-              </>
-            )}
-            {selected.type === 'ewallet' && (
-              <>
-                <CopyField label="Ad Soyad" value="BETADONİS ÖDEME" />
-                <CopyField label={`${selected.name} No`} value="1612620843" />
-                <CopyField label="Açıklama (Zorunlu)" value={accountNumber} />
-              </>
-            )}
-            <div className="px-3 py-2.5 bg-[#fff8e1]">
-              <p className="text-[10px] text-[#8a6d00] leading-relaxed">Açıklama alanına yalnızca hesap numaranızı yazın. Yanlış açıklama işlemin gecikmesine sebep olur.</p>
-            </div>
-          </div>
+          {/* Task 29: the "Transfer Info" card that used to sit here (Havale
+              Bilgileri / Gönderim Adresi / Hesap Bilgileri) is gone — the live
+              site has no such section, its deposits run through a payment
+              gateway rather than showing destination details on this screen. */}
         </div>
 
         {/* Sticky confirm */}
@@ -254,7 +228,7 @@ export default function DepositScreen() {
     )
   }
 
-  const visibleSections = groupFilter === 'Tümü' ? paymentSections : paymentSections.filter(s => s.title === groupFilter)
+  const visibleMethods = groupFilter === 'Tümü' ? methods : methods.filter(m => m.typeLabel === groupFilter)
 
   // ── Method grid (default) ──
   return (
@@ -267,58 +241,41 @@ export default function DepositScreen() {
           <button onClick={() => router.push('/kupon/withdraw')} className="flex-1 text-[12px] font-semibold py-[8px] rounded-full text-[#1a2332]">Para Çekme</button>
         </div>
 
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[12px] font-extrabold text-[#1a2332] tracking-wide">HESAP {accountNumber}</span>
-          <span className="text-[11px] font-semibold text-[#27ae60] tabular-nums">Toplam Bakiye: {fmt(balance.total)} TRY</span>
-        </div>
+        {/* Task 29: the reference's header is heading -> balance -> groups
+            button, straight into the grid. Three blocks that used to sit here
+            are gone because the live screen has none of them: the "HESAP
+            1612620843" line, the BETADONİS İLE İŞ BİRLİĞİ YAP banner and the
+            "Ödemeniz 12 SAAT içinde alınmazsa..." notice. */}
+        <p className="text-[15px] font-bold text-[#1a2332] text-center mt-1">Ödeme Yöntemini Seçin</p>
+        <p className="text-[12px] font-semibold text-[#27ae60] text-center tabular-nums -mt-[6px]">
+          Toplam Bakiye: {fmt(balance.total)} TRY
+        </p>
 
         <button onClick={() => setShowGroups(true)} className="w-full flex items-center justify-center gap-2 bg-white rounded-xl border border-[#e8ecf1] py-[10px]">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
           <span className="text-[12px] font-semibold text-[#0E8FCF]">Para Yatırma Grupları{groupFilter !== 'Tümü' ? `: ${groupFilter}` : ''}</span>
         </button>
 
-        <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(135deg,#071428 0%,#0c2a5a 60%,#0E8FCF 100%)' }}>
-          <div className="flex items-center justify-center gap-3 px-4 py-[14px]">
-            <div>
-              <p className="text-[12px] font-extrabold text-white tracking-wide text-center">BETADONİS İLE İŞ BİRLİĞİ YAP</p>
-              <p className="text-[11px] font-bold text-[#0E8FCF] text-center mt-[2px]">ELBETTE!</p>
+        {/* Flat grid — the reference carries no section headers. */}
+        <div className="grid grid-cols-2 gap-[10px]">
+          {visibleMethods.map(method => (
+            <div key={method.id} className="relative flex flex-col items-center text-center bg-white rounded-xl border border-[#e8ecf1] px-2.5 py-3">
+              <div className="h-[36px] flex items-center justify-center">
+                <MethodLogo name={method.name} logo={method.logo} />
+              </div>
+              <p className="text-[10px] font-semibold text-[#1a2332] leading-tight mt-2 line-clamp-2 h-[26px]">{method.name}</p>
+              <p className="text-[9px] text-[#737B8C] leading-tight">({method.typeLabel})</p>
+              <p className="text-[9px] text-[#737B8C] mt-1">Ücret: <span className="font-medium text-[#1a2332]">{method.fee}</span></p>
+              <p className="text-[8px] text-[#94a3b8] leading-tight mt-[2px]">Min {fmtRef(method.min)} TRY<br />Max {method.max.toFixed(2)} TRY</p>
+              <button
+                onClick={() => setSelected(method)}
+                className="w-full mt-2.5 py-[7px] rounded-lg bg-[#0E8FCF] text-white text-[10px] font-bold active:scale-95 transition-transform"
+              >
+                Para Yatırma
+              </button>
             </div>
-          </div>
+          ))}
         </div>
-
-        <div className="bg-white rounded-xl px-4 py-3 border border-[#e8ecf1]">
-          <p className="text-[11px] text-[#737B8C] leading-relaxed">
-            Ödemeniz <span className="font-bold text-[#1a2332]">12 SAAT</span> içinde alınmazsa, lütfen taleplerinizi{' '}
-            <span className="text-[#0E8FCF] font-medium">odemeler@betadonis.com</span> adresine gönderin.
-          </p>
-        </div>
-
-        {visibleSections.map(section => (
-          <div key={section.title} className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
-            <div className="px-4 py-[10px] bg-[#f4f7fb] border-b border-[#e8ecf1]">
-              <span className="text-[10px] font-bold text-[#737B8C] tracking-wider">{section.title}</span>
-            </div>
-            <div className="grid grid-cols-2 gap-[10px] p-[10px]">
-              {section.methods.map((method) => (
-                <div key={method.id} className="relative flex flex-col items-center text-center bg-[#f8fafc] rounded-xl border border-[#eef1f5] px-2.5 py-3">
-                  {method.badge && (
-                    <span className="absolute top-1.5 right-1.5 bg-[#ef4444] text-white text-[7px] font-bold px-[5px] py-[2px] rounded-full">{method.badge}</span>
-                  )}
-                  <MethodBadge name={method.name} />
-                  <p className="text-[10px] font-semibold text-[#1a2332] leading-tight mt-2 line-clamp-2 h-[26px]">{method.name}</p>
-                  <p className="text-[9px] text-[#737B8C] mt-1">Ücret: <span className="font-medium text-[#1a2332]">{method.fee}</span></p>
-                  <p className="text-[8px] text-[#94a3b8] leading-tight mt-[2px]">Min {fmt(method.min)} TRY<br />Max {fmt(method.max)} TRY</p>
-                  <button
-                    onClick={() => setSelected({ ...method, type: section.type })}
-                    className="w-full mt-2.5 py-[7px] rounded-lg bg-[#0E8FCF] text-white text-[10px] font-bold active:scale-95 transition-transform"
-                  >
-                    Para Yatırma
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* Groups sheet */}

@@ -6,6 +6,9 @@ import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
 import CategoryTabs from '@/components/CategoryTabs'
 import QuickFilters from '@/components/QuickFilters'
+import SportsTabStrip from '@/components/SportsTabStrip'
+import CallMeCard from '@/components/CallMeCard'
+import AdcCard from '@/components/AdcCard'
 import GameCategories from '@/components/GameCategories'
 import LiveBets from '@/components/LiveBets'
 import TopPreMatch from '@/components/TopPreMatch'
@@ -37,8 +40,12 @@ function HomeContent() {
         <div className="bg-white"><CategoryTabs /></div>
       </div>
       <main className="px-4 pb-24">
+        {/* Sports section chooser — only on the "Sporlar" view (task 24 item 8) */}
+        {sportsOnly && <div className="mt-3"><SportsTabStrip /></div>}
         <div className="mt-2"><QuickFilters /></div>
         {!sportsOnly && <div className="mt-3"><PromoBanners /></div>}
+        <div className="mt-3"><AdcCard /></div>
+        <div className="mt-3"><CallMeCard /></div>
         {!sportsOnly && <div className="mt-4"><MegaJackpot /></div>}
         {!sportsOnly && <div className="mt-4"><TopEvents /></div>}
         {!sportsOnly && <div className="mt-4"><SonKazananlar /></div>}

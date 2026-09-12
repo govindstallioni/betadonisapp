@@ -14,6 +14,8 @@ import LiveSupportWidget from '@/components/LiveSupportWidget'
 import MessagesProvider from '@/components/MessagesProvider'
 import NotificationsProvider from '@/components/NotificationsProvider'
 import AccountPanelProvider from '@/components/AccountPanelProvider'
+import SecurityProvider from '@/components/SecurityProvider'
+import AdcProvider from '@/components/AdcProvider'
 import AccountPanel from '@/components/AccountPanel'
 import './globals.css'
 
@@ -60,15 +62,19 @@ export default function RootLayout({
                 <FavoritesProvider>
                   <BetSlipProvider>
                     <AccountPanelProvider>
-                      <SplashGate>
-                        {children}
-                      </SplashGate>
-                      <BetSlipModal />
-                      <PromoBubble />
-                      <WheelGuestBubble />
-                      <WelcomeBubble />
-                      <NotificationBubble />
-                      <AccountPanel />
+                      <SecurityProvider>
+                        <AdcProvider>
+                          <SplashGate>
+                            {children}
+                          </SplashGate>
+                          <BetSlipModal />
+                          <PromoBubble />
+                          <WheelGuestBubble />
+                          <WelcomeBubble />
+                          <NotificationBubble />
+                          <AccountPanel />
+                        </AdcProvider>
+                      </SecurityProvider>
                     </AccountPanelProvider>
                   </BetSlipProvider>
                 </FavoritesProvider>

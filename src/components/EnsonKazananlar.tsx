@@ -11,14 +11,14 @@ const casinoPool = [
   { game: 'Sweet Rush Bonanza',        image: '/canli-casino/2.jpg',  amount: 130.70 },
   { game: '40 Zodiac Wheel Bell Lin.', image: '/canli-casino/3.jpg',  amount: 600.00 },
   { game: 'Lucky Streak 3',            image: '/canli-casino/4.jpg',  amount: 0 },
-  { game: '40 Shining Crown Bell Li.', image: '/canli-casino/5.jpg',  amount: 480.00 },
+  { game: '40 Shining Crown Bell Li.', image: '/casino/40-shining-crown-bell-link.webp',  amount: 480.00 },
   { game: 'Royal Bonanza',             image: '/canli-casino/6.jpg',  amount: 180.00 },
   { game: 'Great 27',                  image: '/canli-casino/7.jpg',  amount: 0 },
-  { game: 'Flaming Hot Extreme Be.',   image: '/canli-casino/8.jpg',  amount: 980.00 },
-  { game: 'Starlight Princess 1000',   image: '/canli-casino/9.png',  amount: 0 },
+  { game: 'Flaming Hot Extreme Be.',   image: '/casino/flaming-hot-extreme-bell-link.webp',  amount: 980.00 },
+  { game: 'Starlight Princess 1000',   image: '/casino/starlight-princess-1000.webp',  amount: 0 },
   { game: 'Zombie Outbreak',           image: '/canli-casino/10.png', amount: 0 },
-  { game: 'Gates of Olympus',          image: '/canli-casino/11.png', amount: 2450.00 },
-  { game: 'Sweet Bonanza',             image: '/canli-casino/1.jpg',  amount: 375.50 },
+  { game: 'Gates of Olympus',          image: '/casino/gates-of-olympus.webp', amount: 2450.00 },
+  { game: 'Sweet Bonanza',             image: '/casino/sweet-bonanza.webp',  amount: 375.50 },
 ]
 
 const sporPool = [

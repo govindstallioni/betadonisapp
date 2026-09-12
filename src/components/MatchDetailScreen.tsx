@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation'
 import NotifyBell from '@/components/NotifyBell'
 import FavoriteStar from '@/components/FavoriteStar'
 import { useBetSlip } from '@/components/BetSlipProvider'
+import { MATCH_RESULT } from '@/data/markets'
+import OddLock, { isSuspended } from '@/components/OddLock'
 
 // ── Static match data ──────────────────────────────────────────
 
 const matchesData = [
   {
     id: 'gal-fen',
+    sport: 'Futbol',
     league: 'Türkiye. Süper Lig',
     leagueSub: 'Hafta 34. Türkiye',
     team1: 'Galatasaray',
@@ -27,6 +30,7 @@ const matchesData = [
   },
   {
     id: 'mci-ars',
+    sport: 'Futbol',
     league: 'İngiltere. Premier Lig',
     leagueSub: 'Hafta 30. İngiltere',
     team1: 'Manchester City',
@@ -43,6 +47,7 @@ const matchesData = [
   },
   {
     id: 'rma-bar',
+    sport: 'Futbol',
     league: 'İspanya. La Liga',
     leagueSub: 'Hafta 28. İspanya',
     team1: 'Real Madrid',
@@ -59,6 +64,7 @@ const matchesData = [
   },
   {
     id: 'bes-tra',
+    sport: 'Futbol',
     league: 'Türkiye. Süper Lig',
     leagueSub: 'Hafta 35. Türkiye',
     team1: 'Beşiktaş',
@@ -72,6 +78,7 @@ const matchesData = [
   },
   {
     id: 'liv-che',
+    sport: 'Futbol',
     league: 'İngiltere. Premier Lig',
     leagueSub: 'Hafta 31. İngiltere',
     team1: 'Liverpool',
@@ -85,6 +92,7 @@ const matchesData = [
   },
   {
     id: 'atl-sev',
+    sport: 'Futbol',
     league: 'İspanya. La Liga',
     leagueSub: 'Hafta 29. İspanya',
     team1: 'Atletico Madrid',
@@ -98,6 +106,7 @@ const matchesData = [
   },
   {
     id: 'gs-bay',
+    sport: 'Futbol',
     league: 'Şampiyonlar Ligi. Grup Aşaması',
     leagueSub: 'Grup A. Avrupa',
     team1: 'Galatasaray',
@@ -111,6 +120,7 @@ const matchesData = [
   },
   {
     id: 'rma-mci',
+    sport: 'Futbol',
     league: 'Şampiyonlar Ligi. Grup Aşaması',
     leagueSub: 'Grup B. Avrupa',
     team1: 'Real Madrid',
@@ -124,6 +134,7 @@ const matchesData = [
   },
   {
     id: 'bos-gsw',
+    sport: 'Basketbol',
     league: 'ABD, NBA',
     leagueSub: 'Basketbol',
     team1: 'Boston Celtics',
@@ -137,6 +148,7 @@ const matchesData = [
   },
   {
     id: 'sin-zve',
+    sport: 'Tenis',
     league: 'ATP, Masters 1000',
     leagueSub: 'Tenis',
     team1: 'Sinner',
@@ -150,6 +162,7 @@ const matchesData = [
   },
   {
     id: 'vak-ecz',
+    sport: 'Voleybol',
     league: 'Türkiye, Sultanlar Ligi',
     leagueSub: 'Voleybol',
     team1: 'VakıfBank',
@@ -163,6 +176,7 @@ const matchesData = [
   },
   {
     id: 'tor-bos',
+    sport: 'Buz Hokeyi',
     league: 'ABD, NHL',
     leagueSub: 'Buz Hokeyi',
     team1: 'Toronto Maple Leafs',
@@ -173,6 +187,107 @@ const matchesData = [
     hasStream: false,
     countdown: { hours: '03', minutes: '05', seconds: '55' },
     dateTime: '28.03.26 (08:30 pm)',
+  },
+  {
+    id: 'thw-bar',
+    sport: 'Hentbol',
+    league: 'EHF, Şampiyonlar Ligi',
+    leagueSub: 'Hentbol',
+    team1: 'THW Kiel',
+    team2: 'Barcelona',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    isLive: false,
+    hasStream: true,
+    countdown: { hours: '02', minutes: '15', seconds: '40' },
+    dateTime: '26.03.26 (08:45 pm)',
+  },
+  {
+    id: 'nyy-lad',
+    sport: 'Beyzbol',
+    league: 'ABD, MLB',
+    leagueSub: 'Beyzbol',
+    team1: 'New York Yankees',
+    team2: 'LA Dodgers',
+    logo1: '/teams/jersey2.png',
+    logo2: '/teams/jersey1.png',
+    isLive: false,
+    hasStream: false,
+    countdown: { hours: '06', minutes: '40', seconds: '12' },
+    dateTime: '29.03.26 (02:10 am)',
+  },
+  // ── Pre-match league fixtures (PreMatchLeagueScreen's matchId targets) ──
+  {
+    id: 'ars-atm',
+    sport: 'Futbol',
+    league: 'UEFA Şampiyonlar Ligi',
+    leagueSub: 'Futbol',
+    team1: 'Arsenal',
+    team2: 'Atletico Madrid',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    isLive: false,
+    hasStream: true,
+    countdown: { hours: '04', minutes: '20', seconds: '00' },
+    dateTime: '06.05.26 (12:30 pm)',
+  },
+  {
+    id: 'bay-psg',
+    sport: 'Futbol',
+    league: 'UEFA Şampiyonlar Ligi',
+    leagueSub: 'Futbol',
+    team1: 'Bayern Münih',
+    team2: 'Paris Saint-Germain',
+    logo1: '/teams/jersey2.png',
+    logo2: '/teams/jersey1.png',
+    isLive: false,
+    hasStream: false,
+    countdown: { hours: '05', minutes: '45', seconds: '30' },
+    dateTime: '07.05.26 (12:30 pm)',
+  },
+  {
+    // Return fixture — the derby's live leg is `gal-fen` above; this is the
+    // upcoming one the pre-match league list links to.
+    id: 'gal-fen-pm',
+    sport: 'Futbol',
+    league: 'Türkiye. Süper Lig',
+    leagueSub: 'Futbol',
+    team1: 'Galatasaray',
+    team2: 'Fenerbahçe',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    isLive: false,
+    hasStream: true,
+    countdown: { hours: '07', minutes: '10', seconds: '05' },
+    dateTime: '08.05.26 (09:00 pm)',
+  },
+  {
+    id: 'mci-liv',
+    sport: 'Futbol',
+    league: 'İngiltere. Premier Ligi',
+    leagueSub: 'Futbol',
+    team1: 'Manchester City',
+    team2: 'Liverpool',
+    logo1: '/teams/jersey1.png',
+    logo2: '/teams/jersey2.png',
+    isLive: false,
+    hasStream: true,
+    countdown: { hours: '02', minutes: '55', seconds: '18' },
+    dateTime: '10.05.26 (06:30 pm)',
+  },
+  {
+    id: 'che-mun',
+    sport: 'Futbol',
+    league: 'İngiltere. Premier Ligi',
+    leagueSub: 'Futbol',
+    team1: 'Chelsea',
+    team2: 'Manchester United',
+    logo1: '/teams/jersey2.png',
+    logo2: '/teams/jersey1.png',
+    isLive: false,
+    hasStream: false,
+    countdown: { hours: '05', minutes: '25', seconds: '44' },
+    dateTime: '10.05.26 (09:00 pm)',
   },
 ]
 
@@ -185,15 +300,39 @@ interface MarketRow { label: string; value: string }
 interface Market {
   title: string
   tabs: number[]
+  // Sports this market applies to. Omitted = offered on every sport (1X2,
+  // Handikap, Toplam…). Without this every fixture got all 15 markets, so a
+  // basketball match offered corners and a football match offered a cricket
+  // coin toss.
+  sports?: string[]
   pinned?: boolean
   subCount?: number
   rows: MarketRow[][]
 }
 
+// Sport groupings used by the `sports` gate above.
+const GOAL_SPORTS = ['Futbol', 'Buz Hokeyi', 'Hentbol']   // scored in goals
+const DRAW_SPORTS = ['Futbol', 'Buz Hokeyi', 'Hentbol']   // a draw is possible
+const HALF_SPORTS = ['Futbol', 'Basketbol', 'Hentbol']    // played in two halves
+
+// Odds display — always two decimals, the way Betadonis prices them. The static
+// market data below mixes precision (2.515, 2.4, 55), so an unformatted "55"
+// reads like a broken value sitting next to "2.515" even though 55.00 is a
+// legitimate price for a near-impossible outcome.
+function formatOdd(value: string): string {
+  const n = parseFloat(value)
+  return Number.isFinite(n) ? n.toFixed(2) : value
+}
+
+// The match-result market ("Maç Sonucu" in betting parlance) — the one market
+// pre-match fixtures open by default. Kept as a named constant so the default
+// doesn't silently break if the market is reordered or retitled.
+const MATCH_RESULT_MARKET = MATCH_RESULT
+
 const allMarkets: Market[] = [
   {
-    title: '1X2',
-    tabs: [0, 1],
+    title: MATCH_RESULT,
+    tabs: [0],
     pinned: true,
     rows: [
       [
@@ -206,6 +345,7 @@ const allMarkets: Market[] = [
   {
     title: 'Toss Kazananı',
     tabs: [0],
+    sports: ['Kriket'],
     pinned: true,
     rows: [
       [
@@ -217,6 +357,7 @@ const allMarkets: Market[] = [
   {
     title: 'Toss / Maç',
     tabs: [0],
+    sports: ['Kriket'],
     pinned: true,
     rows: [
       [
@@ -231,7 +372,7 @@ const allMarkets: Market[] = [
   },
   {
     title: 'Toplam',
-    tabs: [0, 1, 2],
+    tabs: [1],
     pinned: true,
     rows: [
       [
@@ -245,7 +386,7 @@ const allMarkets: Market[] = [
   },
   {
     title: 'Toplam 1',
-    tabs: [0, 1, 2],
+    tabs: [1],
     subCount: 42,
     rows: [
       [
@@ -256,7 +397,7 @@ const allMarkets: Market[] = [
   },
   {
     title: 'Toplam 2',
-    tabs: [0, 1, 2],
+    tabs: [1],
     subCount: 42,
     rows: [
       [
@@ -267,7 +408,8 @@ const allMarkets: Market[] = [
   },
   {
     title: 'Beraberlik',
-    tabs: [0, 1],
+    tabs: [0],
+    sports: DRAW_SPORTS,
     rows: [
       [
         { label: 'Evet', value: '55' },
@@ -288,6 +430,7 @@ const allMarkets: Market[] = [
   {
     title: 'Çifte Şans',
     tabs: [0],
+    sports: DRAW_SPORTS,
     pinned: true,
     rows: [
       [
@@ -299,7 +442,7 @@ const allMarkets: Market[] = [
   },
   {
     title: 'Handikap',
-    tabs: [0],
+    tabs: [2],
     subCount: 6,
     rows: [
       [
@@ -313,8 +456,36 @@ const allMarkets: Market[] = [
     ],
   },
   {
+    title: 'Toplam Korner',
+    tabs: [3],
+    sports: ['Futbol'],
+    subCount: 6,
+    rows: [
+      [
+        { label: 'Üst (9.5)', value: '1.90' },
+        { label: 'Alt (9.5)', value: '1.90' },
+      ],
+      [
+        { label: 'Üst (10.5)', value: '2.10' },
+        { label: 'Alt (10.5)', value: '1.72' },
+      ],
+    ],
+  },
+  {
+    title: 'İlk Korner',
+    tabs: [3],
+    sports: ['Futbol'],
+    rows: [
+      [
+        { label: 'Ev Sahibi', value: '1.85' },
+        { label: 'Deplasman', value: '1.95' },
+      ],
+    ],
+  },
+  {
     title: 'Karşılıklı Gol',
     tabs: [0],
+    sports: GOAL_SPORTS,
     rows: [
       [
         { label: 'Evet', value: '1.72' },
@@ -325,6 +496,7 @@ const allMarkets: Market[] = [
   {
     title: 'İlk Yarı Sonucu',
     tabs: [0],
+    sports: HALF_SPORTS,
     rows: [
       [
         { label: 'Ev1', value: '3.40' },
@@ -336,6 +508,7 @@ const allMarkets: Market[] = [
   {
     title: 'Doğru Skor',
     tabs: [0],
+    sports: GOAL_SPORTS,
     subCount: 28,
     rows: [
       [
@@ -352,12 +525,12 @@ const allMarkets: Market[] = [
   },
 ]
 
-const filterTabs = ['Tüm Marketler', 'Popüler', 'Toplam']
+const filterTabs = ['Ana Bahisler', 'Alt/Üst', 'Handikap', 'Kornerler']
 const subTabs = ['Normal Süre', 'Alternatif Sonuçlar', 'Akümülatör']
 
 // Short static explanation shown in each market's info popover.
 const MARKET_INFO: Record<string, string> = {
-  '1X2': 'Maçı hangi takımın kazanacağını (ya da berabere biteceğini) tahmin edin.',
+  [MATCH_RESULT]: 'Maçı hangi takımın kazanacağını (ya da berabere biteceğini) tahmin edin.',
   'Toss Kazananı': 'Maç öncesi yapılan toss\'u hangi takımın kazanacağını tahmin edin.',
   'Toss / Maç': 'Toss\'u kazanan takım ile maçı kazanan takımın kombinasyonunu tahmin edin.',
   'Toplam': 'Maçtaki toplam gol sayısının belirlenen sınırın üstünde mi altında mı olacağını tahmin edin.',
@@ -370,6 +543,8 @@ const MARKET_INFO: Record<string, string> = {
   'Karşılıklı Gol': 'Her iki takımın da maçta en az bir gol atıp atmayacağını tahmin edin.',
   'İlk Yarı Sonucu': 'Sadece ilk yarının sonucunu (1, X ya da 2) tahmin edin.',
   'Doğru Skor': 'Maçın tam olarak hangi skorla biteceğini tahmin edin.',
+  'Toplam Korner': 'Maçtaki toplam korner sayısının belirlenen sınırın üstünde mi altında mı olacağını tahmin edin.',
+  'İlk Korner': 'Maçın ilk kornerini hangi takımın kullanacağını tahmin edin.',
 }
 
 // Deterministic "demo" stat generator — same technique as megaJackpotData's
@@ -401,16 +576,17 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
 
   const [activeFilter, setActiveFilter] = useState(0)
   const [activeSubTab, setActiveSubTab] = useState(0)
-  const [sectionOpen, setSectionOpen] = useState(true)
-  const [expandedMarkets, setExpandedMarkets] = useState<Set<number>>(
-    new Set(allMarkets.map((m, i) => (m.rows.length > 0 ? i : -1)).filter(i => i >= 0))
-  )
+  // Defaults to the first 4 markets of whichever tab is active — see the
+  // effect below, which recomputes this whenever the active tab changes.
+  const [expandedMarkets, setExpandedMarkets] = useState<Set<number>>(new Set())
   const { has, toggle } = useBetSlip()
 
   // ── Hero swipeable panel (Genel Bakış / Saha / İstatistik) ──
-  // Matches with a live stream open straight on the Saha (broadcast) slide.
+  // Matches with a live stream open straight on the Saha (broadcast) slide,
+  // which itself defaults to our own simulator over the real video feed.
   const heroScrollRef = useRef<HTMLDivElement>(null)
   const [activeSlide, setActiveSlide] = useState(match.isLive && match.hasStream ? 1 : 0)
+  const [showVideo, setShowVideo] = useState(false)
   const scrollToSlide = (i: number) => {
     const el = heroScrollRef.current
     if (!el) return
@@ -434,7 +610,35 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   // ── Market info popover ──
   const [infoOpenFor, setInfoOpenFor] = useState<string | null>(null)
 
-  const visibleMarkets = allMarkets.filter(m => m.tabs.includes(activeFilter))
+  // Markets offered for this fixture's sport — a market with no `sports` list
+  // is universal. Everything downstream filters from here, so corners can never
+  // reach a basketball fixture.
+  const sportMarkets = allMarkets.filter(m => !m.sports || m.sports.includes(match.sport))
+  // Category tabs with nothing to show for this sport are hidden rather than
+  // opening on "Bu kategoride bahis bulunamadı."
+  const availableFilters = filterTabs
+    .map((label, i) => ({ label, i }))
+    .filter(({ i }) => sportMarkets.some(m => m.tabs.includes(i)))
+  const safeFilter = availableFilters.some(f => f.i === activeFilter)
+    ? activeFilter
+    : (availableFilters[0]?.i ?? 0)
+
+  const visibleMarkets = sportMarkets.filter(m => m.tabs.includes(safeFilter))
+  const visibleIndices = visibleMarkets.map(m => allMarkets.indexOf(m))
+
+  // Re-default whenever the active market-category tab changes. Live matches
+  // keep task 19's "first 4 open"; pre-match opens only the match-result market
+  // (1X2) per task 24 — everything else starts collapsed. The "Tümünü Aç/Kapat"
+  // control below still expands the lot in one tap on either.
+  useEffect(() => {
+    if (match.isLive) {
+      setExpandedMarkets(new Set(visibleIndices.slice(0, 4)))
+      return
+    }
+    const resultIdx = visibleIndices.filter(i => allMarkets[i].title === MATCH_RESULT_MARKET)
+    setExpandedMarkets(new Set(resultIdx.length > 0 ? resultIdx : visibleIndices.slice(0, 1)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeFilter, match.isLive, match.sport])
 
   const toggleMarket = (i: number) => {
     setExpandedMarkets(prev => {
@@ -442,6 +646,18 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
       if (next.has(i)) next.delete(i)
       else next.add(i)
       return next
+    })
+  }
+
+  const allVisibleExpanded = visibleIndices.length > 0 && visibleIndices.every(i => expandedMarkets.has(i))
+  const toggleAllMarkets = () => {
+    setExpandedMarkets(prev => {
+      if (allVisibleExpanded) {
+        const next = new Set(prev)
+        visibleIndices.forEach(i => next.delete(i))
+        return next
+      }
+      return new Set([...prev, ...visibleIndices])
     })
   }
 
@@ -455,6 +671,7 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
     pick: odd.label,
     baseOdd: parseFloat(odd.value) || 1,
     isLive: match.isLive,
+    sport: match.sport,
   })
 
   return (
@@ -593,32 +810,61 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
         </div>
 
         {/* ── Slide 2: Saha ── */}
-        <div className="w-full flex-shrink-0 snap-center px-5 pt-6 pb-5">
-          <div className="relative w-full aspect-[16/10] rounded-lg overflow-hidden border border-white/15" style={{ background: 'linear-gradient(180deg, #2e7d46 0%, #1f6337 100%)' }}>
-            {/* Pitch markings */}
-            <div className="absolute inset-2 border border-white/30 rounded-sm" />
-            <div className="absolute top-2 bottom-2 left-1/2 w-px bg-white/30" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[15%] aspect-square rounded-full border border-white/30" />
-            <div className="absolute top-1/2 left-2 -translate-y-1/2 w-[8%] aspect-square border border-white/30" style={{ borderLeft: 'none' }} />
-            <div className="absolute top-1/2 right-2 -translate-y-1/2 w-[8%] aspect-square border border-white/30" style={{ borderRight: 'none' }} />
-            {/* Team badges at each end */}
-            <img src={match.logo1} alt="" className="absolute top-1/2 left-[8%] -translate-y-1/2 w-6 h-6 object-contain drop-shadow" />
-            <img src={match.logo2} alt="" className="absolute top-1/2 right-[8%] -translate-y-1/2 w-6 h-6 object-contain drop-shadow" />
-            {/* Ball / status overlay */}
-            {match.isLive ? (
+        <div className="w-full flex-shrink-0 snap-center px-5 pt-4 pb-4">
+          <div className="relative w-full aspect-[16/8] rounded-lg overflow-hidden border border-white/15" style={{ background: showVideo ? '#0a0f14' : 'linear-gradient(180deg, #2e7d46 0%, #1f6337 100%)' }}>
+            {showVideo ? (
+              /* Video placeholder — no live-stream backend exists, so this follows
+                 the same "external provider, connection pending" convention used
+                 by ProviderPlay.tsx / SanalBahisScreen.tsx rather than faking a feed. */
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-6 text-center">
+                <div className="w-11 h-11 rounded-full bg-white/10 flex items-center justify-center">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" />
+                  </svg>
+                </div>
+                <p className="text-[11px] text-white/70 font-medium">Video yayını harici sağlayıcıdan yüklenir</p>
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-[#f59e0b]/40 px-2.5 py-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b]" />
+                  <span className="text-[9px] font-semibold text-[#f59e0b]">Sağlayıcı bağlantısı bekleniyor</span>
+                </div>
+              </div>
+            ) : (
               <>
-                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-white animate-pulse-dot" />
-                {match.half === 'HT' && (
-                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Devre Arası</span>
+                {/* Pitch markings */}
+                <div className="absolute inset-2 border border-white/30 rounded-sm" />
+                <div className="absolute top-2 bottom-2 left-1/2 w-px bg-white/30" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[15%] aspect-square rounded-full border border-white/30" />
+                <div className="absolute top-1/2 left-2 -translate-y-1/2 w-[8%] aspect-square border border-white/30" style={{ borderLeft: 'none' }} />
+                <div className="absolute top-1/2 right-2 -translate-y-1/2 w-[8%] aspect-square border border-white/30" style={{ borderRight: 'none' }} />
+                {/* Team badges at each end */}
+                <img src={match.logo1} alt="" className="absolute top-1/2 left-[8%] -translate-y-1/2 w-6 h-6 object-contain drop-shadow" />
+                <img src={match.logo2} alt="" className="absolute top-1/2 right-[8%] -translate-y-1/2 w-6 h-6 object-contain drop-shadow" />
+                {/* Ball / status overlay */}
+                {match.isLive ? (
+                  <>
+                    <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[7px] h-[7px] rounded-full bg-white animate-pulse-dot" />
+                    {match.half === 'HT' && (
+                      <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Devre Arası</span>
+                    )}
+                  </>
+                ) : (
+                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Maç Başlamadı</span>
                 )}
               </>
-            ) : (
-              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/60 text-white text-[10px] font-semibold px-2.5 py-1 rounded-full">Maç Başlamadı</span>
             )}
           </div>
-          <p className="text-[10px] text-white/40 text-center mt-3 font-medium">
-            {match.isLive ? `${match.minute} ${match.half}` : match.dateTime}
-          </p>
+          {match.hasStream && (
+            <button
+              onClick={() => setShowVideo(v => !v)}
+              className="w-full mt-3 h-[36px] rounded-full flex items-center justify-center gap-2 text-[12px] font-bold transition-colors"
+              style={showVideo ? { background: 'rgba(255,255,255,0.1)', color: '#fff' } : { background: '#0E8FCF', color: '#fff' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" />
+              </svg>
+              {showVideo ? 'Simülatörü Göster' : 'Video Yayınını İzle'}
+            </button>
+          )}
         </div>
 
         {/* ── Slide 3: İstatistik ── */}
@@ -678,23 +924,17 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
 
       {/* ── Filter pills ── */}
       <div className="bg-white px-4 py-3">
-        <div className="flex gap-[8px]">
-          {filterTabs.map((label, i) => (
+        <div className="flex gap-[8px] overflow-x-auto scrollbar-hide">
+          {availableFilters.map(({ label, i }) => (
             <button
               key={label}
               onClick={() => setActiveFilter(i)}
-              className={`flex items-center gap-1.5 rounded-full px-[14px] py-[8px] text-[11px] font-medium transition-all ${
-                activeFilter === i
+              className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-[14px] py-[8px] text-[11px] font-medium transition-all ${
+                safeFilter === i
                   ? 'bg-[#0E8FCF] text-white'
                   : 'bg-white text-[#1a2332] border border-[#d0d5dd]'
               }`}
             >
-              {i === 1 && (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-                </svg>
-              )}
               {label}
             </button>
           ))}
@@ -704,8 +944,13 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
       {/* ── Sub-tabs ── */}
       <div className="bg-white border-b border-[#e8ecf1]">
         <div className="flex items-center px-4 overflow-x-auto scrollbar-hide">
-          <button className="flex-shrink-0 pr-3 py-3">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <button
+            onClick={toggleAllMarkets}
+            aria-label={allVisibleExpanded ? 'Tümünü Kapat' : 'Tümünü Aç'}
+            aria-pressed={allVisibleExpanded}
+            className="flex-shrink-0 pr-3 py-3"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={allVisibleExpanded ? '#0E8FCF' : '#737B8C'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
               <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
             </svg>
@@ -727,10 +972,13 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
         </div>
       </div>
 
-      {/* ── Markets ── */}
+      {/* ── Markets: collapsible per-market sections, filtered by the active tab ── */}
       <div className="bg-white">
-        {activeFilter === 0 ? (
-          /* ─── All Markets: collapsible per-market sections ─── */
+        {visibleMarkets.length === 0 ? (
+          <div className="px-4 py-8 text-center">
+            <p className="text-[12px] text-[#94a3b8]">Bu kategoride bahis bulunamadı.</p>
+          </div>
+        ) : (
           <div className="px-4 pt-2">
             {visibleMarkets.map((market) => {
               const globalIdx = allMarkets.indexOf(market)
@@ -783,23 +1031,33 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
                       {market.rows.map((row, ri) => (
                         <div key={ri} className="flex gap-[6px]">
                           {row.map((odd, oi) => {
-                            const sel = has(oddId(market.title, odd.label))
+                            const locked = isSuspended(odd.value)
+                            const sel = !locked && has(oddId(market.title, odd.label))
                             return (
                               <button
                                 key={oi}
-                                onClick={() => pickOdd(market.title, odd)}
-                                className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all active:scale-[0.97] ${
-                                  sel
-                                    ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)]'
-                                    : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8]'
+                                disabled={locked}
+                                onClick={() => { if (!locked) pickOdd(market.title, odd) }}
+                                className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all ${
+                                  locked
+                                    ? 'bg-[#f4f6f9] border border-[#eef1f5] cursor-default justify-center'
+                                    : sel
+                                      ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)] active:scale-[0.97]'
+                                      : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8] active:scale-[0.97]'
                                 }`}
                               >
-                                <span className={`text-[9px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
-                                  {odd.label}
-                                </span>
-                                <span className={`text-[11px] font-bold leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
-                                  {odd.value}
-                                </span>
+                                {locked ? (
+                                  <OddLock size={13} />
+                                ) : (
+                                  <>
+                                    <span className={`text-[9px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
+                                      {odd.label}
+                                    </span>
+                                    <span className={`text-[11px] font-bold leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
+                                      {formatOdd(odd.value)}
+                                    </span>
+                                  </>
+                                )}
                               </button>
                             )
                           })}
@@ -811,59 +1069,6 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
               )
             })}
           </div>
-        ) : (
-          /* ─── Popular / Total: "Regular time" collapsible group with flat market labels ─── */
-          <>
-            <button
-              onClick={() => setSectionOpen(!sectionOpen)}
-              className="w-full flex items-center justify-between px-4 py-3 border-b border-[#f0f2f5]"
-            >
-              <span className="text-[13px] font-bold text-[#1a2332]">Normal Süre</span>
-              <svg
-                width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                className={`transition-transform duration-200 ${sectionOpen ? 'rotate-180' : ''}`}
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </button>
-
-            {sectionOpen && (
-              <div className="px-4 pt-1 pb-3">
-                {visibleMarkets.map((market) => (
-                  <div key={market.title} className="mt-3 first:mt-2">
-                    <p className="text-[12px] font-bold text-[#1a2332] mb-2">{market.title}</p>
-                    <div className="flex flex-col gap-[6px]">
-                      {market.rows.map((row, ri) => (
-                        <div key={ri} className="flex gap-[6px]">
-                          {row.map((odd, oi) => {
-                            const sel = has(oddId(market.title, odd.label))
-                            return (
-                              <button
-                                key={oi}
-                                onClick={() => pickOdd(market.title, odd)}
-                                className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all active:scale-[0.97] ${
-                                  sel
-                                    ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)]'
-                                    : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8]'
-                                }`}
-                              >
-                                <span className={`text-[9px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
-                                  {odd.label}
-                                </span>
-                                <span className={`text-[11px] font-bold leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
-                                  {odd.value}
-                                </span>
-                              </button>
-                            )
-                          })}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
         )}
       </div>
 

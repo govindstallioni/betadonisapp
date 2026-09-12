@@ -6,11 +6,11 @@ import SectionHeader from './SectionHeader'
 import { gameHref } from './gameHref'
 
 const winners = [
-  { user: 'is***T', amount: 239020.50, game: 'Lucky Penny',      image: '/canli-casino/1.jpg' },
-  { user: 'Ca***A', amount: 60750.00,  game: 'Gates of Olympus', image: '/canli-casino/2.jpg' },
+  { user: 'is***T', amount: 239020.50, game: 'Lucky Penny',      image: '/casino/lucky-penny-3-pots-super-wheel.webp' },
+  { user: 'Ca***A', amount: 60750.00,  game: 'Gates of Olympus', image: '/casino/gates-of-olympus.webp' },
   { user: 'Ay***b', amount: 59400.00,  game: 'Magic Wins',       image: '/canli-casino/3.jpg' },
-  { user: 'Me***n', amount: 41250.75,  game: 'Sweet Bonanza',    image: '/canli-casino/4.jpg' },
-  { user: 'Bu***k', amount: 32180.00,  game: 'Big Bass Splash',  image: '/canli-casino/5.jpg' },
+  { user: 'Me***n', amount: 41250.75,  game: 'Sweet Bonanza',    image: '/casino/sweet-bonanza.webp' },
+  { user: 'Bu***k', amount: 32180.00,  game: 'Big Bass Splash',  image: '/casino/big-bass-splash.webp' },
   { user: 'Se***r', amount: 28900.50,  game: 'Fire Strike',      image: '/canli-casino/6.jpg' },
   { user: 'Ha***e', amount: 19650.00,  game: 'Book of Dead',     image: '/canli-casino/7.jpg' },
   { user: 'Em***s', amount: 14320.25,  game: 'Wolf Gold',        image: '/canli-casino/8.jpg' },
