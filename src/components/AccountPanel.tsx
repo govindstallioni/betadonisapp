@@ -25,7 +25,7 @@ const accountActions = [
   { title: 'HAREKETLER', desc: 'Tüm oyun ve finansal hareketlerinizi inceleyin', href: '/history', icon: iHistory },
   { title: 'BONUSLAR', desc: 'Aktif ve geçmiş bonuslarınızı kontrol edin', href: '/hesap/bonuslar', icon: iBonus },
   { title: 'MESAJLAR', desc: 'Yeni mesaj gönderin ve gelen yanıtları inceleyin', href: '/hesap/mesajlar', icon: iMessage },
-  { title: 'KUPONLARIM', desc: 'Kazanan ve bekleyen kuponları inceleyin', href: '/kupon', icon: iTicket },
+  { title: 'KUPONLARIM', desc: 'Kazanan ve bekleyen kuponları inceleyin', href: '/kuponlarim', icon: iTicket },
   { title: 'BELGE YÜKLEME', desc: 'Hesap doğrulama belgelerinizi yükleyin', href: '/hesap/belgeler', icon: iUpload },
   { title: 'Bildirimler', desc: 'Bildirimlerini açtığınız etkinlikleri görün', href: '/hesap/bildirimler', icon: iBell },
   { title: 'SİZİ ARAYALIM', desc: 'Numaranızı bırakın, müşteri temsilcimiz sizi arasın', href: '/hesap/sizi-arayalim', icon: iPhone },

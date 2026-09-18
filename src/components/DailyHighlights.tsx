@@ -1,4 +1,5 @@
 import SectionHeader from './SectionHeader'
+import Flag from '@/components/Flag'
 
 const highlights = [
   { name: 'Şampiyonlar Ligi', count: 12, emoji: '🏆' },
@@ -20,7 +21,7 @@ export default function DailyHighlights() {
             className="bg-white rounded-2xl py-[14px] px-[10px] flex flex-col items-center gap-[8px] border border-[#e8ecf1] hover:border-[#d0d7e0] transition-all active:scale-[0.97]"
           >
             <div className="w-[40px] h-[40px] rounded-full bg-[#f0f5fa] flex items-center justify-center">
-              <span className="text-[20px] leading-none">{item.emoji}</span>
+              <Flag emoji={item.emoji} size={22} />
             </div>
             <div className="text-[11px] font-medium text-[#1a2332] leading-tight text-center">{item.name}</div>
             <div className="text-[10px] text-[#0E8FCF] font-semibold bg-[#eef7fc] rounded-full px-[8px] py-[2px]">{item.count} maç</div>

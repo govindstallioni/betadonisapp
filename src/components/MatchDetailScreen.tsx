@@ -7,6 +7,7 @@ import FavoriteStar from '@/components/FavoriteStar'
 import { useBetSlip } from '@/components/BetSlipProvider'
 import { MATCH_RESULT } from '@/data/markets'
 import OddLock, { isSuspended } from '@/components/OddLock'
+import { esportLiveMatches, esportPreMatches } from '@/data/esports'
 
 // ── Static match data ──────────────────────────────────────────
 
@@ -290,6 +291,24 @@ const matchesData = [
     dateTime: '10.05.26 (09:00 pm)',
   },
 ]
+
+// E-sports fixtures (/e-spor) — derived from the shared e-sports data so the
+// detail page shows the right teams rather than falling back to defaultMatch.
+matchesData.push(
+  ...esportLiveMatches.map((m) => ({
+    id: m.id, sport: m.sport, league: m.league, leagueSub: 'E-Spor',
+    team1: m.team1, team2: m.team2, logo1: m.logo1, logo2: m.logo2,
+    score1: m.score1, score2: m.score2, isLive: true, hasStream: m.hasStream,
+    minute: m.minute, half: m.half, dateTime: '',
+  })),
+  ...esportPreMatches.map((m) => ({
+    id: m.id, sport: m.sport, league: m.league, leagueSub: 'E-Spor',
+    team1: m.team1, team2: m.team2, logo1: m.logo1, logo2: m.logo2,
+    isLive: false, hasStream: m.hasStream,
+    countdown: { hours: '12', minutes: '00', seconds: '00' },
+    dateTime: `${m.date} ${m.time}`,
+  })),
+)
 
 const defaultMatch = matchesData[0]
 

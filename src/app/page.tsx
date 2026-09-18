@@ -27,6 +27,7 @@ import SonKazananlar from '@/components/SonKazananlar'
 import EnsonKazananlar from '@/components/EnsonKazananlar'
 import CarkiKazananlar from '@/components/CarkiKazananlar'
 import BottomNav from '@/components/BottomNav'
+import Footer from '@/components/Footer'
 
 function HomeContent() {
   // "Sporlar" tab navigates to /?view=sports — like 1xBet, only the sports
@@ -66,6 +67,7 @@ function HomeContent() {
             <div className="mt-3"><VirtualBets /></div>
           </>
         )}
+        <Footer />
       </main>
       <BottomNav />
     </div>

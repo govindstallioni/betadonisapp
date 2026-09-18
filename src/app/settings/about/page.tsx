@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { PageShell, Card, Row, SectionLabel } from '@/components/settings/SettingsUI'
+import { useTheme } from '@/components/ThemeProvider'
 
 const doc = <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /></svg>
 const shield = <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" /></svg>
@@ -10,6 +11,7 @@ const share = <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor
 
 export default function AboutPage() {
   const [showQR, setShowQR] = useState(false)
+  const { theme } = useTheme()
 
   const doShare = async () => {
     const data = { title: 'BetAdonis', text: 'BetAdonis - Spor Bahisleri & Casino', url: 'https://betadonis.com' }
@@ -23,7 +25,7 @@ export default function AboutPage() {
     <PageShell title="Uygulama Hakkında">
       {/* App identity */}
       <div className="flex flex-col items-center pt-6 pb-2">
-        <img src="/logo.png" alt="BetAdonis" className="h-[26px] object-contain" />
+        <img src={theme === 'dark' ? '/logo-dark.png' : '/logo.png'} alt="BetAdonis" className="h-[26px] object-contain" />
         <p className="text-[11px] text-[#737B8C] mt-2">Sürüm 1.0.0 · <span className="text-[#27ae60] font-semibold">Güncel</span></p>
         <p className="text-[10px] text-[#b0b8c4] mt-0.5">Yapı 2026.07.09</p>
       </div>

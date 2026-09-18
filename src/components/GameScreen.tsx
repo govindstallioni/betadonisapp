@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import FavoriteStar from './FavoriteStar'
+import { useAuth } from './AuthProvider'
+import { useAdc } from './AdcProvider'
+import { casinoCodeReason, codeStatus, fmtReward, scopeOf, type AdcCode, type CasinoGame } from '@/data/adc'
 
 const SIMILAR = [
   { name: 'Gates of Olympus', provider: 'Pragmatic Play', image: '/spotlight/1.png' },
@@ -16,14 +19,110 @@ const SIMILAR = [
 const gameHref = (name: string, img: string, provider: string) =>
   `/game?${new URLSearchParams({ name, img, provider }).toString()}`
 
+/** Which casino-code family a game accepts (ADC v2.1 casino codes). */
+function gameType(name: string): CasinoGame {
+  const n = name.toLocaleLowerCase('tr-TR')
+  if (/crash|aviator|plinko|mines|chicken/.test(n)) return 'Crash'
+  if (/rulet|roulette/.test(n)) return 'Rulet'
+  if (/blackjack/.test(n)) return 'Blackjack'
+  return 'Slot'
+}
+
+/** "Bonus Kodu" — where Adonis Coin casino codes are redeemed (brief screen 6).
+ *  Mirrors the slip's free-bet row: codes that don't fit stay listed with the
+ *  reason instead of disappearing. */
+function BonusCodeBox({ game }: { game: CasinoGame }) {
+  const { codes, markCodeUsed } = useAdc()
+  const [input, setInput] = useState('')
+  const [error, setError] = useState('')
+  const [applied, setApplied] = useState<AdcCode | null>(null)
+
+  const casinoCodes = codes.filter(c => scopeOf(c) === 'casino' && codeStatus(c) === 'active')
+
+  const apply = (raw: string) => {
+    const code = raw.trim().toUpperCase()
+    setError('')
+    if (!code) { setError('Bir kod girin.'); return }
+    const c = codes.find(x => x.code.toUpperCase() === code)
+    if (!c) { setError('Kod bulunamadı.'); return }
+    const reason = casinoCodeReason(c, game)
+    if (reason) { setError(reason); return }
+    markCodeUsed(c.code)
+    setApplied(c)
+    setInput('')
+  }
+
+  if (applied) {
+    return (
+      <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-[#e8f5e9] border border-[#27ae60]/30 px-3 py-2.5">
+        <span className="w-8 h-8 rounded-full bg-[#1c7a52] flex items-center justify-center flex-shrink-0 text-white text-[12px] font-bold">₳</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-[12px] font-bold text-[#1a2332] truncate">{applied.name} aktif</p>
+          <p className="text-[10px] text-[#1c7a52] font-semibold">
+            {applied.code} · {fmtReward(applied)}{applied.wagering ? ` · ${applied.wagering}x çevrim` : ''}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-4 bg-white rounded-xl border border-[#e8ecf1] px-3.5 py-3">
+      <p className="text-[12px] font-bold text-[#1a2332]">Bonus Kodu</p>
+      <p className="text-[10px] text-[#737B8C] mt-[2px]">Adonis Coin casino kodunuzu girin (ör. CS-SLOT-A3B7).</p>
+      <div className="flex gap-2 mt-2.5">
+        <input
+          value={input}
+          onChange={e => { setInput(e.target.value); setError('') }}
+          onKeyDown={e => { if (e.key === 'Enter') apply(input) }}
+          placeholder="Kod girin"
+          aria-label="Bonus kodu"
+          className="flex-1 min-w-0 h-[40px] rounded-lg border border-[#e0e5ec] bg-[#f8fafc] px-3 text-[13px] font-semibold tracking-wide text-[#1a2332] uppercase outline-none focus:border-[#0E8FCF]"
+        />
+        <button onClick={() => apply(input)} className="h-[40px] px-4 rounded-lg bg-[#0E8FCF] text-white text-[12px] font-bold flex-shrink-0">
+          Uygula
+        </button>
+      </div>
+      {error && <p className="text-[10px] text-[#e74c3c] font-semibold mt-1.5">{error}</p>}
+      {casinoCodes.length > 0 && (
+        <div className="mt-2.5 flex flex-col gap-1.5">
+          {casinoCodes.map(c => {
+            const reason = casinoCodeReason(c, game)
+            return (
+              <button
+                key={c.code}
+                disabled={!!reason}
+                onClick={() => apply(c.code)}
+                className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left ${reason ? 'border-[#e8ecf1] opacity-60' : 'border-[#0E8FCF]/35'}`}
+              >
+                <span className="text-[11px] font-bold text-[#0E8FCF] tracking-wide tabular-nums">{c.code}</span>
+                <span className="flex-1 min-w-0 text-[10px] text-[#737B8C] truncate">{reason ?? `${c.name} · ${fmtReward(c)}`}</span>
+                {!reason && <span className="text-[10px] font-bold text-[#1c7a52] flex-shrink-0">Kullan</span>}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function GameScreen() {
   const params = useSearchParams()
   const router = useRouter()
   const [launched, setLaunched] = useState<null | 'real' | 'demo'>(null)
+  const { isLoggedIn } = useAuth()
+  const { recordCasinoPlay } = useAdc()
 
   const name = params.get('name') || 'Oyun'
   const img = params.get('img') || '/spotlight/1.png'
   const provider = params.get('provider') || 'Pragmatic Play'
+
+  const play = (mode: 'real' | 'demo') => {
+    // Real-money launches count toward the ADC casino quests; demo play doesn't.
+    if (mode === 'real' && isLoggedIn && !launched) recordCasinoPlay(name)
+    setLaunched(mode)
+  }
 
   return (
     <div className="max-w-[430px] mx-auto bg-[#eef2f7] min-h-screen pb-10">
@@ -57,7 +156,7 @@ export default function GameScreen() {
           ) : (
             <>
               {/* Play button */}
-              <button onClick={() => setLaunched('real')} className="absolute inset-0 flex items-center justify-center group">
+              <button onClick={() => play('real')} className="absolute inset-0 flex items-center justify-center group">
                 <span className="w-[64px] h-[64px] rounded-full bg-white/90 group-active:scale-95 transition-transform flex items-center justify-center shadow-lg">
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="#0E8FCF"><path d="M8 5v14l11-7z" /></svg>
                 </span>
@@ -74,13 +173,15 @@ export default function GameScreen() {
 
         {/* Play buttons */}
         <div className="flex gap-3 mt-4">
-          <button onClick={() => setLaunched('real')} className="flex-1 py-[13px] bg-[#0E8FCF] text-white text-[13px] font-bold rounded-xl hover:bg-[#0a7ab5] transition-colors">
+          <button onClick={() => play('real')} className="flex-1 py-[13px] bg-[#0E8FCF] text-white text-[13px] font-bold rounded-xl hover:bg-[#0a7ab5] transition-colors">
             Gerçek Oyna
           </button>
-          <button onClick={() => setLaunched('demo')} className="flex-1 py-[13px] bg-white border border-[#0E8FCF] text-[#0E8FCF] text-[13px] font-bold rounded-xl hover:bg-[#f0f7ff] transition-colors">
+          <button onClick={() => play('demo')} className="flex-1 py-[13px] bg-white border border-[#0E8FCF] text-[#0E8FCF] text-[13px] font-bold rounded-xl hover:bg-[#f0f7ff] transition-colors">
             Demo Oyna
           </button>
         </div>
+
+        {isLoggedIn && <BonusCodeBox game={gameType(name)} />}
 
         {/* Info */}
         <div className="bg-white rounded-xl border border-[#e8ecf1] mt-4 overflow-hidden">

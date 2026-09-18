@@ -8,10 +8,12 @@ import { useBetSlip } from './BetSlipProvider'
 import { Match, halfText } from '@/data/liveData'
 import { MATCH_RESULT } from '@/data/markets'
 import OddLock, { isSuspended } from './OddLock'
+import Flag from '@/components/Flag'
+import { SPORT_ICONS } from './sportIcons'
 
 export type OddsMarket = 'MS' | 'ALTUST' | 'CS' | 'BERABER' | 'HANDIKAP' | 'KORNER'
 
-const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: Match) => Match['odds'] }> = {
+export const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: Match) => Match['odds'] }> = {
   MS: { label: MATCH_RESULT, pick: (m) => m.odds },
   ALTUST: { label: 'Alt/Üst', pick: (m) => m.altUst },
   CS: { label: 'Çifte Şans', pick: (m) => m.cifteSans },
@@ -37,7 +39,9 @@ export default function MatchCard({ match, compact = false, market = 'MS' }: { m
       {/* League header */}
       <div className="flex items-center justify-between px-[10px] py-[7px] border-b border-[#f0f2f5]">
         <div className="flex items-center gap-[5px] min-w-0">
-          <span className="text-[13px] flex-shrink-0">{match.flag}</span>
+          {match.flag
+            ? <Flag emoji={match.flag} size={16} />
+            : <span className="w-[16px] h-[16px] flex items-center justify-center flex-shrink-0 [&>img]:w-[16px] [&>img]:h-[16px]">{SPORT_ICONS[match.sport]}</span>}
           <span className="text-[10px] text-[#737B8C] font-medium truncate">{match.league}</span>
         </div>
         <div className="flex items-center gap-[6px] flex-shrink-0">

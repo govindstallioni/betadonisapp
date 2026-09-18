@@ -15,7 +15,7 @@ const sections = [
 ]
 
 // ── Sample bet data (prototype has no backend) ──────────────────────────
-type BetStatus = 'won' | 'lost' | 'pending' | 'cancelled' | 'refunded'
+export type BetStatus = 'won' | 'lost' | 'pending' | 'cancelled' | 'refunded'
 
 type Leg = {
   league: string
@@ -26,7 +26,7 @@ type Leg = {
   score?: string        // final/live score, when settled
 }
 
-type Bet = {
+export type Bet = {
   id: string
   type: 'Tekli' | 'Kombine' | 'Sistem'
   status: BetStatus
@@ -37,7 +37,7 @@ type Bet = {
   legs: Leg[]
 }
 
-const sampleBets: Bet[] = [
+export const sampleBets: Bet[] = [
   {
     id: 'A1029',
     type: 'Kombine',
@@ -130,7 +130,7 @@ const sampleBets: Bet[] = [
 // Reuses the same Bet/BetCard shape as sportsbook bets — one synthetic leg
 // per entry (league → category, match → game, pick → provider) so the
 // existing card UI renders casino transactions with no extra component.
-const sampleCasinoBets: Bet[] = [
+export const sampleCasinoBets: Bet[] = [
   {
     id: 'C2210', type: 'Tekli', status: 'won', date: '14.07.2026 22:10', stake: 50, totalOdds: 4.2, payout: 210,
     legs: [{ league: 'Slot', match: 'Sweet Bonanza', pick: 'Pragmatic Play', odd: 4.2, result: 'won' }],
@@ -195,7 +195,7 @@ const filterChips: { key: FilterKey; label: string }[] = [
 const quickFilters: FilterKey[] = ['all', 'won', 'pending']
 
 // Turkish currency: 1.250,00 ₺
-function formatTRY(n: number) {
+export function formatTRY(n: number) {
   const [int, dec] = n.toFixed(2).split('.')
   const grouped = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
   return `${grouped},${dec} ₺`
@@ -208,7 +208,7 @@ function betDay(date: string) {
 }
 
 // "12.07.2026 21:45" → "2026-07-12 21:45" (fully chronologically sortable).
-function sortKey(date: string) {
+export function sortKey(date: string) {
   return `${betDay(date)} ${date.split(' ')[1] || '00:00'}`
 }
 
@@ -240,7 +240,7 @@ function LegResult({ result }: { result: BetStatus }) {
   )
 }
 
-function BetCard({ bet, open, onToggle }: { bet: Bet; open: boolean; onToggle: () => void }) {
+export function BetCard({ bet, open, onToggle }: { bet: Bet; open: boolean; onToggle: () => void }) {
   const m = statusMeta[bet.status]
   const payoutLabel = bet.status === 'pending' ? 'OLASI KAZANÇ' : bet.status === 'cancelled' ? 'İADE' : 'KAZANÇ'
   // Class-based colors so the html.dark overrides apply (#1a2332 → light, #737B8C stays muted).
@@ -330,7 +330,7 @@ function TransactionRow({ tx }: { tx: Transaction }) {
   )
 }
 
-function Mascot() {
+export function Mascot() {
   return (
     <svg viewBox="0 0 160 160" width="160" height="160">
       {/* Calendar body */}
@@ -373,7 +373,7 @@ function Mascot() {
 }
 
 // Clock badge shown to logged-out users (see gecmislogin reference).
-function ClockBadge() {
+export function ClockBadge() {
   return (
     <div className="w-[84px] h-[84px] rounded-full bg-[#aeb9c9] flex items-center justify-center">
       <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -384,10 +384,41 @@ function ClockBadge() {
   )
 }
 
+/** Real placed coupons, settling any that are due (win/lose) every few
+ *  seconds. Winnings are credited to the balance once, when a coupon flips
+ *  pending → won. Shared by Hareketler (/history) and Kuponlarım. */
+export function useSettledCoupons(): Coupon[] {
+  const { isLoggedIn, adjustBalance } = useAuth()
+  const [coupons, setCoupons] = useState<Coupon[]>([])
+  useEffect(() => {
+    if (!isLoggedIn) { setCoupons([]); return }
+    const settle = () => {
+      const now = Date.now()
+      const all = loadCoupons()
+      let credit = 0
+      let changed = false
+      const resolved = all.map(c => {
+        if (c.status === 'pending' && c.settleAt <= now) {
+          changed = true
+          const r = resolveOutcome(c)
+          if (r.status === 'won') credit += r.payout
+          return r
+        }
+        return c
+      })
+      if (changed) { saveCoupons(resolved); if (credit > 0) adjustBalance(credit) }
+      setCoupons(resolved)
+    }
+    settle()
+    const iv = setInterval(settle, 4000)
+    return () => clearInterval(iv)
+  }, [isLoggedIn, adjustBalance])
+  return coupons
+}
+
 export default function BetHistory() {
   const router = useRouter()
-  const { loaded, isLoggedIn, lastLoginAt, adjustBalance } = useAuth()
-  const [coupons, setCoupons] = useState<Coupon[]>([])
+  const { loaded, isLoggedIn, lastLoginAt } = useAuth()
   // Real withdrawal requests, shown alongside the sample transactions.
   const [withdrawalRows, setWithdrawalRows] = useState<Transaction[]>([])
   const [activeSection, setActiveSection] = useState(0) // 0 = Kuponlar, 1 = Casino
@@ -432,31 +463,7 @@ export default function BetHistory() {
     )
   }, [isLoggedIn])
 
-  // Load real placed coupons and settle any that are due (win/lose). Winnings
-  // are credited to the balance once, when a coupon flips pending → won.
-  useEffect(() => {
-    if (!isLoggedIn) { setCoupons([]); return }
-    const settle = () => {
-      const now = Date.now()
-      const all = loadCoupons()
-      let credit = 0
-      let changed = false
-      const resolved = all.map(c => {
-        if (c.status === 'pending' && c.settleAt <= now) {
-          changed = true
-          const r = resolveOutcome(c)
-          if (r.status === 'won') credit += r.payout
-          return r
-        }
-        return c
-      })
-      if (changed) { saveCoupons(resolved); if (credit > 0) adjustBalance(credit) }
-      setCoupons(resolved)
-    }
-    settle()
-    const iv = setInterval(settle, 4000)
-    return () => clearInterval(iv)
-  }, [isLoggedIn, adjustBalance])
+  const coupons = useSettledCoupons()
 
   // Section data source: Kuponlar mixes real+sample bets with financial
   // transactions; Casino is bet-shaped mock data only (no deposits/etc there).

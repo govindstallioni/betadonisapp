@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AuthHero from '@/components/AuthHero'
 import { useAuth } from '@/components/AuthProvider'
+import Flag from '@/components/Flag'
 
 const chevronDown = (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -165,7 +166,7 @@ function PhoneForm({ onBack }: { onBack: () => void }) {
               <div className="py-[6px]">
                 <span className="text-[9px] text-[#0E8FCF] font-medium block">Kod *</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[14px]">🇹🇷</span>
+                  <Flag emoji="🇹🇷" size={18} />
                   <span className="text-[12px] text-[#1a2332] font-medium">+90</span>
                   {chevronDown}
                 </div>

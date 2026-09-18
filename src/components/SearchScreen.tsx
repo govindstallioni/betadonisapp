@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import FavoriteStar from '@/components/FavoriteStar'
+import Flag from '@/components/Flag'
 
 // ── Searchable index ───────────────────────────────────────────
 type MatchItem = { id: string; home: string; away: string; league: string; live: boolean; score?: string; date?: string }
@@ -163,7 +164,7 @@ export default function SearchScreen() {
                     return (
                       <div key={l.title} onClick={() => go(href, l.title)} className="bg-white rounded-xl border border-[#e8ecf1] px-3 py-3 flex items-center gap-3 cursor-pointer hover:shadow-sm transition-shadow">
                         <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center flex-shrink-0">
-                          <span className="text-[18px] leading-none">{l.emoji}</span>
+                          <Flag emoji={l.emoji} size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[12px] font-semibold text-[#1a2332] leading-tight truncate">{l.title}</p>

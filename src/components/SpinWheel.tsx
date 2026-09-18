@@ -4,42 +4,40 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { useAuth } from './AuthProvider'
 import { DAY_MULTIPLIERS, WHEEL_WINDOW_DAYS } from '@/data/wheelData'
+import { WheelDisc, WheelPointer, WHEEL_CSS, WHEEL_SLICES } from './WheelFace'
 
 // ── Prize segments ────────────────────────────────────────────────────────
-// The client's exact 18-item list (their "10 EUR Spin Again" token read as
-// two segments — see plan's scope decision). wheelLabel is the short text
-// drawn on the wedge; fullLabel is the spelled-out version used in messages.
+// Same 17 slices and order as betadonis.store/cark.html (work3 task 4) —
+// WheelFace draws them; this list adds the payout logic and odds per slice.
 type SegmentKind = 'cash' | 'spinAgain' | 'empty' | 'extraDay'
 type Segment = {
-  wheelLabel: string
   fullLabel: string
   kind: SegmentKind
   amount?: number
   days?: number
-  color: string
   weight: number
 }
 
 const SEGMENTS: Segment[] = [
-  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
-  { wheelLabel: '10₺', fullLabel: '10 ₺', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
-  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
-  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
-  { wheelLabel: '5₺', fullLabel: '5 ₺', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
-  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
-  { wheelLabel: '15₺', fullLabel: '15 ₺', kind: 'cash', amount: 15, color: '#7C3AED', weight: 8 },
-  { wheelLabel: '17₺', fullLabel: '17 ₺', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
-  { wheelLabel: 'BOŞ', fullLabel: 'Boş', kind: 'empty', color: '#6B7280', weight: 10 },
-  { wheelLabel: '+3 GÜN', fullLabel: '3 Ekstra Gün', kind: 'extraDay', days: 3, color: '#EA580C', weight: 2 },
-  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0891B2', weight: 8 },
-  { wheelLabel: '5₺', fullLabel: '5 ₺', kind: 'cash', amount: 5, color: '#059669', weight: 18 },
-  { wheelLabel: '2₺', fullLabel: '2 ₺', kind: 'cash', amount: 2, color: '#D97706', weight: 22 },
-  { wheelLabel: '+1 GÜN', fullLabel: '1 Ekstra Gün', kind: 'extraDay', days: 1, color: '#F59E0B', weight: 6 },
-  { wheelLabel: '17₺', fullLabel: '17 ₺', kind: 'cash', amount: 17, color: '#DB2777', weight: 6 },
-  { wheelLabel: 'BOŞ', fullLabel: 'Boş', kind: 'empty', color: '#6B7280', weight: 10 },
-  { wheelLabel: 'TEKRAR', fullLabel: 'Tekrar Çevir', kind: 'spinAgain', color: '#0E9F6E', weight: 8 },
-  { wheelLabel: '10₺', fullLabel: '10 ₺', kind: 'cash', amount: 10, color: '#2563EB', weight: 14 },
+  { fullLabel: 'Tekrar Çevir', kind: 'spinAgain', weight: 8 },
+  { fullLabel: '10 ₺', kind: 'cash', amount: 10, weight: 14 },
+  { fullLabel: 'Tekrar Çevir', kind: 'spinAgain', weight: 8 },
+  { fullLabel: 'Tekrar Çevir', kind: 'spinAgain', weight: 8 },
+  { fullLabel: '5 ₺', kind: 'cash', amount: 5, weight: 18 },
+  { fullLabel: 'Tekrar Çevir', kind: 'spinAgain', weight: 8 },
+  { fullLabel: '15 ₺', kind: 'cash', amount: 15, weight: 8 },
+  { fullLabel: '17 ₺', kind: 'cash', amount: 17, weight: 6 },
+  { fullLabel: 'Boş', kind: 'empty', weight: 10 },
+  { fullLabel: '3 Gün Ekstra', kind: 'extraDay', days: 3, weight: 2 },
+  { fullLabel: 'Tekrar Çevir', kind: 'spinAgain', weight: 8 },
+  { fullLabel: '5 ₺', kind: 'cash', amount: 5, weight: 18 },
+  { fullLabel: '2 ₺', kind: 'cash', amount: 2, weight: 22 },
+  { fullLabel: '1 Gün Ekstra', kind: 'extraDay', days: 1, weight: 6 },
+  { fullLabel: '17 ₺', kind: 'cash', amount: 17, weight: 6 },
+  { fullLabel: 'Boş', kind: 'empty', weight: 10 },
+  { fullLabel: 'Tekrar Çevir', kind: 'spinAgain', weight: 8 },
 ]
+if (SEGMENTS.length !== WHEEL_SLICES.length) throw new Error('SpinWheel: SEGMENTS and WHEEL_SLICES must match')
 const N = SEGMENTS.length
 const SEG = 360 / N
 
@@ -141,130 +139,100 @@ export default function SpinWheel() {
         addExtraDays(seg.days!)
       }
       // 'empty' needs no further action beyond locking the day.
-    }, 4300)
+    }, 5000)
   }, [spinning, spunToday, loaded, isLoggedIn, needsDeposit, windowExpired, rotation, multiplier, adjustBalance, addExtraDays])
 
   return (
-    <div>
-      {/* ── Wheel stage ── */}
-      <div className="relative rounded-2xl overflow-hidden px-4 pt-5 pb-5 flex flex-col items-center"
-        style={{ background: 'linear-gradient(160deg, #2a0a4a 0%, #0d1b2a 55%, #1a0533 100%)' }}>
-
-        {/* Title plaque */}
-        <div className="relative z-30 rounded-lg px-5 py-[7px] mb-2"
+    <div className="flex flex-col gap-4">
+      {/* ── Wheel stage (cark.html .wheel-card-header) ── */}
+      <div
+        className="relative rounded-[20px] pt-[18px] pb-4 px-1 flex flex-col items-center"
+        style={{ background: 'linear-gradient(180deg, #111827 0%, #1e293b 40%, #0284c7 100%)', boxShadow: '0 4px 15px rgba(2, 132, 199, 0.15)' }}
+      >
+        <div
+          className="rounded-xl px-7 py-1.5 mb-3.5 text-white text-[20px] font-black tracking-[2px] uppercase backdrop-blur-md"
           style={{
-            background: 'linear-gradient(180deg, #3a3f4a 0%, #14171d 55%, #24272e 100%)',
-            border: '1px solid #565c68',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -2px 3px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.4)',
-          }}>
-          <span className="text-[15px] font-black tracking-[0.12em] text-transparent bg-clip-text"
-            style={{ backgroundImage: 'linear-gradient(180deg, #fff 0%, #cfd3da 60%, #8b909c 100%)', textShadow: '0 1px 0 rgba(0,0,0,0.6)' }}>
-            ŞANS ÇARKI
-          </span>
+            background: 'rgba(15, 23, 42, 0.7)',
+            border: '3.5px solid',
+            borderColor: '#fef08a #ca8a04 #854d0e #fde047',
+            textShadow: '0 0 8px rgba(255,255,255,0.9), 0 0 18px rgba(255,255,255,0.6), 0 3px 6px rgba(0,0,0,0.9)',
+            boxShadow: '0 0 25px rgba(255,255,255,0.35), 0 8px 20px rgba(0,0,0,0.8), inset 0 0 15px rgba(255,255,255,0.4)',
+          }}
+        >
+          ŞANS ÇARKI
         </div>
 
-        {/* Pointer */}
-        <div className="relative w-[248px] h-[248px] flex items-center justify-center">
-          <div className="absolute -top-[3px] left-1/2 -translate-x-1/2 z-30 w-[22px] h-[22px] rotate-45 rounded-[3px]"
+        <div className="relative w-full aspect-square flex items-center justify-center">
+          {/* Pointer */}
+          <div
+            className={`absolute -top-[6px] left-1/2 w-10 h-11 z-20 ${spinning ? 'wheel-pointer-tick' : ''}`}
+            style={{ transform: 'translateX(-50%)', transformOrigin: 'top center', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.8))' }}
+          >
+            <WheelPointer idPrefix="spin" />
+          </div>
+
+          <WheelDisc
+            idPrefix="spin"
+            rotation={rotation}
+            transition={spinning ? 'transform 5s cubic-bezier(0.12, 0.8, 0.15, 1)' : 'none'}
+            className="w-[99%] h-[99%]"
+          />
+
+          {/* Centre ÇEVİR button */}
+          <button
+            onClick={spin}
+            disabled={spinning}
+            aria-label="Çarkı çevir"
+            className={`absolute top-1/2 left-1/2 w-[28%] h-[28%] rounded-full z-[15] flex items-center justify-center text-white text-[19px] font-black tracking-[1.5px] backdrop-blur-sm transition-transform -translate-x-1/2 -translate-y-1/2 hover:scale-105 active:scale-95 ${spunToday || needsDeposit || windowExpired ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             style={{
-              background: 'linear-gradient(135deg, #fff7d6 0%, #ffd700 35%, #b8860b 75%, #8a6508 100%)',
-              boxShadow: '0 3px 6px rgba(0,0,0,0.5), inset -2px -2px 3px rgba(0,0,0,0.35), inset 2px 2px 3px rgba(255,255,255,0.6)',
-            }} />
-
-          {/* Gold outer ring */}
-          <div className="absolute inset-[-6px] rounded-full" style={{ background: 'conic-gradient(from 0deg, #b8860b, #ffd700, #b8860b, #ffd700, #b8860b, #ffd700, #b8860b)', padding: '5px' }}>
-            <div className="w-full h-full rounded-full" style={{ background: '#1a0533' }} />
-          </div>
-          {/* Bezel rivets */}
-          <div className="absolute inset-[-6px] z-20">
-            {[...Array(20)].map((_, i) => (
-              <div key={i} className="absolute w-[5px] h-[5px] rounded-full" style={{
-                top: '50%', left: '50%',
-                transform: `rotate(${i * 18}deg) translateY(-130px) translate(-50%, -50%)`,
-                background: 'radial-gradient(circle at 35% 30%, #f5f5f5, #9a9a9a 60%, #5a5a5a)',
-                boxShadow: '0 1px 1px rgba(0,0,0,0.5)',
-              }} />
-            ))}
-          </div>
-          {/* LED dots */}
-          <div className="absolute inset-[-2px] z-20">
-            {[...Array(16)].map((_, i) => (
-              <div key={i} className="absolute w-[6px] h-[6px] rounded-full" style={{
-                top: '50%', left: '50%',
-                transform: `rotate(${i * 22.5}deg) translateY(-128px) translate(-50%, -50%)`,
-                background: i % 2 === 0 ? '#fbbf24' : '#fff',
-                boxShadow: i % 2 === 0 ? '0 0 6px #fbbf24' : '0 0 4px #fff',
-                animation: `ledBlink 1.1s ease-in-out ${i * 0.06}s infinite`,
-              }} />
-            ))}
-          </div>
-
-          {/* Rotating wheel */}
-          <div className="absolute inset-[4px] rounded-full overflow-hidden z-10"
-            style={{ transform: `rotate(${rotation}deg)`, transition: spinning ? 'transform 4.2s cubic-bezier(0.15,0.9,0.15,1)' : 'none' }}>
-            <svg viewBox="0 0 200 200" className="w-full h-full">
-              {SEGMENTS.map((seg, i) => {
-                const a0 = (i * SEG - 90) * Math.PI / 180
-                const a1 = ((i + 1) * SEG - 90) * Math.PI / 180
-                const x1 = 100 + 100 * Math.cos(a0), y1 = 100 + 100 * Math.sin(a0)
-                const x2 = 100 + 100 * Math.cos(a1), y2 = 100 + 100 * Math.sin(a1)
-                const mid = ((i + 0.5) * SEG - 90) * Math.PI / 180
-                const tx = 100 + 82 * Math.cos(mid), ty = 100 + 82 * Math.sin(mid)
-                return (
-                  <g key={i}>
-                    <path d={`M100,100 L${x1},${y1} A100,100 0 0,1 ${x2},${y2} Z`} fill={i % 2 === 0 ? '#0E8FCF' : '#0a3d5c'} stroke="rgba(0,0,0,0.25)" strokeWidth="0.6" />
-                    <text x={tx} y={ty} fill="#fff" fontSize="6.5" fontWeight="bold" textAnchor="middle" dominantBaseline="middle"
-                      transform={`rotate(${(i + 0.5) * SEG}, ${tx}, ${ty})`} style={{ textShadow: '0 1px 2px rgba(0,0,0,0.6)' }}>
-                      {seg.wheelLabel}
-                    </text>
-                  </g>
-                )
-              })}
-            </svg>
-          </div>
-
-          {/* Center hub */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[42px] h-[42px] rounded-full z-20 flex items-center justify-center"
-            style={{ background: 'radial-gradient(circle at 35% 35%, #ffd700, #b8860b)', border: '3px solid #ffd700', boxShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-            <span className="text-[16px] font-black text-amber-900">₺</span>
-          </div>
+              background: 'radial-gradient(circle at 35% 35%, rgba(14,116,144,0.95) 0%, rgba(15,23,42,0.95) 85%)',
+              border: '4px solid',
+              borderColor: '#fef08a #ca8a04 #854d0e #fde047',
+              textShadow: '0 0 10px rgba(255,255,255,1), 0 0 20px rgba(255,255,255,0.8), 0 2px 5px rgba(0,0,0,0.9)',
+              boxShadow: '0 0 25px rgba(255,255,255,0.3), 0 6px 20px rgba(0,0,0,0.8), inset 0 2px 5px rgba(255,255,255,0.5), inset 0 -2px 5px rgba(0,0,0,0.7)',
+            }}
+          >
+            ÇEVİR
+          </button>
         </div>
 
-        {/* Status line under wheel */}
-        <p className="text-[11px] text-white/80 font-medium mt-4 text-center">
-          {needsDeposit ? 'İlk yatırımınızı yapın, çarkı açın'
-            : windowExpired ? '14 günlük Şans Çarkı süreniz doldu'
-            : spinAgainNotice ? 'Tekrar çeviriliyor… 🔁'
-            : spunToday ? 'Bugünlük çevirme hakkın doldu'
-            : spinning ? 'Çark dönüyor…'
-            : `Gün ${dayNumber}/${windowTotal} · Bugünkü çarpan: x${multiplier}`}
-        </p>
+        {/* Status line — only for states the reference has no UI for */}
+        {(needsDeposit || windowExpired || spinAgainNotice) && (
+          <p className="text-[12px] text-white font-semibold mt-3 text-center px-3">
+            {needsDeposit ? 'İlk yatırımınızı yapın, çarkı açın'
+              : windowExpired ? '14 günlük Şans Çarkı süreniz doldu'
+              : 'Tekrar Çevir! Çark yeniden dönüyor…'}
+          </p>
+        )}
       </div>
 
-      {/* ── Spin CTA ── */}
+      {/* ── Spin CTA (cark.html .btn-spin-main / .countdown-box) ── */}
       {needsDeposit ? (
-        <Link href="/kupon/deposit" className="mt-4 w-full h-[52px] rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white text-[15px] font-extrabold shadow-[0_4px_16px_rgba(217,119,6,0.4)] flex items-center justify-center">
+        <Link
+          href="/kupon/deposit"
+          className="w-full rounded-[14px] p-[14px] text-white text-[16px] font-extrabold tracking-[0.5px] text-center border border-[#bae6fd]"
+          style={{ background: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 50%, #0369a1 100%)', textShadow: '0 1px 2px rgba(0,0,0,0.3)', boxShadow: '0 4px 12px rgba(2,132,199,0.35)' }}
+        >
           İlk Yatırımını Yap
         </Link>
       ) : windowExpired ? (
-        <div className="mt-4 w-full h-[52px] rounded-xl bg-[#eef1f5] border border-[#e0e5ec] flex items-center justify-center">
-          <span className="text-[12px] font-semibold text-[#737B8C]">Şans Çarkı süreniz sona erdi</span>
+        <div className="w-full rounded-2xl bg-[#eef2f6] px-3 py-4 text-center text-[15px] font-semibold text-[#64748b]">
+          Şans Çarkı süreniz sona erdi
         </div>
       ) : spunToday ? (
-        <div className="mt-4 w-full h-[52px] rounded-xl bg-[#eef1f5] border border-[#e0e5ec] flex items-center justify-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" strokeLinecap="round" /></svg>
-          <span className="text-[12px] font-semibold text-[#737B8C]">Yeni çevirme:</span>
-          <span className="text-[14px] font-extrabold text-[#1a2332] tabular-nums">{countdown}</span>
+        <div className="w-full rounded-2xl bg-[#eef2f6] px-3 py-4 flex items-center justify-center gap-2.5 text-[15px] font-semibold text-[#64748b]" style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" strokeLinecap="round" /></svg>
+          Yeni çevirme:
+          <span className="ml-1 text-[18px] font-extrabold text-[#0f172a] tabular-nums">{countdown}</span>
         </div>
       ) : (
-        <button onClick={spin} disabled={spinning}
-          className="mt-4 w-full h-[52px] rounded-xl bg-gradient-to-r from-[#f59e0b] to-[#d97706] text-white text-[15px] font-extrabold shadow-[0_4px_16px_rgba(217,119,6,0.4)] active:scale-[0.99] transition-transform disabled:opacity-70 flex items-center justify-center gap-2">
-          {spinning ? (
-            <>
-              <span className="w-[18px] h-[18px] rounded-full border-[3px] border-white/40 border-t-white animate-spin" />
-              Çevriliyor…
-            </>
-          ) : (loaded && !isLoggedIn) ? 'Giriş Yap ve Çevir' : 'ÇARKI ÇEVİR'}
+        <button
+          onClick={spin}
+          disabled={spinning}
+          className="w-full rounded-[14px] p-[14px] text-white text-[16px] font-extrabold tracking-[0.5px] border border-[#bae6fd] disabled:opacity-80 flex items-center justify-center gap-2"
+          style={{ background: 'linear-gradient(180deg, #38bdf8 0%, #0284c7 50%, #0369a1 100%)', textShadow: '0 1px 2px rgba(0,0,0,0.3)', boxShadow: '0 4px 12px rgba(2,132,199,0.35)' }}
+        >
+          {spinning ? 'Çark dönüyor…' : (loaded && !isLoggedIn) ? 'Giriş Yap ve Çevir' : 'ÇARKI ÇEVİR'}
         </button>
       )}
 
@@ -273,7 +241,7 @@ export default function SpinWheel() {
         <>
           <div className="fixed inset-0 z-[90] bg-black/55 left-1/2 -translate-x-1/2 w-full max-w-[430px]" onClick={() => setResult(null)} />
           <div className="fixed z-[95] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-white rounded-2xl overflow-hidden animate-slide-up">
-            <div className="px-6 pt-6 pb-5 text-center" style={{ background: 'linear-gradient(160deg, #2a0a4a, #1a0533)' }}>
+            <div className="px-6 pt-6 pb-5 text-center" style={{ background: 'linear-gradient(180deg, #111827 0%, #1e293b 45%, #0284c7 100%)' }}>
               {result.kind === 'cash' && (
                 <>
                   <div className="text-[34px] mb-1">🎉</div>
@@ -331,7 +299,7 @@ export default function SpinWheel() {
         </>
       )}
 
-      <style>{`@keyframes ledBlink { 0%,100%{opacity:1} 50%{opacity:.3} }`}</style>
+      <style>{WHEEL_CSS}</style>
     </div>
   )
 }

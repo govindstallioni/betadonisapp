@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { ESPORTS_HREF } from '@/data/esports'
 
 // ── Sports section chooser (task 24 item 8) ─────────────────────────────────
 // Shown on the "Sporlar" home view (/?view=sports), which is a mixed overview
@@ -10,7 +11,7 @@ import Link from 'next/link'
 const SECTIONS = [
   { label: 'Canlı Bahis', href: '/live' },
   { label: 'Maç Öncesi', href: '/prematch' },
-  { label: 'E-Spor', href: '/prematch?tab=2' },
+  { label: 'E-Spor', href: ESPORTS_HREF },
 ]
 
 export default function SportsTabStrip() {

@@ -1,21 +1,13 @@
-export default function DailyWheel() {
-  const segments = [
-    { color: '#2563EB', label: '10€' },
-    { color: '#0891B2', label: 'TEKRAR' },
-    { color: '#059669', label: '5€' },
-    { color: '#7C3AED', label: '15€' },
-    { color: '#F59E0B', label: '+1 GÜN' },
-    { color: '#D97706', label: '2€' },
-    { color: '#DB2777', label: '17€' },
-    { color: '#6B7280', label: 'BOŞ' },
-  ]
+import { WheelDisc, WheelPointer, WHEEL_CSS } from './WheelFace'
 
+// Home teaser for Şans Çarkı — shows the same wheel face as /sans-carki.
+export default function DailyWheel() {
   return (
     <div>
       <div
         className="relative w-full rounded-2xl overflow-hidden cursor-pointer hover:scale-[1.01] active:scale-[0.99] transition-transform"
         style={{
-          background: 'linear-gradient(135deg, #1a0533 0%, #0d1b2a 50%, #1a0533 100%)',
+          background: 'linear-gradient(135deg, #111827 0%, #1e293b 45%, #0284c7 100%)',
         }}
       >
         {/* Decorative particles */}
@@ -67,88 +59,27 @@ export default function DailyWheel() {
               ))}
             </div>
 
-            {/* Outer metallic ring */}
-            <div
-              className="absolute inset-[2px] rounded-full"
-              style={{
-                background: 'conic-gradient(from 0deg, #b8860b, #ffd700, #b8860b, #ffd700, #b8860b, #ffd700, #b8860b)',
-                padding: '3px',
-              }}
-            >
-              <div className="w-full h-full rounded-full bg-[#1a0533]" />
-            </div>
-
             {/* Spinning wheel */}
-            <div
-              className="absolute inset-[6px] rounded-full overflow-hidden"
-              style={{ animation: 'spinWheel 12s linear infinite' }}
-            >
-              <svg viewBox="0 0 200 200" className="w-full h-full">
-                {segments.map((seg, i) => {
-                  const angle = (i * 360) / segments.length
-                  const nextAngle = ((i + 1) * 360) / segments.length
-                  const startRad = (angle - 90) * (Math.PI / 180)
-                  const endRad = (nextAngle - 90) * (Math.PI / 180)
-                  const x1 = 100 + 100 * Math.cos(startRad)
-                  const y1 = 100 + 100 * Math.sin(startRad)
-                  const x2 = 100 + 100 * Math.cos(endRad)
-                  const y2 = 100 + 100 * Math.sin(endRad)
-                  const midRad = ((angle + nextAngle) / 2 - 90) * (Math.PI / 180)
-                  const textX = 100 + 62 * Math.cos(midRad)
-                  const textY = 100 + 62 * Math.sin(midRad)
-                  const textAngle = (angle + nextAngle) / 2
-
-                  return (
-                    <g key={i}>
-                      <path
-                        d={`M100,100 L${x1},${y1} A100,100 0 0,1 ${x2},${y2} Z`}
-                        fill={seg.color}
-                        stroke="rgba(0,0,0,0.3)"
-                        strokeWidth="0.5"
-                      />
-                      <text
-                        x={textX}
-                        y={textY}
-                        fill="white"
-                        fontSize="11"
-                        fontWeight="bold"
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        transform={`rotate(${textAngle}, ${textX}, ${textY})`}
-                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
-                      >
-                        {seg.label}
-                      </text>
-                    </g>
-                  )
-                })}
-              </svg>
+            <div className="absolute inset-0" style={{ animation: 'spinWheel 12s linear infinite' }}>
+              <WheelDisc idPrefix="teaser" className="w-full h-full" sparkle={false} />
             </div>
 
-            {/* Center hub */}
+            {/* Centre ÇEVİR */}
             <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30px] h-[30px] rounded-full z-10 flex items-center justify-center"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[30%] h-[30%] rounded-full z-10 flex items-center justify-center text-white text-[9px] font-black tracking-[0.5px]"
               style={{
-                background: 'radial-gradient(circle at 35% 35%, #ffd700, #b8860b)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.3)',
-                border: '2px solid #ffd700',
+                background: 'radial-gradient(circle at 35% 35%, rgba(14,116,144,0.95) 0%, rgba(15,23,42,0.95) 85%)',
+                border: '2px solid',
+                borderColor: '#fef08a #ca8a04 #854d0e #fde047',
+                textShadow: '0 0 6px rgba(255,255,255,0.9)',
               }}
             >
-              <span className="text-[11px] font-black text-amber-900 drop-shadow-sm">₺</span>
+              ÇEVİR
             </div>
 
-            {/* Pointer triangle */}
-            <div className="absolute -top-[2px] left-1/2 -translate-x-1/2 z-20">
-              <div
-                style={{
-                  width: 0,
-                  height: 0,
-                  borderLeft: '8px solid transparent',
-                  borderRight: '8px solid transparent',
-                  borderTop: '16px solid #ffd700',
-                  filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))',
-                }}
-              />
+            {/* Pointer */}
+            <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 z-20 w-[20px] h-[24px]" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>
+              <WheelPointer idPrefix="teaser" />
             </div>
           </div>
 
@@ -173,7 +104,7 @@ export default function DailyWheel() {
           </div>
         </div>
 
-        <style>{`
+        <style>{WHEEL_CSS + `
           @keyframes spinWheel {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }

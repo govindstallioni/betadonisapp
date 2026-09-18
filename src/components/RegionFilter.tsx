@@ -1,6 +1,7 @@
 'use client'
 
 import { countryName } from '@/data/countries'
+import Flag from '@/components/Flag'
 
 // ── "Bölgeye Göre" region filter ────────────────────────────────────────────
 // Built for live betting (task 15) and reused by pre-match (task 24), so the
@@ -19,14 +20,21 @@ export function flagOptionsFrom<T extends { flag: string }>(items: T[]): FlagOpt
 }
 
 /** Globe button that opens the sheet, badged with the active country count. */
-export function RegionButton({ count, onClick }: { count: number; onClick: () => void }) {
+// `header` renders the bare 36px icon-button used in screen headers (next to
+// search / stream); `pill` is the small bordered chip used inside pill rows.
+export function RegionButton({ count, onClick, variant = 'pill' }: { count: number; onClick: () => void; variant?: 'pill' | 'header' }) {
+  const header = variant === 'header'
+  const shape = header
+    ? `w-9 h-9 ${count > 0 ? 'bg-[#0E8FCF]' : ''}`
+    : `w-[26px] h-[26px] ${count > 0 ? 'bg-[#0E8FCF] shadow-sm' : 'bg-white border border-[#e8ecf1]'}`
+  const px = header ? 20 : 14
   return (
     <button
       onClick={onClick}
       aria-label="Bölgeye Göre"
-      className={`relative flex-shrink-0 w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all ${count > 0 ? 'bg-[#0E8FCF] shadow-sm' : 'bg-white border border-[#e8ecf1]'}`}
+      className={`relative flex-shrink-0 rounded-full flex items-center justify-center transition-all ${shape}`}
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={count > 0 ? '#fff' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width={px} height={px} viewBox="0 0 24 24" fill="none" stroke={count > 0 ? '#fff' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
         <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
       </svg>
@@ -94,7 +102,7 @@ export function RegionSheet({
                 onClick={() => onToggle(flag)}
                 className="w-full flex items-center gap-3 py-[10px] border-b border-[#f0f2f5]"
               >
-                <span className="text-[20px] w-[24px] text-center flex-shrink-0">{flag}</span>
+                <span className="w-[24px] flex items-center justify-center flex-shrink-0"><Flag emoji={flag} size={22} /></span>
                 <span className="flex-1 text-left text-[12px] text-[#1a2332] font-medium">{countryName(flag)}</span>
                 <span className="text-[10px] text-[#94a3b8]">{count}</span>
                 <Check on={active} />

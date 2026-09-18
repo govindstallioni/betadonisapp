@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import SpinWheel from './SpinWheel'
 import DayMultiplierStrip from './DayMultiplierStrip'
 
+// Layout, spacing and card styles follow betadonis.store/cark.html
+// (.app-card / .info-card) — work3 task 4.
 const perks = [
   { t: 'Her gün ücretsiz çevirme', d: 'Günde bir kez çarkı çevir, boş yok' },
   { t: 'Çevrimsiz nakit ödül', d: 'Kazancın anında çekilebilir bakiye olur' },
@@ -24,23 +26,27 @@ export default function SansCarkiScreen() {
         <div className="w-8 h-8 flex-shrink-0" />
       </div>
 
-      <div className="px-4 pt-4 pb-24">
-        <SpinWheel />
-        <DayMultiplierStrip />
+      <div className="px-3 pt-3 pb-24">
+        <div
+          className="rounded-3xl bg-[#eef6ff] pt-4 px-3.5 pb-5 flex flex-col gap-4"
+          style={{ boxShadow: '0 12px 36px rgba(0, 0, 0, 0.18)' }}
+        >
+          <SpinWheel />
+          <DayMultiplierStrip />
 
-        {/* Perks */}
-        <div className="mt-5 flex flex-col gap-[8px]">
-          {perks.map((p) => (
-            <div key={p.t} className="bg-white rounded-xl border border-[#e8ecf1] px-3.5 py-3 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#fff7ed] flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+          <div className="flex flex-col gap-2.5">
+            {perks.map((p) => (
+              <div key={p.t} className="bg-[#fff] rounded-2xl px-4 py-3.5 flex items-center gap-3.5" style={{ boxShadow: '0 2px 6px rgba(15, 23, 42, 0.02)' }}>
+                <div className="w-[34px] h-[34px] rounded-full bg-[#fff8f0] flex items-center justify-center flex-shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                </div>
+                <div>
+                  <p className="text-[14px] font-bold text-[#0f172a]">{p.t}</p>
+                  <p className="text-[12px] text-[#64748b] mt-0.5">{p.d}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[12px] font-semibold text-[#1a2332] leading-tight">{p.t}</p>
-                <p className="text-[10px] text-[#737B8C] mt-[2px] leading-tight">{p.d}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

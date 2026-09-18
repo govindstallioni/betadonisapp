@@ -8,7 +8,7 @@ import { addCoupon, fmtDateTime, round2, type Coupon } from '@/data/coupons'
 import { Toggle } from './settings/SettingsUI'
 import LiveTag from './LiveTag'
 import { useAdc } from './AdcProvider'
-import { fmtAdc, codeIneligibleReason, type AdcCode } from '@/data/adc'
+import { fmtAdc, codeIneligibleReason, scopeOf, type AdcCode } from '@/data/adc'
 
 // ── Helpers ────────────────────────────────────────────────────
 function fmt(n: number) {
@@ -111,7 +111,9 @@ function Row({ s, onRemove, tab, amount, onAmountChange }: {
 export default function BetSlipModal() {
   const { selections, isOpen, close, remove, clear } = useBetSlip()
   const { isLoggedIn, balance, adjustBalance } = useAuth()
-  const { qualifyBet, codes, markCodeUsed } = useAdc()
+  const { qualifyBet, codes: allCodes, markCodeUsed, recordBet } = useAdc()
+  // Casino codes (CS-…, LC-…) are used on the game screen, never in the slip.
+  const codes = allCodes.filter(c => scopeOf(c) === 'sport')
   const [tab, setTab] = useState<Tab>('Kombine')
   const [stakeSingleById, setStakeSingleById] = useState<Record<string, string>>({})
   const [stakeKombine, setStakeKombine] = useState('10')
@@ -275,6 +277,13 @@ export default function BetSlipModal() {
     // more ADC.
     const adcReleased = a.freeBetCode ? 0 : qualifyBet(coupon.stake, coupon.totalOdds)
     if (a.freeBetCode) markCodeUsed(a.freeBetCode)
+    // ADC quests (v2.1): only real money counts — a free bet earns nothing.
+    else recordBet({
+      stake: a.stakeTotal,
+      sports: [...new Set(selections.map(sel => sel.sport).filter((sp): sp is string => !!sp))],
+      combo: tab === 'Kombine' && n >= 3,
+      live: selections.some(sel => sel.isLive),
+    })
     setPlacedSummary({ betCount: a.betCount, totalOddsDisplay: a.totalOddsDisplay, stakeTotal: a.stakeTotal, ret: a.ret, adcReleased })
     setFlow('placed')
   }

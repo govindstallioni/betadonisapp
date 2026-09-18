@@ -10,6 +10,7 @@ import { liveMatches } from '@/data/liveData'
 import { preMatches, preMatchSportCats } from '@/data/prematchData'
 import { RegionButton, RegionSheet, flagOptionsFrom } from './RegionFilter'
 import OnboardingTour from './OnboardingTour'
+import { esportGames, ESPORTS_HREF } from '@/data/esports'
 
 const tabs = ['CANLI', 'Maç Öncesi', 'E-Spor']
 
@@ -159,19 +160,6 @@ const sports = [
   { label: 'Sanal Beyzbol',      count: 18,  icon: <img src="/icons/vrtrdrBaseball_5.png"    width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Beyzbol" /> },
   { label: 'Sanal Köpek Yarışı', count: 36,  icon: <img src="/icons/vrtrdrGreyhounds_5.png"  width={20} height={20} style={{ objectFit: 'contain' }} alt="Sanal Köpek Yarışı" /> },
   { label: 'Virtual HorseRacing',count: 42,  icon: <img src="/icons/vrtrdrHorseRacing_5.png" width={20} height={20} style={{ objectFit: 'contain' }} alt="Virtual HorseRacing" /> },
-]
-
-const esportGames = [
-  { label: 'Dota 2',             count: 28,  icon: <img src="/icons/dota2_5.png"             width={20} height={20} style={{ objectFit: 'contain' }} alt="Dota 2" /> },
-  { label: 'Call of Duty',       count: 14,  icon: <img src="/icons/callOfDuty_5.png"        width={20} height={20} style={{ objectFit: 'contain' }} alt="Call of Duty" /> },
-  { label: 'King Of Glory',      count: 11,  icon: <img src="/icons/kingOfGlory_5.png"       width={20} height={20} style={{ objectFit: 'contain' }} alt="King Of Glory" /> },
-  { label: 'League of Legends',  count: 35,  icon: <img src="/icons/LOL_5.png"               width={20} height={20} style={{ objectFit: 'contain' }} alt="League of Legends" /> },
-  { label: 'Rainbow Six',        count: 9,   icon: <img src="/icons/rainbowSix_5.png"        width={20} height={20} style={{ objectFit: 'contain' }} alt="Rainbow Six" /> },
-  { label: 'Counter-Strike',     count: 52,  icon: <img src="/icons/CS2_5.png"               width={20} height={20} style={{ objectFit: 'contain' }} alt="Counter-Strike" /> },
-  { label: 'e-Dövüş',            count: 8,   icon: <img src="/icons/eFighting_5.png"         width={20} height={20} style={{ objectFit: 'contain' }} alt="e-Dövüş" /> },
-  { label: 'e-Tenis',            count: 16,  icon: <img src="/icons/eTennis_5.png"           width={20} height={20} style={{ objectFit: 'contain' }} alt="e-Tenis" /> },
-  { label: 'Mobile Legends',     count: 22,  icon: <img src="/icons/mobileLegends_5.png"     width={20} height={20} style={{ objectFit: 'contain' }} alt="Mobile Legends" /> },
-  { label: 'Valorant',           count: 18,  icon: <img src="/icons/valorant_5.png"          width={20} height={20} style={{ objectFit: 'contain' }} alt="Valorant" /> },
 ]
 
 interface PreMatchScreenProps {
@@ -415,7 +403,9 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
           {listItems.map((sport, i) => (
             <button
               key={sport.label}
-              onClick={() => router.push(`/live/sport?name=${encodeURIComponent(sport.label)}${activeTab === 1 ? '&tab=1' : ''}`)}
+              onClick={() => router.push(isEsportsTab
+                ? `${ESPORTS_HREF}?game=${encodeURIComponent(sport.label)}`
+                : `/live/sport?name=${encodeURIComponent(sport.label)}${activeTab === 1 ? '&tab=1' : ''}`)}
               className={`w-full flex items-center gap-2.5 px-3 py-[8px] hover:bg-[#f8fafc] transition-colors ${
                 i < listItems.length - 1 ? 'border-b border-[#f0f2f5]' : ''
               }`}

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { useBetSlip } from '@/components/BetSlipProvider'
-import DigerleriMenu from '@/components/DigerleriMenu'
+import DigerleriMenu, { iWheel, iSlots } from '@/components/DigerleriMenu'
 import SecurityBanner from '@/components/SecurityBanner'
 
 // ── Bottom nav items ───────────────────────────────────────────
@@ -42,13 +42,17 @@ const navItems = [
     ),
   },
   {
-    label: 'Geçmiş',
-    href: '/history',
+    // work3 task 15: "Geçmiş" became BAHİS and opens Kuponlarım (the
+    // transaction list stays under Hesabım → HAREKETLER).
+    label: 'BAHİS',
+    href: '/kuponlarim',
     icon: (active: boolean) => (
-      // Clock / history icon
+      // Stacked coins
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#fff' : '#737B8C'} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="9" />
-        <polyline points="12 7 12 12 15 15" />
+        <ellipse cx="12" cy="5.5" rx="7" ry="2.5" />
+        <path d="M5 5.5v4c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-4" />
+        <path d="M5 9.5v4c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-4" />
+        <path d="M5 13.5v4c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-4" />
       </svg>
     ),
   },
@@ -75,12 +79,15 @@ const iCalendar = <img src="/icons/calendar.svg" alt="" width={20} height={20} s
 const iCombo = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>
 const iStream = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zm-11-2 5.5-3L10 9v6z" /></svg>
 const iVirtual = <img src="/icons/vr-glasses.svg" alt="" width={20} height={20} style={{ objectFit: 'contain' }} />
-const iSlots = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M20 6h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm-2 15H5v-3h2v3zm0-5H5v-3h2v3zm6 5h-2v-3h2v3zm0-5h-2v-3h2v3zm6 5h-2v-3h2v3zm0-5h-2v-3h2v3z" /></svg>
+const iSlotHot = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z" /></svg>
+const iJackpot = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 11H5L3 7zm2 13h14v2H5v-2z" /></svg>
+const iNew = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M11 2l2.1 5.9L19 10l-5.9 2.1L11 18l-2.1-5.9L3 10l5.9-2.1L11 2zm8 12l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9L19 14z" /></svg>
+// Megaways: three reels with a different row count each
+const iMegaways = <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="2.5" y="3.5" width="5.5" height="17" rx="1" /><rect x="9.25" y="3.5" width="5.5" height="17" rx="1" /><rect x="16" y="3.5" width="5.5" height="17" rx="1" /><path d="M2.5 9.2h5.5M2.5 14.8h5.5M9.25 7.75h5.5M9.25 12h5.5M9.25 16.25h5.5M16 6.9h5.5M16 10.3h5.5M16 13.7h5.5M16 17.1h5.5" /></svg>
 const iCasino = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-5.5 12a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zM11 8.5A1.5 1.5 0 1 1 8 8.5a1.5 1.5 0 0 1 3 0zm1 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4-3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm-.5-6.5A1.5 1.5 0 1 1 16 8.5a1.5 1.5 0 0 1-.5-1z" /></svg>
 const iPoker = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C9 6.5 5 9.5 5 13.5 5 17 8 19 12 19s7-2 7-5.5C19 9.5 15 6.5 12 2zm-1 19h2l-.5-3h-1L11 21z" /></svg>
 const iDice = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM8 17.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 3.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4 3.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" /></svg>
 const iHorse = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M19 3l-1.4 1.4c.9.9 1.4 2.1 1.4 3.6 0 1.8-.9 3.4-2.3 4.4L14 10l-2 5-5 2 1-4-4-2 6-3 3-3c1-1 2.4-1.6 3.9-1.6 1.5 0 2.8.5 3.7 1.4L21 1l-2 2zM5 20h14v2H5v-2z" /></svg>
-const iWheel = <img src="/icons/top.svg" alt="" width={20} height={20} style={{ objectFit: 'contain' }} />
 const iPartner = <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>
 
 // Diğerleri icons — blue on light bg, use currentColor
@@ -110,7 +117,7 @@ const trendItems = [
   { title: 'Poker', desc: 'Şans değil, tamamen strateji', href: '#', color: '#1a2332', icon: iPoker },
   { title: 'Canlı Oyunlar', desc: 'Her saniye yeni kazanç', href: '#', color: '#0891b2', icon: iDice },
   { title: 'Golden Race', desc: 'Kazanırken eğlenmek, kontrol sende', href: '#', color: '#d97706', icon: iHorse },
-  { title: 'Şans Çarkı', desc: 'Hergün senin için nakit ödül, boş yok', href: '#', color: '#f59e0b', icon: iWheel },
+  { title: 'Şans Çarkı', desc: 'Hergün senin için nakit ödül, boş yok', href: '/sans-carki', color: '#f59e0b', icon: iWheel },
   { title: 'Ortaklık', desc: 'Finansal ekosistemin ortağı ol', href: '/ortaklik', color: '#27ae60', icon: iPartner },
 ]
 
@@ -127,11 +134,11 @@ const sporItems = [
 // ── Sanal Bahis tab items ──────────────────────────────────────
 
 const sanalItems = [
-  { title: 'Sanal Futbol', desc: 'Dakikada bir maç, kesintisiz bahis', href: '#', color: '#0E8FCF', icon: <img src="/icons/vrtrdrSoccer_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain' }} /> },
-  { title: 'Sanal Basketbol', desc: 'Hızlı tempolu sanal basketbol', href: '#', color: '#ea580c', icon: <img src="/icons/vrtrdrBasketball_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain' }} /> },
-  { title: 'Sanal Tenis', desc: 'Anlık sonuçlanan tenis maçları', href: '#', color: '#27ae60', icon: <img src="/icons/vrtrdrTennis_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain' }} /> },
-  { title: 'At Yarışı', desc: 'Sanal at yarışları her an başlıyor', href: '#', color: '#d97706', icon: <img src="/icons/vrtrdrHorseRacing_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain' }} /> },
-  { title: 'Tazı Yarışı', desc: 'Hızlı sanal tazı yarışları', href: '#', color: '#7c3aed', icon: <img src="/icons/vrtrdrGreyhounds_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain' }} /> },
+  { title: 'Sanal Futbol', desc: 'Dakikada bir maç, kesintisiz bahis', href: '#', color: '#0E8FCF', icon: <img src="/icons/vrtrdrSoccer_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} /> },
+  { title: 'Sanal Basketbol', desc: 'Hızlı tempolu sanal basketbol', href: '#', color: '#ea580c', icon: <img src="/icons/vrtrdrBasketball_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} /> },
+  { title: 'Sanal Tenis', desc: 'Anlık sonuçlanan tenis maçları', href: '#', color: '#27ae60', icon: <img src="/icons/vrtrdrTennis_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} /> },
+  { title: 'At Yarışı', desc: 'Sanal at yarışları her an başlıyor', href: '#', color: '#d97706', icon: <img src="/icons/vrtrdrHorseRacing_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} /> },
+  { title: 'Tazı Yarışı', desc: 'Hızlı sanal tazı yarışları', href: '#', color: '#7c3aed', icon: <img src="/icons/vrtrdrGreyhounds_5.png" alt="" width={22} height={22} style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }} /> },
 ]
 
 // ── Canlı Casino tab items ─────────────────────────────────────
@@ -148,10 +155,10 @@ const casinoItems = [
 
 const slotItems = [
   { title: 'Tüm Slotlar', desc: 'En iyi slot oyunları bir arada', href: '/slots', color: '#ea580c', icon: iSlots },
-  { title: 'Popüler Slotlar', desc: 'En çok oynanan slot oyunları', href: '/slots', color: '#e74c3c', icon: iSlots },
-  { title: 'Jackpot Oyunları', desc: 'Büyük ikramiyeli slotlar', href: '/slots', color: '#f59e0b', icon: iSlots },
-  { title: 'Yeni Slotlar', desc: 'Yeni eklenen slot oyunları', href: '/slots', color: '#7c3aed', icon: iSlots },
-  { title: 'Megaways', desc: 'Binlerce kazanma şansı', href: '/slots', color: '#0E8FCF', icon: iSlots },
+  { title: 'Popüler Slotlar', desc: 'En çok oynanan slot oyunları', href: '/slots', color: '#e74c3c', icon: iSlotHot },
+  { title: 'Jackpot Oyunları', desc: 'Büyük ikramiyeli slotlar', href: '/slots', color: '#f59e0b', icon: iJackpot },
+  { title: 'Yeni Slotlar', desc: 'Yeni eklenen slot oyunları', href: '/slots', color: '#7c3aed', icon: iNew },
+  { title: 'Megaways', desc: 'Binlerce kazanma şansı', href: '/slots', color: '#0E8FCF', icon: iMegaways },
 ]
 
 // ── Diğerleri (account) ────────────────────────────────────────
@@ -210,7 +217,7 @@ export default function BottomNav() {
   const getActiveIndex = () => {
     if (pathname === '/') return 0
     if (pathname === '/live') return 1
-    if (pathname === '/history') return 3
+    if (pathname.replace(/\/$/, '') === '/kuponlarim') return 3
     return -1
   }
 

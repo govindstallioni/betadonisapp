@@ -8,12 +8,13 @@ import { SPORT_ICONS as sportIcons } from './sportIcons'
 import { liveMatches, liveSportCats } from '@/data/liveData'
 import { RegionButton, RegionSheet, flagOptionsFrom } from './RegionFilter'
 import OnboardingTour from './OnboardingTour'
+import LiveListView from './LiveListView'
 
 // Popular-league shortcut chips (filter by league substring; 'Tümü' = all).
 const shortcuts = ['Tümü', 'Süper Lig', 'Premier Lig', 'La Liga', 'Bundesliga', 'Serie A', 'NBA']
 
-// Market-shortcut pills — the first four swap which odds market every card
-// shows; the last two are real filters (favorites / region), not markets.
+// Market-shortcut pills — each swaps which odds market every card shows.
+// The favorites / region filters live in the header (next to search).
 const MARKET_PILLS: { key: OddsMarket; label: string }[] = [
   { key: 'MS', label: 'Maç Sonucu' },
   { key: 'ALTUST', label: 'Alt/Üst' },
@@ -29,7 +30,9 @@ export default function CanliBahisScreen() {
   const [activeSport, setActiveSport] = useState(liveSportCats[0].label)
   const [shortcut, setShortcut] = useState('Tümü')
   const [streamOnly, setStreamOnly] = useState(false)
-  const [twoCol, setTwoCol] = useState(false)
+  // 'cards' = default MatchCard stack, 'grid' = 2-column cards,
+  // 'list' = Betadonis-style compact league list (live9.png)
+  const [layout, setLayout] = useState<'cards' | 'grid' | 'list'>('cards')
   const [market, setMarket] = useState<OddsMarket>('MS')
   const [favOnly, setFavOnly] = useState(false)
   const [countryFilters, setCountryFilters] = useState<Set<string>>(new Set())
@@ -69,6 +72,19 @@ export default function CanliBahisScreen() {
             <button onClick={() => router.push('/search')} className="w-9 h-9 flex items-center justify-center">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" /></svg>
             </button>
+            {/* Favorites-only filter */}
+            <button
+              onClick={() => setFavOnly((v) => !v)}
+              aria-label="Favoriler"
+              aria-pressed={favOnly}
+              className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors ${favOnly ? 'bg-[#0E8FCF]' : ''}`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={favOnly ? '#fff' : 'none'} stroke={favOnly ? '#fff' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </button>
+            {/* Region filter */}
+            <RegionButton variant="header" count={countryFilters.size} onClick={() => setCountrySheetOpen(true)} />
             {/* Live-broadcast toggle */}
             <button
               onClick={() => setStreamOnly((v) => !v)}
@@ -126,17 +142,6 @@ export default function CanliBahisScreen() {
               {p.label}
             </button>
           ))}
-          <button
-            onClick={() => setFavOnly((v) => !v)}
-            aria-label="Favoriler"
-            aria-pressed={favOnly}
-            className={`flex-shrink-0 w-[26px] h-[26px] rounded-full flex items-center justify-center transition-all ${favOnly ? 'bg-[#0E8FCF] shadow-sm' : 'bg-white border border-[#e8ecf1]'}`}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill={favOnly ? '#fff' : 'none'} stroke={favOnly ? '#fff' : '#1a2332'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
-          </button>
-          <RegionButton count={countryFilters.size} onClick={() => setCountrySheetOpen(true)} />
         </div>
       </div>
 
@@ -151,12 +156,18 @@ export default function CanliBahisScreen() {
           <span className="w-[6px] h-[6px] rounded-full bg-[#e74c3c] animate-pulse-dot ml-1" />
         </div>
         <div className="flex items-center bg-white rounded-full border border-[#e8ecf1] p-[2px]">
-          <button onClick={() => setTwoCol(false)} aria-label="Tek sütun" className={`w-7 h-7 rounded-full flex items-center justify-center ${!twoCol ? 'bg-[#0E8FCF]' : ''}`}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={!twoCol ? '#fff' : '#737B8C'} strokeWidth="2" strokeLinecap="round"><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></svg>
-          </button>
-          <button onClick={() => setTwoCol(true)} aria-label="İki sütun" className={`w-7 h-7 rounded-full flex items-center justify-center ${twoCol ? 'bg-[#0E8FCF]' : ''}`}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={twoCol ? '#fff' : '#737B8C'} strokeWidth="2" strokeLinecap="round"><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></svg>
-          </button>
+          {([
+            { key: 'cards', label: 'Tek sütun', icon: <><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></> },
+            { key: 'grid', label: 'İki sütun', icon: <><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></> },
+            { key: 'list', label: 'Liste görünümü', icon: <><rect x="3" y="4" width="18" height="4" rx="1" /><line x1="3" y1="12" x2="12" y2="12" /><line x1="3" y1="17" x2="12" y2="17" /><rect x="15" y="10.5" width="6" height="8" rx="1" /></> },
+          ] as const).map((b) => {
+            const on = layout === b.key
+            return (
+              <button key={b.key} onClick={() => setLayout(b.key)} aria-label={b.label} aria-pressed={on} className={`w-7 h-7 rounded-full flex items-center justify-center ${on ? 'bg-[#0E8FCF]' : ''}`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={on ? '#fff' : '#737B8C'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{b.icon}</svg>
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -166,10 +177,12 @@ export default function CanliBahisScreen() {
           <div className="bg-white rounded-xl py-10 text-center border border-[#e8ecf1]">
             <p className="text-[12px] text-[#94a3b8]">Bu filtreyle canlı etkinlik yok.</p>
           </div>
+        ) : layout === 'list' ? (
+          <LiveListView matches={matches} market={market} />
         ) : (
-          <div className={twoCol ? 'grid grid-cols-2 gap-[8px]' : 'flex flex-col gap-[10px]'}>
+          <div className={layout === 'grid' ? 'grid grid-cols-2 gap-[8px]' : 'flex flex-col gap-[10px]'}>
             {matches.map((m) => (
-              <MatchCard key={m.id} match={m} compact={twoCol} market={market} />
+              <MatchCard key={m.id} match={m} compact={layout === 'grid'} market={market} />
             ))}
           </div>
         )}

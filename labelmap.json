@@ -1,0 +1,207 @@
+{
+ "Favori etkinlik yok": [
+  "/live"
+ ],
+ "Favori lig yok": [
+  "/live"
+ ],
+ "Favori oyun yok": [
+  "/slots"
+ ],
+ "Hesaba Para Yatır": [
+  "/kupon/deposit"
+ ],
+ "Hesabına Para Çek": [
+  "/kupon/withdraw"
+ ],
+ "Pinkodu ve biyometri": [
+  "/settings/pin"
+ ],
+ "Kimlik Doğrulayıcı": [
+  "/settings/2fa"
+ ],
+ "Güvenlik Ayarları": [
+  "/settings/security"
+ ],
+ "Oturum Açma Geçmişi": [
+  "/settings/login-history"
+ ],
+ "Proxy Ayarları": [
+  "/settings/proxy"
+ ],
+ "Uygulamayı Paylaş": [
+  "/settings/about"
+ ],
+ "Uygulamayı QR Kodu ile Paylaşın": [
+  "/settings/about"
+ ],
+ "Uygulama Sürümü": [
+  "/settings/about"
+ ],
+ "Önbelleği Temizle": [
+  "cache"
+ ],
+ "LİMİT BELİRLEME": [
+  "/hesap/limitler"
+ ],
+ "PROFİL BİLGİLERİ": [
+  "/hesap/profil"
+ ],
+ "HAREKETLER": [
+  "/history"
+ ],
+ "BONUSLAR": [
+  "/hesap/bonuslar"
+ ],
+ "MESAJLAR": [
+  "/hesap/mesajlar"
+ ],
+ "KUPONLARIM": [
+  "/kupon"
+ ],
+ "BELGE YÜKLEME": [
+  "/hesap/belgeler"
+ ],
+ "Bildirimler": [
+  "/hesap/bildirimler"
+ ],
+ "SİZİ ARAYALIM": [
+  "/hesap/sizi-arayalim"
+ ],
+ "CANLI BAHİS": [
+  "/live"
+ ],
+ "Maç Öncesi": [
+  "/prematch"
+ ],
+ "Günün Kombinesi": [
+  "/kupon/accumulator"
+ ],
+ "Canlı Yayınlar": [
+  "/live",
+  "/live?stream=1"
+ ],
+ "SANAL BAHİS": [
+  "#",
+  "/sanal-bahis"
+ ],
+ "Slot Oyunları": [
+  "/slots"
+ ],
+ "Canlı Casino": [
+  "/live-casino"
+ ],
+ "Poker": [
+  "#",
+  "/live-casino",
+  "/poker"
+ ],
+ "Canlı Oyunlar": [
+  "#",
+  "/live-casino"
+ ],
+ "Golden Race": [
+  "#",
+  "/golden-race"
+ ],
+ "Şans Çarkı": [
+  "#",
+  "/sans-carki"
+ ],
+ "Ortaklık": [
+  "/ortaklik"
+ ],
+ "Canlı Yayın": [
+  "/live"
+ ],
+ "Tüm Canlı Casino": [
+  "/live-casino"
+ ],
+ "Rulet": [
+  "/live-casino"
+ ],
+ "Blackjack": [
+  "/live-casino"
+ ],
+ "Baccarat": [
+  "/live-casino"
+ ],
+ "Tüm Slotlar": [
+  "/slots"
+ ],
+ "Popüler Slotlar": [
+  "/slots"
+ ],
+ "Jackpot Oyunları": [
+  "/slots"
+ ],
+ "Yeni Slotlar": [
+  "/slots"
+ ],
+ "Megaways": [
+  "/slots"
+ ],
+ "Betadonis Hakkında": [
+  "/bilgi/hakkinda"
+ ],
+ "Şartlar ve Koşullar": [
+  "/bilgi/sartlar"
+ ],
+ "Sorumlu Oyun": [
+  "/bilgi/sorumlu-oyun"
+ ],
+ "Hesap Doğrulama": [
+  "/bilgi/hesap-dogrulama"
+ ],
+ "Gizlilik Politikası": [
+  "/bilgi/gizlilik"
+ ],
+ "VIP Statü": [
+  "/bilgi/vip"
+ ],
+ "Bonuslar": [
+  "/bilgi/bonuslar"
+ ],
+ "TREND": [
+  "/"
+ ],
+ "Sporlar": [
+  "/?view=sports"
+ ],
+ "Sanal Bahis": [
+  "/sanal-bahis"
+ ],
+ "Slotlar": [
+  "/slots"
+ ],
+ "Diğerleri": [
+  "/digerleri"
+ ],
+ "Maç öncesi": [
+  "/prematch"
+ ],
+ "Adonis Coin Kodları": [
+  "/adonis-coin"
+ ],
+ "Promosyonlar": [
+  "/promosyonlar"
+ ],
+ "Yardım ve Destek": [
+  "/yardim"
+ ],
+ "Güvenlik sorusu": [
+  "/settings/security-question"
+ ],
+ "2 Faktörlü Kimlik Doğrulama": [
+  "/settings/2fa"
+ ],
+ "Profil": [
+  "/hesap/profil"
+ ],
+ "Canlı Bahis": [
+  "/live"
+ ],
+ "E-Spor": [
+  "/prematch?tab=2"
+ ]
+}

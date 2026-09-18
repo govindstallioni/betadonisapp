@@ -7,20 +7,22 @@ import SlideUpBubble from './SlideUpBubble'
 import { useAuth } from './AuthProvider'
 import { useAdc } from './AdcProvider'
 import {
-  ADC_SHOP, ADC_CATEGORIES, shopItem, codeStatus, daysLeft, fmtAdc,
-  CODE_LIFETIME_DAYS, CODE_MIN_ODDS, MIN_ADC_USAGE,
-  type AdcShopItem, type AdcCode, type AdcCodeStatus, type AdcTx,
+  ADC_SHOP, ADC_CATEGORIES, shopItem, codeStatus, daysLeft, fmtAdc, fmtReward, scopeOf, EARN_TX,
+  CODE_LIFETIME_DAYS, CASINO_CODE_LIFETIME_DAYS, CASINO_MAX_WIN, CASINO_VIP_MAX_WIN, CODE_MIN_ODDS, MIN_ADC_USAGE,
+  type AdcShopItem, type AdcCode, type AdcCodeStatus, type AdcTx, type AdcScope,
 } from '@/data/adc'
+import { REFERRAL_REWARD } from '@/data/adcQuests'
 
 // ── Adonis Coin mağazası (task 27) ──────────────────────────────────────────
 // Layout follows the client's references (1xpromo1–3.PNG): Mağaza / Kodlarım
 // tabs, the points header with a redeem call to action, then category rows of
 // reward cards; a tapped card opens a detail sheet with the buy button.
 //
-// Two deliberate departures from those screenshots, both because the written
-// brief (coin.html) overrules them:
-//   • No "Oyunlar" category. The reference fills it with DOTA 21 and Heroes of
-//     the Storm; the brief's scope rule is sports only.
+// v2.1 (revize-coin.html, work3 task 8): the shop tab has 🏆 SPOR / 🎰 CASINO
+// sub-tabs; casino codes are redeemed on the game screen's "Bonus Kodu" field.
+// Quests, social shares and invites live on /adonis-coin/gorevler.
+//
+// One deliberate departure from the screenshots:
 //   • Four code filters instead of five. The reference has an "Etkin değil"
 //     pill; our codes are active the moment they are bought, so there is no
 //     inactive state to filter for.
@@ -34,6 +36,12 @@ const ICONS: Record<AdcShopItem['icon'], React.ReactNode> = {
   kombine: <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-9 14-5-5 1.4-1.4L10 14.2l7.6-7.6L19 8l-9 9z" /></svg>,
   yildiz: <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="m12 2 3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.8 5.7 21.4l1.5-7.1L1.8 9.4 9 8.6 12 2z" /></svg>,
   kupa: <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M19 4h-2V2H7v2H5a2 2 0 0 0-2 2v2a4 4 0 0 0 4 4 5 5 0 0 0 4 2.9V19H8v2h8v-2h-3v-4.1A5 5 0 0 0 17 12a4 4 0 0 0 4-4V6a2 2 0 0 0-2-2zM5 8V6h2v3.8A2 2 0 0 1 5 8zm14 0a2 2 0 0 1-2 1.8V6h2v2z" /></svg>,
+  slot: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinejoin="round"><rect x="3" y="6" width="15" height="15" rx="2" /><rect x="5.5" y="9" width="10" height="6" rx="1" /><path d="M8.8 9v6M12.2 9v6M18 16h1a2 2 0 0 0 2-2V9" /><circle cx="21" cy="7" r="1.5" fill="#fff" /></svg>,
+  rulet: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7"><circle cx="12" cy="12" r="9.2" /><circle cx="12" cy="12" r="4" /><path d="M12 2.8v5.2M12 16v5.2M2.8 12H8M16 12h5.2" /><circle cx="15.5" cy="8.5" r="1.2" fill="#fff" /></svg>,
+  kart: <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M8 3h9a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm4.5 4.5c-1 1.5-3 2.6-3 4.3 0 1 .8 1.7 1.7 1.7.4 0 .8-.1 1-.4l-.5 1.9h1.6l-.5-1.9c.2.3.6.4 1 .4.9 0 1.7-.7 1.7-1.7 0-1.7-2-2.8-3-4.3zM3 7h1.5v12a1.5 1.5 0 0 0 1.5 1.5h9V22H6a3 3 0 0 1-3-3V7z" /></svg>,
+  crash: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 20h18M4 17c5 0 9-3 12-10" /><path d="m13 6 4-1 1 4" /><circle cx="17" cy="6" r="1.4" fill="#fff" /></svg>,
+  canli: <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="7" r="3.2" /><path d="M5 20c.6-3.8 3.5-6.2 7-6.2s6.4 2.4 7 6.2H5z" /><circle cx="19.5" cy="4.5" r="2" fill="#ef4444" /></svg>,
+  elmas: <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M6 3h12l4 6-10 12L2 9l4-6zm1.2 2L5 8.5h3.6L10 5H7.2zm5.2 0-1.4 3.5h4.2L13.8 5h-1.4zm4.4 0 1.4 3.5H19L16.8 5zM5.3 10.5l5.3 6.4-2.1-6.4H5.3zm5.3 0 1.4 5 1.4-5h-2.8zm4.9 0-2.1 6.4 5.3-6.4h-3.2z" /></svg>,
 }
 
 const fmtDate = (ts: number) => {
@@ -78,7 +86,7 @@ function ShopCard({ item, onOpen }: { item: AdcShopItem; onOpen: () => void }) {
     <button onClick={onOpen} className="w-[132px] flex-shrink-0 text-left active:scale-[0.98] transition-transform">
       <CardArt item={item} className="h-[86px] rounded-xl p-2.5" />
       <p className="text-[11px] font-semibold text-[#1a2332] mt-1.5 leading-tight line-clamp-2">{item.name}</p>
-      <p className="text-[10px] font-bold text-[#0E8FCF] mt-[2px] tabular-nums">{fmtAdc(item.cost)} ADC</p>
+      <p className="text-[10px] font-bold text-[#0E8FCF] mt-[2px] tabular-nums">{fmtAdc(item.cost)} ADC · <span className="text-[#737B8C]">{fmtReward(item)}</span></p>
     </button>
   )
 }
@@ -91,6 +99,7 @@ function ItemSheet({ item, onClose }: { item: AdcShopItem; onClose: () => void }
   const [loginPrompt, setLoginPrompt] = useState(false)
 
   const affordable = available >= item.cost
+  const casino = item.scope === 'casino'
 
   const buy = () => {
     if (!loaded) return
@@ -126,12 +135,17 @@ function ItemSheet({ item, onClose }: { item: AdcShopItem; onClose: () => void }
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
           </div>
           <h2 className="text-[16px] font-bold text-[#1a2332]">Kodunuz Hazır</h2>
-          <p className="text-[12px] text-[#737B8C] mt-1.5 leading-relaxed">{item.name} · {item.value} ₺ değerinde</p>
+          <p className="text-[12px] text-[#737B8C] mt-1.5 leading-relaxed">{item.name} · {fmtAdc(item.cost)} ADC karşılığı {fmtReward(item)}</p>
           <div className="mt-4 inline-flex items-center gap-2 bg-[#edf5ff] rounded-full px-5 py-2.5">
             <span className="text-[15px] font-bold text-[#0E8FCF] tracking-wider tabular-nums">{issued.code}</span>
           </div>
-          <p className="text-[10px] text-[#94a3b8] mt-3 leading-relaxed">
-            {fmtDate(issued.expiresAt)} tarihine kadar geçerli · tek kullanımlık · min. {CODE_MIN_ODDS.toFixed(2)} oran
+          <p className="text-[11px] text-[#1a2332] mt-3 leading-relaxed">
+            {casino
+              ? <>Bu kodu <b>casino oyun ekranındaki “Bonus Kodu”</b> alanına girin.</>
+              : <>Bu kodu <b>kupon ekranındaki “Adonis Coin kodu kullan”</b> alanından seçin.</>}
+          </p>
+          <p className="text-[10px] text-[#94a3b8] mt-1.5 leading-relaxed">
+            {fmtDate(issued.expiresAt)} tarihine kadar geçerli · tek kullanımlık · {casino ? `${issued.wagering}x çevrim` : `min. ${CODE_MIN_ODDS.toFixed(2)} oran`}
           </p>
           <button onClick={onClose} className="w-full h-[46px] mt-5 rounded-xl bg-[#0E8FCF] text-white text-[13px] font-bold">Tamam</button>
         </div>
@@ -147,18 +161,28 @@ function ItemSheet({ item, onClose }: { item: AdcShopItem; onClose: () => void }
 
       <div className="px-5 pt-4 pb-6">
         <p className="text-[10px] font-bold text-[#0E8FCF] tracking-wide">
-          KOD BAŞINA BAHİS / {fmtAdc(item.cost)} ADC
+          {casino ? 'CASINO KODU' : 'SPOR KODU'} / {fmtAdc(item.cost)} ADC
         </p>
         <p className="text-[12px] text-[#1a2332] mt-1.5 leading-relaxed">{item.desc}</p>
 
         <div className="mt-4 bg-[#f8fafc] rounded-xl border border-[#e8ecf1] px-3.5 py-3 flex flex-col gap-2">
           <Row k="Promosyon hesabı" v={`${fmtAdc(available)} ADC`} strong />
           <Row k="Fiyat" v={`${fmtAdc(item.cost)} ADC`} />
-          <Row k="Kod değeri" v={`${item.value} ₺`} />
-          <Row k="Geçerlilik" v={`${CODE_LIFETIME_DAYS} gün`} />
-          <Row k="Minimum oran" v={CODE_MIN_ODDS.toFixed(2)} />
-          <Row k="Spor dalı" v={item.sport} />
-          {item.minLegs && <Row k="Minimum seçim" v={`${item.minLegs}`} />}
+          <Row k="Kod değeri" v={fmtReward(item)} />
+          <Row k="Geçerlilik" v={`${casino ? CASINO_CODE_LIFETIME_DAYS : CODE_LIFETIME_DAYS} gün`} />
+          {casino ? (
+            <>
+              <Row k="Çevrim şartı" v={`${item.wagering}x`} />
+              <Row k="Geçerli oyunlar" v={item.casinoGame === 'Tümü' ? 'Tüm casino oyunları' : item.casinoGame!} />
+              <Row k="Maks. kazanç" v={`${fmtAdc(item.id === 'cs-vip' ? CASINO_VIP_MAX_WIN : CASINO_MAX_WIN)} ₺`} />
+            </>
+          ) : (
+            <>
+              <Row k="Minimum oran" v={CODE_MIN_ODDS.toFixed(2)} />
+              <Row k="Spor dalı" v={item.sport} />
+              {item.minLegs && <Row k="Minimum seçim" v={`${item.minLegs}`} />}
+            </>
+          )}
         </div>
 
         <button
@@ -174,7 +198,9 @@ function ItemSheet({ item, onClose }: { item: AdcShopItem; onClose: () => void }
           </p>
         )}
         <p className="text-[10px] text-[#94a3b8] text-center mt-2.5 leading-relaxed">
-          Kodlar tek kullanımlıktır ve yalnızca spor bahislerinde geçerlidir.
+          {casino
+            ? 'Casino kodları tek kullanımlıktır; çevrim tamamlanmadan çekim yapılamaz.'
+            : 'Spor kodları tek kullanımlıktır ve yalnızca spor kuponlarında geçerlidir.'}
         </p>
       </div>
     </SlideUpBubble>
@@ -253,7 +279,10 @@ function CodesTab({ onOpen }: { onOpen: (item: AdcShopItem) => void }) {
                     {st === 'expired' && `Süresi geçti · ${fmtDate(c.expiresAt)}`}
                   </p>
                 </div>
-                <span className="text-[12px] font-bold text-[#1a2332] tabular-nums flex-shrink-0">{c.value} ₺</span>
+                <span className="text-right flex-shrink-0">
+                  <span className="block text-[12px] font-bold text-[#1a2332] tabular-nums">{fmtReward(c)}</span>
+                  <span className="block text-[9px] font-bold text-[#737B8C] mt-[1px]">{scopeOf(c) === 'casino' ? 'CASINO' : 'SPOR'}</span>
+                </span>
               </div>
             )
           })}
@@ -290,12 +319,13 @@ function InfoSheet({ onClose }: { onClose: () => void }) {
         <h2 className="text-[16px] font-bold text-[#1a2332]">Adonis Coin nasıl çalışır?</h2>
         <ul className="mt-3 flex flex-col gap-2.5">
           {[
-            'ADC yalnızca para yatırarak kazanılır. Kayıt bonusu yoktur.',
-            'Yatırdığınız tutar büyüdükçe 100 ₺ başına kazandığınız ADC artar.',
-            'Puanlar önce “bekleyen” olarak eklenir. En az 100 ₺ ve 1.50 oranlı bir bahis yaptığınızda kullanılabilir hale gelir.',
-            `Biriken ADC yalnızca spor bahis kodlarına harcanır. En az ${MIN_ADC_USAGE} ADC gerekir.`,
-            `Kodlar tek kullanımlıktır, ${CODE_LIFETIME_DAYS} gün geçerlidir ve min. ${CODE_MIN_ODDS.toFixed(2)} oran şartı vardır.`,
-            'Casino, çark, bonus bakiyesi veya nakit iade için kullanılamaz.',
+            'Para yatırdıkça ADC birikir; yatırdığınız tutar büyüdükçe 100 ₺ başına kazandığınız ADC artar.',
+            'Yatırımdan gelen puanlar önce “bekleyen” olarak eklenir. En az 100 ₺ ve 1.50 oranlı bir bahis yaptığınızda kullanılabilir hale gelir.',
+            'Görevleri tamamlayarak, sosyal medyada paylaşarak (yönetici onayı sonrası) ve arkadaş davet ederek de ADC kazanırsınız.',
+            `Bonus parayla veya ADC koduyla oynanan bahisler ADC kazandırmaz. Davet ettiğiniz arkadaş ilk yatırımını yapınca +${REFERRAL_REWARD} ADC.`,
+            `ADC hem spor hem casino kodlarına harcanır. En az ${MIN_ADC_USAGE} ADC gerekir.`,
+            `Spor kodları ${CODE_LIFETIME_DAYS} gün geçerlidir ve min. ${CODE_MIN_ODDS.toFixed(2)} oran şartı vardır; casino kodları ${CASINO_CODE_LIFETIME_DAYS} gün geçerlidir ve 10x–25x çevrime tabidir.`,
+            'Tüm kodlar tek kullanımlıktır. Çark, bonus bakiyesi veya nakit iade için kullanılamaz.',
           ].map(t => (
             <li key={t} className="flex items-start gap-2">
               <span className="w-[5px] h-[5px] rounded-full bg-[#0E8FCF] mt-[6px] flex-shrink-0" />
@@ -318,6 +348,9 @@ const TX_META: Record<AdcTx['type'], { label: string; color: string; bg: string 
   deposit: { label: 'Yatırımdan kazanıldı', color: '#9a6212', bg: 'rgba(243,156,18,0.12)' },
   confirm: { label: 'Bahisle onaylandı', color: '#1c7a52', bg: 'rgba(39,174,96,0.12)' },
   spend: { label: 'Kod satın alındı', color: '#b8341f', bg: 'rgba(231,76,60,0.11)' },
+  quest: { label: 'Görev ödülü', color: '#0b6fa4', bg: 'rgba(14,143,207,0.12)' },
+  social: { label: 'Sosyal medya ödülü', color: '#7c3aed', bg: 'rgba(124,58,237,0.12)' },
+  referral: { label: 'Arkadaş daveti', color: '#1c7a52', bg: 'rgba(39,174,96,0.12)' },
 }
 
 /** "12 Eylül 2026" — the day heading the ledger groups under. */
@@ -337,7 +370,7 @@ function HistoryTab() {
   // Earned counts only what actually landed as points; "confirm" moves points
   // from pending to available rather than creating any, so counting it here
   // would double every deposit.
-  const earned = transactions.filter(t => t.type === 'deposit').reduce((a, t) => a + t.amount, 0)
+  const earned = transactions.filter(t => EARN_TX.includes(t.type)).reduce((a, t) => a + t.amount, 0)
   const spent = transactions.filter(t => t.type === 'spend').reduce((a, t) => a + Math.abs(t.amount), 0)
 
   // Group by day, newest first. AdcProvider unshifts, so the store is already
@@ -359,7 +392,7 @@ function HistoryTab() {
         </div>
         <p className="text-[14px] font-bold text-[#1a2332]">Henüz hareket yok</p>
         <p className="text-[11px] text-[#737B8C] mt-1.5 leading-relaxed max-w-[280px]">
-          Para yatırdığınızda Adonis Coin kazanmaya başlarsınız. Kazandığınız puanlar burada listelenir.
+          Para yatırarak, görev tamamlayarak veya paylaşım yaparak Adonis Coin kazanırsınız. Hareketleriniz burada listelenir.
         </p>
       </div>
     )
@@ -417,6 +450,7 @@ function HistoryTab() {
 export default function AdcShopScreen() {
   const { loaded, available, pending } = useAdc()
   const [tab, setTab] = useState<'shop' | 'codes' | 'history'>('shop')
+  const [scope, setScope] = useState<AdcScope>('sport')
   const [openItem, setOpenItem] = useState<AdcShopItem | null>(null)
   const [info, setInfo] = useState(false)
 
@@ -467,12 +501,49 @@ export default function AdcShopScreen() {
         )}
       </div>
 
+      {/* v2.1: earn more — quests, social shares, invites */}
+      <div className="px-4 pt-3">
+        <Link
+          href="/adonis-coin/gorevler"
+          className="flex items-center gap-3 rounded-xl bg-gradient-to-r from-[#0E8FCF] to-[#2563eb] px-3.5 py-3 active:scale-[0.99] transition-transform"
+        >
+          <span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-[18px] flex-shrink-0" aria-hidden="true">🎯</span>
+          <span className="flex-1 min-w-0">
+            <span className="block text-[13px] font-bold text-white">Görevler</span>
+            <span className="block text-[10px] text-white/80 truncate">Günlük görevler, paylaşım ve davetlerle ADC kazan</span>
+          </span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+        </Link>
+      </div>
+
       {tab === 'history' ? (
         <HistoryTab />
       ) : tab === 'shop' ? (
         <div className="pt-4">
-          {ADC_CATEGORIES.map(cat => {
-            const items = ADC_SHOP.filter(i => i.category === cat)
+          {/* 🏆 SPOR / 🎰 CASINO */}
+          <div className="px-4 pb-3">
+            <div className="flex gap-2">
+              {([['sport', '🏆 SPOR'], ['casino', '🎰 CASINO']] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setScope(key)}
+                  aria-pressed={scope === key}
+                  className={`flex-1 h-[38px] rounded-xl text-[12px] font-extrabold tracking-wide border transition-colors ${
+                    scope === key ? 'bg-[#1a2332] border-[#1a2332] text-white' : 'bg-white border-[#e8ecf1] text-[#1a2332]'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {scope === 'casino' && (
+              <p className="text-[10px] text-[#737B8C] mt-2 leading-relaxed">
+                Casino kodları 10x–25x çevrim şartına tabidir. Maks. kazanç {fmtAdc(CASINO_MAX_WIN)} ₺ (VIP: {fmtAdc(CASINO_VIP_MAX_WIN)} ₺).
+              </p>
+            )}
+          </div>
+          {ADC_CATEGORIES[scope].map(cat => {
+            const items = ADC_SHOP.filter(i => i.scope === scope && i.category === cat)
             if (items.length === 0) return null
             return (
               <div key={cat} className="mb-4">

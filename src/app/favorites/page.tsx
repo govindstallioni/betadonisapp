@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useFavorites, type FavType, type FavItem } from '@/components/FavoritesProvider'
 import FavoriteStar from '@/components/FavoriteStar'
 import BottomNav from '@/components/BottomNav'
+import Flag from '@/components/Flag'
 
 const TABS: { key: FavType; label: string }[] = [
   { key: 'event', label: 'Etkinlikler' },
@@ -115,7 +116,7 @@ function FavRow({ item, onOpen }: { item: FavItem; onOpen: () => void }) {
       ) : (
         <div className="w-10 h-10 rounded-lg bg-[#edf5ff] flex items-center justify-center flex-shrink-0 overflow-hidden">
           {item.emoji ? (
-            <span className="text-[18px] leading-none">{item.emoji}</span>
+            <Flag emoji={item.emoji} size={20} />
           ) : item.image ? (
             <img src={item.image} alt="" className={item.type === 'game' ? 'w-full h-full object-cover' : 'w-6 h-6 object-contain'} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
           ) : (

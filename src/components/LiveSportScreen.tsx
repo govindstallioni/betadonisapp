@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import FavoriteStar from '@/components/FavoriteStar'
+import Flag from '@/components/Flag'
 
 type Tournament = {
   id: number
@@ -209,7 +210,7 @@ export default function LiveSportScreen() {
           {/* Flag */}
           <div className="relative flex-shrink-0">
             <div className={`${indent ? 'w-[26px] h-[26px]' : 'w-[30px] h-[30px]'} rounded-full bg-[#f1f5f9] flex items-center justify-center border border-[#e8ecf1]`}>
-              <span className={indent ? 'text-[13px]' : 'text-[15px]'}>{t.flag}</span>
+              <Flag emoji={t.flag} size={indent ? 16 : 18} />
             </div>
             {t.isHot && (
               <span className="absolute -top-[3px] -right-[3px] w-[14px] h-[14px] rounded-full bg-[#ef4444] flex items-center justify-center">

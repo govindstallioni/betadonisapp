@@ -1,10 +1,12 @@
 import Link from 'next/link'
 import SectionHeader from './SectionHeader'
 
+// Order + colours per work3 task 5: Football green, Basketball orange, Tennis
+// blue. The banners are the original artwork recoloured to those hues.
 const virtualSports = [
-  { name: 'Futbol', image: '/virtualbet/banner3.png' },
-  { name: 'Tenis', image: '/virtualbet/banner2.png' },
-  { name: 'Basketbol', image: '/virtualbet/banner1.png' },
+  { name: 'Futbol', image: '/virtualbet/futbol-green.png' },
+  { name: 'Basketbol', image: '/virtualbet/basketbol-orange.png' },
+  { name: 'Tenis', image: '/virtualbet/tenis-blue.png' },
 ]
 
 export default function VirtualBets() {
