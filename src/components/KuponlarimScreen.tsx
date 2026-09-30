@@ -6,8 +6,8 @@ import Link from 'next/link'
 import { useAuth } from './AuthProvider'
 import Footer from './Footer'
 import {
-  BetCard, ClockBadge, Mascot, sampleBets, sampleCasinoBets, sortKey, useSettledCoupons,
-  type Bet,
+  BetCard, CasinoHistoryRow, ClockBadge, Mascot, sampleBets, sampleCasinoBets, sortKey, useSettledCoupons,
+  type Bet, type CasinoBet,
 } from './BetHistory'
 
 // ── Kuponlarım (work3 tasks 7 + 15, kupon2.png) ─────────────────────────────
@@ -79,7 +79,7 @@ export default function KuponlarimScreen() {
   }
 
   const p = PERIODS.find(x => x.key === period)!
-  const source: Bet[] = section === 'kupon' ? [...coupons, ...sampleBets] : sampleCasinoBets
+  const source: (Bet | CasinoBet)[] = section === 'kupon' ? [...coupons, ...sampleBets] : sampleCasinoBets
   const bets = source
     .filter(b => now === 0 || now - betTime(b.date) <= p.ms)
     .filter(b => tab === 'all' || b.status === tab)
@@ -164,8 +164,10 @@ export default function KuponlarimScreen() {
           </div>
         ) : (
           <div className="flex flex-col gap-[8px]">
-            {bets.map(b => (
+            {bets.map(b => 'legs' in b ? (
               <BetCard key={b.id} bet={b} open={openBets.has(b.id)} onToggle={() => toggleBet(b.id)} />
+            ) : (
+              <CasinoHistoryRow key={b.id} bet={b} />
             ))}
           </div>
         )}

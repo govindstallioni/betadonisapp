@@ -22,17 +22,17 @@ function ParlayCard({ item, href }: { item: Accumulator; href: string }) {
 export default function TodaysParlays() {
   return (
     <>
-      <div className="px-4 pt-1">
+      <div className="pt-1">
         <SectionHeader title="Bugünün Canlı Kombinesi" badge="Spor" showAll href="/kupon/accumulator?tab=live" count={liveAccumulators.length} />
       </div>
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 pb-4">
         {liveAccumulators.map((item) => <ParlayCard key={item.id} item={item} href="/kupon/accumulator?tab=live" />)}
       </div>
 
-      <div className="px-4 pt-1">
+      <div className="pt-1">
         <SectionHeader title="Bugünün Maç Öncesi Kombinesi" badge="Spor" showAll href="/kupon/accumulator?tab=prematch" count={prematchAccumulators.length} />
       </div>
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 pb-4">
         {prematchAccumulators.map((item) => <ParlayCard key={item.id} item={item} href="/kupon/accumulator?tab=prematch" />)}
       </div>
     </>

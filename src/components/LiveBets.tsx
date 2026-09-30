@@ -227,6 +227,9 @@ export default function LiveBets() {
                     </span>
                   )
                 })}
+                <span className="flex-shrink-0 flex items-center justify-center rounded-lg px-[8px] py-[6px] bg-[#f4f6f9] border border-[#eef1f5] text-[9px] font-bold text-[#737B8C]">
+                  +{match.totalOdds}
+                </span>
               </div>
             </div>
           </Link>

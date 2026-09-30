@@ -1,19 +1,21 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import NotifyBell from './NotifyBell'
 import LiveTag from './LiveTag'
 import FavoriteStar from './FavoriteStar'
 import { useBetSlip } from './BetSlipProvider'
-import { Match, halfText } from '@/data/liveData'
+import { Match, MatchOdd, MultiMarketFixture, halfText } from '@/data/liveData'
 import { MATCH_RESULT } from '@/data/markets'
 import OddLock, { isSuspended } from './OddLock'
 import Flag from '@/components/Flag'
 import { SPORT_ICONS } from './sportIcons'
+import MarketsExpand from './MarketsExpand'
 
 export type OddsMarket = 'MS' | 'ALTUST' | 'CS' | 'BERABER' | 'HANDIKAP' | 'KORNER'
 
-export const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: Match) => Match['odds'] }> = {
+export const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: MultiMarketFixture) => MatchOdd[] }> = {
   MS: { label: MATCH_RESULT, pick: (m) => m.odds },
   ALTUST: { label: 'Alt/Üst', pick: (m) => m.altUst },
   CS: { label: 'Çifte Şans', pick: (m) => m.cifteSans },
@@ -27,6 +29,7 @@ export const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: Match)
 // are wired to the global betslip; the whole card links to the match detail.
 export default function MatchCard({ match, compact = false, market = 'MS' }: { match: Match; compact?: boolean; market?: OddsMarket }) {
   const { has, toggle } = useBetSlip()
+  const [expanded, setExpanded] = useState(false)
   const sub = halfText(match.half)
   const { label: marketLabel, pick } = MARKET_CONFIG[market]
   const displayOdds = pick(match)
@@ -134,8 +137,35 @@ export default function MatchCard({ match, compact = false, market = 'MS' }: { m
               </span>
             )
           })}
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.preventDefault(); e.stopPropagation()
+              setExpanded((v) => !v)
+            }}
+            className="flex-shrink-0 flex items-center gap-[3px] rounded-lg px-[8px] py-[6px] bg-[#f4f6f9] border border-[#eef1f5] text-[9px] font-bold text-[#737B8C] cursor-pointer"
+          >
+            +{match.totalOdds}
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${expanded ? 'rotate-180' : ''}`}>
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
         </div>
       </div>
+
+      {expanded && (
+        <MarketsExpand
+          fixture={match}
+          matchId={match.id}
+          league={match.league}
+          team1={match.team1}
+          team2={match.team2}
+          sport={match.sport}
+          isLive
+          activeMarket={market}
+        />
+      )}
     </Link>
   )
 }

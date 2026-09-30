@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import NotifyBell from './NotifyBell'
 import StreamTag from './StreamTag'
@@ -9,14 +10,16 @@ import { useBetSlip } from './BetSlipProvider'
 import { PreMatch } from '@/data/prematchData'
 import { MATCH_RESULT, matchResultOddId } from '@/data/markets'
 import OddLock, { isSuspended } from './OddLock'
+import MarketsExpand from './MarketsExpand'
 
 // Reusable pre-match fixture card — same anatomy as MatchCard (league header,
 // teams, odds row) but for upcoming (non-live) matches: date/time instead of a
 // live score/minute, and no live-only affordances at all. Pre-match odds are
 // fixed until kick-off, so they never flash green/red and carry no trend arrow;
 // `hasStream` shows a neutral "İZLE" tag, never the red pulsing CANLI pill.
-export default function PreMatchCard({ match, className = '' }: { match: PreMatch; className?: string }) {
+export default function PreMatchCard({ match, className = '', compact = false }: { match: PreMatch; className?: string; compact?: boolean }) {
   const { has, toggle } = useBetSlip()
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <Link
@@ -54,7 +57,7 @@ export default function PreMatchCard({ match, className = '' }: { match: PreMatc
       <div className="px-[10px] py-[10px]">
         <div className="flex items-center">
           <div className="flex-1 flex items-center justify-end gap-[6px]">
-            <span className="text-[11px] text-[#1a2332] font-medium leading-tight truncate text-right">{match.team1}</span>
+            <span className={`${compact ? 'text-[10px]' : 'text-[11px]'} text-[#1a2332] font-medium leading-tight truncate text-right`}>{match.team1}</span>
             <img src={match.logo1} alt={match.team1} className="w-[22px] h-[22px] object-contain flex-shrink-0" />
           </div>
           <div className="flex flex-col items-center px-[16px]">
@@ -62,7 +65,7 @@ export default function PreMatchCard({ match, className = '' }: { match: PreMatc
           </div>
           <div className="flex-1 flex items-center gap-[6px]">
             <img src={match.logo2} alt={match.team2} className="w-[22px] h-[22px] object-contain flex-shrink-0" />
-            <span className="text-[11px] text-[#1a2332] font-medium leading-tight truncate">{match.team2}</span>
+            <span className={`${compact ? 'text-[10px]' : 'text-[11px]'} text-[#1a2332] font-medium leading-tight truncate`}>{match.team2}</span>
           </div>
         </div>
         <p className="text-[9px] text-[#737B8C] text-center mt-[6px]">{match.date}, {match.time}</p>
@@ -100,8 +103,35 @@ export default function PreMatchCard({ match, className = '' }: { match: PreMatc
               </span>
             )
           })}
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.preventDefault(); e.stopPropagation()
+              setExpanded((v) => !v)
+            }}
+            className="flex-shrink-0 flex items-center gap-[3px] rounded-lg px-[8px] py-[6px] bg-[#f4f6f9] border border-[#eef1f5] text-[9px] font-bold text-[#737B8C] cursor-pointer"
+          >
+            +{match.totalOdds}
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${expanded ? 'rotate-180' : ''}`}>
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </span>
         </div>
       </div>
+
+      {expanded && (
+        <MarketsExpand
+          fixture={match}
+          matchId={match.id}
+          league={match.league}
+          team1={match.team1}
+          team2={match.team2}
+          sport={match.sport}
+          isLive={false}
+          activeMarket="MS"
+        />
+      )}
     </Link>
   )
 }

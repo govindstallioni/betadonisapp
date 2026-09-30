@@ -127,27 +127,66 @@ export const sampleBets: Bet[] = [
 ]
 
 // ── Casino history (prototype has no backend) ────────────────────────────
-// Reuses the same Bet/BetCard shape as sportsbook bets — one synthetic leg
-// per entry (league → category, match → game, pick → provider) so the
-// existing card UI renders casino transactions with no extra component.
-export const sampleCasinoBets: Bet[] = [
-  {
-    id: 'C2210', type: 'Tekli', status: 'won', date: '14.07.2026 22:10', stake: 50, totalOdds: 4.2, payout: 210,
-    legs: [{ league: 'Slot', match: 'Sweet Bonanza', pick: 'Pragmatic Play', odd: 4.2, result: 'won' }],
-  },
-  {
-    id: 'C2198', type: 'Tekli', status: 'lost', date: '13.07.2026 21:05', stake: 100, totalOdds: 1, payout: 0,
-    legs: [{ league: 'Slot', match: 'Gates of Olympus', pick: 'Pragmatic Play', odd: 1, result: 'lost' }],
-  },
-  {
-    id: 'C2180', type: 'Tekli', status: 'pending', date: '15.07.2026 19:40', stake: 25, totalOdds: 1, payout: 25,
-    legs: [{ league: 'Canlı Casino', match: 'Rulet', pick: 'Betadonis Live', odd: 1, result: 'pending' }],
-  },
-  {
-    id: 'C2144', type: 'Tekli', status: 'won', date: '10.07.2026 15:22', stake: 20, totalOdds: 12.5, payout: 250,
-    legs: [{ league: 'Slot', match: 'Big Bass Splash', pick: 'Pragmatic Play', odd: 12.5, result: 'won' }],
-  },
+// task 7 (revize v6.1 §7): casino plays are NOT bets — no legs, no odds, no
+// stake/payout pair to expand. Each entry is a single flat row: the game's
+// own artwork, its name, provider, a game id, the played amount, and when.
+export type CasinoStatus = 'pending' | 'active' | 'won' | 'refunded' | 'cancelled'
+
+export type CasinoBet = {
+  id: string
+  gameId: string
+  gameName: string
+  provider: string
+  image: string
+  status: CasinoStatus
+  date: string
+  amount: number // negative = stake spent, positive = credited (win/refund)
+}
+
+export const sampleCasinoBets: CasinoBet[] = [
+  { id: 'C2210', gameId: '1540441', gameName: 'Sweet Bonanza',    provider: 'Pragmatic Play', image: '/casino/sweet-bonanza.webp',    status: 'won',       date: '14.07.2026 22:10', amount: 210 },
+  { id: 'C2198', gameId: '1538820', gameName: 'Gates of Olympus', provider: 'Pragmatic Play', image: '/casino/gates-of-olympus.webp', status: 'active',    date: '15.07.2026 21:05', amount: -100 },
+  { id: 'C2180', gameId: '1522967', gameName: 'Aviator',          provider: 'Spribe',         image: '/casino/aviator.webp',          status: 'pending',   date: '15.07.2026 19:40', amount: -25 },
+  { id: 'C2144', gameId: '1519004', gameName: 'Big Bass Splash',  provider: 'Pragmatic Play', image: '/casino/big-bass-splash.webp',  status: 'won',       date: '10.07.2026 15:22', amount: 250 },
+  { id: 'C2110', gameId: '1498732', gameName: 'Book of Dead',     provider: "Play'n GO",      image: '/canli-casino/7.jpg',           status: 'cancelled', date: '08.07.2026 12:15', amount: 40 },
+  { id: 'C2087', gameId: '1487216', gameName: 'Starburst',        provider: 'NetEnt',         image: '/canli-casino/9.png',           status: 'refunded',  date: '05.07.2026 18:30', amount: 60 },
 ]
+
+// Status → Turkish label + badge/amount colors (same convention as statusMeta below).
+const casinoStatusMeta: Record<CasinoStatus, { label: string; color: string; bg: string }> = {
+  won:       { label: 'Kazandı',  color: '#27ae60', bg: 'rgba(39,174,96,0.12)' },
+  active:    { label: 'Aktif',    color: '#0E8FCF', bg: 'rgba(14,143,207,0.12)' },
+  pending:   { label: 'Bekliyor', color: '#f39c12', bg: 'rgba(243,156,18,0.15)' },
+  cancelled: { label: 'İptal',    color: '#8899aa', bg: 'rgba(136,153,170,0.15)' },
+  refunded:  { label: 'İade',     color: '#7c3aed', bg: 'rgba(124,58,237,0.12)' },
+}
+
+// Flat, non-expandable row — everything the task asked for (image, game name,
+// game id, provider, amount, date/time, status) is visible at a glance.
+export function CasinoHistoryRow({ bet }: { bet: CasinoBet }) {
+  const m = casinoStatusMeta[bet.status]
+  const positive = bet.amount >= 0
+  return (
+    <div className="bg-white rounded-xl border border-[#e8ecf1] shadow-sm p-3 flex items-center gap-3">
+      <img src={bet.image} alt={bet.gameName} className="w-[52px] h-[52px] rounded-lg object-cover flex-shrink-0" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-[8px]">
+          <p className="text-[12px] font-bold text-[#1a2332] leading-tight truncate">{bet.gameName}</p>
+          <span className="text-[10px] font-bold px-[8px] py-[3px] rounded-full flex-shrink-0" style={{ color: m.color, background: m.bg }}>
+            {m.label}
+          </span>
+        </div>
+        <p className="text-[10px] text-[#737B8C] mt-[2px] truncate">{bet.provider} · ID: {bet.gameId}</p>
+        <div className="flex items-center justify-between mt-[4px]">
+          <span className="text-[10px] text-[#94a3b8]">{bet.date}</span>
+          <span className={`text-[12px] font-bold tabular-nums flex-shrink-0 ${positive ? 'text-[#27ae60]' : 'text-[#1a2332]'}`}>
+            {positive ? '+' : '−'}{formatTRY(Math.abs(bet.amount))}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // Status → Turkish label + badge/amount colors (readable on light & dark).
 const statusMeta: Record<BetStatus, { label: string; color: string; bg: string }> = {
@@ -300,6 +339,11 @@ export function BetCard({ bet, open, onToggle }: { bet: Bet; open: boolean; onTo
               <p className="text-[9px] text-[#737B8C]">TOPLAM ORAN</p>
               <p className="text-[12px] font-bold text-[#1a2332] tabular-nums mt-[1px]">{bet.totalOdds.toFixed(2)}</p>
             </div>
+          </div>
+
+          {/* Brand strip — every coupon closes on the Betadonis logo (kuponlogo.png) */}
+          <div className="flex items-center justify-center bg-[#1a2332] py-[10px]">
+            <img src="/logo-dark.png" alt="BetAdonis" className="h-[16px] object-contain" />
           </div>
         </div>
       )}
@@ -466,11 +510,12 @@ export default function BetHistory() {
   const coupons = useSettledCoupons()
 
   // Section data source: Kuponlar mixes real+sample bets with financial
-  // transactions; Casino is bet-shaped mock data only (no deposits/etc there).
-  const sectionBets: Bet[] = activeSection === 0 ? [...coupons, ...sampleBets] : sampleCasinoBets
+  // transactions; Casino is its own flat-row shape (no deposits/etc there).
+  const sectionBets: Bet[] = activeSection === 0 ? [...coupons, ...sampleBets] : []
+  const sectionCasinoBets: CasinoBet[] = activeSection === 1 ? sampleCasinoBets : []
   const sectionTransactions: Transaction[] = activeSection === 0 ? [...withdrawalRows, ...sampleTransactions] : []
 
-  type Row = { kind: 'bet'; data: Bet } | { kind: 'tx'; data: Transaction }
+  type Row = { kind: 'bet'; data: Bet } | { kind: 'casino'; data: CasinoBet } | { kind: 'tx'; data: Transaction }
 
   const inDateRange = (date: string) => {
     const day = betDay(date)
@@ -479,6 +524,7 @@ export default function BetHistory() {
 
   const rows: Row[] = [
     ...sectionBets.filter(b => inDateRange(b.date)).map(b => ({ kind: 'bet' as const, data: b })),
+    ...sectionCasinoBets.filter(b => inDateRange(b.date)).map(b => ({ kind: 'casino' as const, data: b })),
     ...sectionTransactions.filter(t => inDateRange(t.date)).map(t => ({ kind: 'tx' as const, data: t })),
   ]
 
@@ -487,7 +533,7 @@ export default function BetHistory() {
       if (activeFilter === 'all') return true
       if (activeFilter === 'deposit_withdrawal') return r.kind === 'tx' && (r.data.kind === 'deposit' || r.data.kind === 'withdrawal')
       if (activeFilter === 'other') return r.kind === 'tx' && r.data.kind === 'other'
-      return r.kind === 'bet' && r.data.status === activeFilter
+      return (r.kind === 'bet' || r.kind === 'casino') && r.data.status === activeFilter
     })
     .sort((a, b) => sortKey(b.data.date).localeCompare(sortKey(a.data.date)))
 
@@ -588,6 +634,8 @@ export default function BetHistory() {
           <div className="px-3 pt-3 pb-28 flex flex-col gap-[8px]">
             {visibleRows.map(row => row.kind === 'bet' ? (
               <BetCard key={row.data.id} bet={row.data} open={openBets.has(row.data.id)} onToggle={() => toggleBet(row.data.id)} />
+            ) : row.kind === 'casino' ? (
+              <CasinoHistoryRow key={row.data.id} bet={row.data} />
             ) : (
               <TransactionRow key={row.data.id} tx={row.data} />
             ))}

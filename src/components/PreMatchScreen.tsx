@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import MatchCard from './MatchCard'
 import PreMatchCard from './PreMatchCard'
+import PreMatchListView from './PreMatchListView'
 import SectionHeader from './SectionHeader'
 import { SPORT_ICONS } from './sportIcons'
 import { liveMatches } from '@/data/liveData'
@@ -173,6 +174,7 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
   const [searchQuery, setSearchQuery] = useState('')
   const [listTab, setListTab] = useState<ListTab>('popular')
   const [activeSport, setActiveSport] = useState(preMatchSportCats[0].label)
+  const [layout, setLayout] = useState<'cards' | 'grid' | 'list'>('cards')
   // "Bölgeye Göre" — same activation logic as live betting (see RegionFilter).
   const [countryFilters, setCountryFilters] = useState<Set<string>>(new Set())
   const [countrySheetOpen, setCountrySheetOpen] = useState(false)
@@ -329,7 +331,23 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
               <span className="text-[12px] font-bold text-[#1a2332]">{activeSport.toUpperCase()}</span>
               <span className="text-[10px] text-[#737B8C] font-semibold">({listMatches.length})</span>
             </div>
-            <RegionButton count={countryFilters.size} onClick={() => setCountrySheetOpen(true)} />
+            <div className="flex items-center gap-[6px]">
+              <div className="flex items-center bg-white rounded-full border border-[#e8ecf1] p-[2px]">
+                {([
+                  { key: 'cards', label: 'Tek sütun', icon: <><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></> },
+                  { key: 'grid', label: 'İki sütun', icon: <><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></> },
+                  { key: 'list', label: 'Liste görünümü', icon: <><rect x="3" y="4" width="18" height="4" rx="1" /><line x1="3" y1="12" x2="12" y2="12" /><line x1="3" y1="17" x2="12" y2="17" /><rect x="15" y="10.5" width="6" height="8" rx="1" /></> },
+                ] as const).map((b) => {
+                  const on = layout === b.key
+                  return (
+                    <button key={b.key} onClick={() => setLayout(b.key)} aria-label={b.label} aria-pressed={on} className={`w-7 h-7 rounded-full flex items-center justify-center ${on ? 'bg-[#0E8FCF]' : ''}`}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={on ? '#fff' : '#737B8C'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{b.icon}</svg>
+                    </button>
+                  )
+                })}
+              </div>
+              <RegionButton count={countryFilters.size} onClick={() => setCountrySheetOpen(true)} />
+            </div>
           </div>
 
           {/* Sport-icon filter row — 7 equal columns that fit the phone width
@@ -359,10 +377,12 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
               <div className="bg-[#f8fafc] rounded-xl py-8 text-center border border-[#e8ecf1]">
                 <p className="text-[12px] text-[#94a3b8]">Bu filtreyle karşılaşma yok.</p>
               </div>
+            ) : layout === 'list' ? (
+              <PreMatchListView matches={listMatches} />
             ) : (
-              <div className="flex flex-col gap-[10px]">
+              <div className={layout === 'grid' ? 'grid grid-cols-2 gap-[8px]' : 'flex flex-col gap-[10px]'}>
                 {listMatches.map((m) => (
-                  <PreMatchCard key={m.id} match={m} />
+                  <PreMatchCard key={m.id} match={m} compact={layout === 'grid'} />
                 ))}
               </div>
             )}

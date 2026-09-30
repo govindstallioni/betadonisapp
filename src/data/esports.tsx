@@ -2,6 +2,7 @@
 // Shared by the E-Spor page (/e-spor), the Sporlar screen's E-Spor tab and the
 // home "CANLI Turnuvalar" section, which the client confirmed is e-sports.
 
+import { NO_CORNER, NO_DRAW, NO_DRAW_CS } from './liveData'
 import type { Match, MatchOdd } from './liveData'
 import type { PreMatch } from './prematchData'
 
@@ -40,10 +41,6 @@ export const esportGames = [
 // cards show the game icon in the league header instead of a country flag.
 // E-sports have no draw, so the X column uses the suspended '—' convention.
 
-const NO_DRAW: MatchOdd[] = [{ label: 'Evet', value: '—' }, { label: 'Hayır', value: '—' }]
-const NO_DRAW_CS: MatchOdd[] = [{ label: '1X', value: '—' }, { label: '12', value: '—' }, { label: 'X2', value: '—' }]
-const NO_CORNER: MatchOdd[] = [{ label: 'Alt Korner', value: '—' }, { label: 'Üst Korner', value: '—' }]
-
 function live(
   id: string, sport: string, league: string, team1: string, team2: string,
   score1: number, score2: number, map: string, hasStream: boolean,
@@ -52,7 +49,7 @@ function live(
   const logo = ESPORT_ICON[sport]
   return {
     id, sport, league, flag: '', team1, team2, logo1: logo, logo2: logo,
-    score1, score2, minute: map, half: 'DA', hasStream,
+    score1, score2, minute: map, half: 'DA', hasStream, totalOdds: 34,
     odds: [{ label: 'Ev1', value: ev1, trend: 'up' }, { label: 'X', value: '—' }, { label: 'Dep2', value: dep2, trend: 'down' }],
     altUst: [{ label: `Alt ${total}`, value: '1.85' }, { label: `Üst ${total}`, value: '1.90' }],
     cifteSans: NO_DRAW_CS,
@@ -79,8 +76,13 @@ function pre(
   const logo = ESPORT_ICON[sport]
   return {
     id, sport, league, flag: '', team1, team2, logo1: logo, logo2: logo, date, time,
-    hasStream: !!opts.stream, popular: opts.popular,
+    hasStream: !!opts.stream, popular: opts.popular, totalOdds: 96,
     odds: [{ label: 'Ev1', value: ev1 }, { label: 'X', value: '—' }, { label: 'Dep2', value: dep2 }],
+    altUst: [{ label: 'Alt 2.5 Harita', value: '1.90' }, { label: 'Üst 2.5 Harita', value: '1.90' }],
+    cifteSans: NO_DRAW_CS,
+    beraber: NO_DRAW,
+    handikap: [{ label: 'Ev1 (-1.5)', value: '1.90' }, { label: 'Dep2 (+1.5)', value: '1.90' }],
+    korner: NO_CORNER,
   }
 }
 

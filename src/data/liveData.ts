@@ -10,7 +10,19 @@ export interface MatchOdd {
   trend?: 'up' | 'down'
 }
 
-export interface Match {
+// Shared by Match and PreMatch — every fixture that shows more than the 1X2
+// market carries these six, so the expandable-markets panel (MatchCard /
+// PreMatchCard) can read them off either fixture type structurally.
+export interface MultiMarketFixture {
+  odds: MatchOdd[]
+  altUst: MatchOdd[]
+  cifteSans: MatchOdd[]
+  beraber: MatchOdd[]
+  handikap: MatchOdd[]
+  korner: MatchOdd[]
+}
+
+export interface Match extends MultiMarketFixture {
   id: string
   sport: string
   league: string
@@ -24,20 +36,16 @@ export interface Match {
   minute: string
   half: '1Y' | '2Y' | 'HT' | 'DA'
   hasStream: boolean
-  odds: MatchOdd[]
-  altUst: MatchOdd[]
-  cifteSans: MatchOdd[]
-  beraber: MatchOdd[]
-  handikap: MatchOdd[]
-  korner: MatchOdd[]
+  totalOdds: number
 }
 
 // Draw-less sports (no "X" outcome) don't have a real Çifte Şans/Beraberlik
 // market either — reuse the same disabled '—' pill convention as the 1X2 X column.
-const NO_DRAW: MatchOdd[] = [{ label: 'Evet', value: '—' }, { label: 'Hayır', value: '—' }]
-const NO_DRAW_CS: MatchOdd[] = [{ label: '1X', value: '—' }, { label: '12', value: '—' }, { label: 'X2', value: '—' }]
+// Exported so prematchData.ts / esports.tsx can apply the same convention.
+export const NO_DRAW: MatchOdd[] = [{ label: 'Evet', value: '—' }, { label: 'Hayır', value: '—' }]
+export const NO_DRAW_CS: MatchOdd[] = [{ label: '1X', value: '—' }, { label: '12', value: '—' }, { label: 'X2', value: '—' }]
 // Corners are a football-only market — every other sport shows the same disabled convention.
-const NO_CORNER: MatchOdd[] = [{ label: 'Alt Korner', value: '—' }, { label: 'Üst Korner', value: '—' }]
+export const NO_CORNER: MatchOdd[] = [{ label: 'Alt Korner', value: '—' }, { label: 'Üst Korner', value: '—' }]
 
 const J1 = '/teams/jersey1.png'
 const J2 = '/teams/jersey2.png'
@@ -48,7 +56,7 @@ export const liveMatches: Match[] = [
   {
     id: 'gal-fen', sport: 'Futbol', league: 'Türkiye, Süper Lig', flag: '🇹🇷',
     team1: 'Galatasaray', team2: 'Fenerbahçe', logo1: J2, logo2: J1,
-    score1: 2, score2: 1, minute: '67', half: '2Y', hasStream: true,
+    score1: 2, score2: 1, minute: '67', half: '2Y', hasStream: true, totalOdds: 48,
     odds: [{ label: 'Ev1', value: '1.85', trend: 'up' }, { label: 'X', value: '3.40' }, { label: 'Dep2', value: '4.20', trend: 'down' }],
     altUst: [{ label: 'Alt 2.5', value: '1.95' }, { label: 'Üst 2.5', value: '1.80', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.25' }, { label: '12', value: '1.35' }, { label: 'X2', value: '1.90' }],
@@ -59,7 +67,7 @@ export const liveMatches: Match[] = [
   {
     id: 'mci-ars', sport: 'Futbol', league: 'İngiltere, Premier Lig', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     team1: 'Manchester City', team2: 'Arsenal', logo1: J1, logo2: J2,
-    score1: 0, score2: 0, minute: '23', half: '1Y', hasStream: true,
+    score1: 0, score2: 0, minute: '23', half: '1Y', hasStream: true, totalOdds: 52,
     odds: [{ label: 'Ev1', value: '2.10' }, { label: 'X', value: '3.25', trend: 'up' }, { label: 'Dep2', value: '3.50' }],
     altUst: [{ label: 'Alt 2.5', value: '1.75', trend: 'up' }, { label: 'Üst 2.5', value: '2.05' }],
     cifteSans: [{ label: '1X', value: '1.30' }, { label: '12', value: '1.40' }, { label: 'X2', value: '1.75' }],
@@ -70,7 +78,7 @@ export const liveMatches: Match[] = [
   {
     id: 'rma-bar', sport: 'Futbol', league: 'İspanya, La Liga', flag: '🇪🇸',
     team1: 'Real Madrid', team2: 'Barcelona', logo1: J1, logo2: J2,
-    score1: 1, score2: 2, minute: '78', half: '2Y', hasStream: false,
+    score1: 1, score2: 2, minute: '78', half: '2Y', hasStream: false, totalOdds: 61,
     odds: [{ label: 'Ev1', value: '3.10', trend: 'up' }, { label: 'X', value: '3.60' }, { label: 'Dep2', value: '2.15', trend: 'down' }],
     altUst: [{ label: 'Alt 2.5', value: '2.10' }, { label: 'Üst 2.5', value: '1.72', trend: 'down' }],
     cifteSans: [{ label: '1X', value: '1.65' }, { label: '12', value: '1.45' }, { label: 'X2', value: '1.35' }],
@@ -81,7 +89,7 @@ export const liveMatches: Match[] = [
   {
     id: 'bay-dor', sport: 'Futbol', league: 'Almanya, Bundesliga', flag: '🇩🇪',
     team1: 'Bayern München', team2: 'Dortmund', logo1: J2, logo2: J1,
-    score1: 3, score2: 1, minute: '55', half: '2Y', hasStream: true,
+    score1: 3, score2: 1, minute: '55', half: '2Y', hasStream: true, totalOdds: 45,
     odds: [{ label: 'Ev1', value: '1.40' }, { label: 'X', value: '4.80', trend: 'down' }, { label: 'Dep2', value: '6.50' }],
     altUst: [{ label: 'Alt 2.5', value: '2.60' }, { label: 'Üst 2.5', value: '1.45', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.10' }, { label: '12', value: '1.20' }, { label: 'X2', value: '2.70' }],
@@ -92,7 +100,7 @@ export const liveMatches: Match[] = [
   {
     id: 'juv-nap', sport: 'Futbol', league: 'İtalya, Serie A', flag: '🇮🇹',
     team1: 'Juventus', team2: 'Napoli', logo1: J1, logo2: J2,
-    score1: 0, score2: 0, minute: 'HT', half: 'HT', hasStream: false,
+    score1: 0, score2: 0, minute: 'HT', half: 'HT', hasStream: false, totalOdds: 39,
     odds: [{ label: 'Ev1', value: '2.55' }, { label: 'X', value: '3.10' }, { label: 'Dep2', value: '2.90', trend: 'up' }],
     altUst: [{ label: 'Alt 2.5', value: '1.85' }, { label: 'Üst 2.5', value: '1.90', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.50' }, { label: '12', value: '1.40' }, { label: 'X2', value: '1.55' }],
@@ -104,7 +112,7 @@ export const liveMatches: Match[] = [
   {
     id: 'lal-bos', sport: 'Basketbol', league: 'ABD, NBA', flag: '🇺🇸',
     team1: 'LA Lakers', team2: 'Boston Celtics', logo1: J1, logo2: J2,
-    score1: 88, score2: 84, minute: 'Q3', half: 'DA', hasStream: true,
+    score1: 88, score2: 84, minute: 'Q3', half: 'DA', hasStream: true, totalOdds: 34,
     odds: [{ label: 'Ev1', value: '1.72', trend: 'up' }, { label: 'X', value: '—' }, { label: 'Dep2', value: '2.05', trend: 'down' }],
     altUst: [{ label: 'Alt 210.5', value: '1.88' }, { label: 'Üst 210.5', value: '1.88', trend: 'up' }],
     cifteSans: NO_DRAW_CS,
@@ -115,7 +123,7 @@ export const liveMatches: Match[] = [
   {
     id: 'fen-efe', sport: 'Basketbol', league: 'EuroLeague', flag: '🌍',
     team1: 'Fenerbahçe', team2: 'Anadolu Efes', logo1: J2, logo2: J1,
-    score1: 45, score2: 51, minute: 'Q2', half: 'DA', hasStream: true,
+    score1: 45, score2: 51, minute: 'Q2', half: 'DA', hasStream: true, totalOdds: 29,
     odds: [{ label: 'Ev1', value: '2.30' }, { label: 'X', value: '—' }, { label: 'Dep2', value: '1.62', trend: 'up' }],
     altUst: [{ label: 'Alt 168.5', value: '1.90' }, { label: 'Üst 168.5', value: '1.86' }],
     cifteSans: NO_DRAW_CS,
@@ -127,7 +135,7 @@ export const liveMatches: Match[] = [
   {
     id: 'djo-alc', sport: 'Tenis', league: 'ATP, Wimbledon', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     team1: 'Djokovic', team2: 'Alcaraz', logo1: J1, logo2: J2,
-    score1: 1, score2: 1, minute: '3. Set', half: 'DA', hasStream: true,
+    score1: 1, score2: 1, minute: '3. Set', half: 'DA', hasStream: true, totalOdds: 26,
     odds: [{ label: 'Ev1', value: '1.90' }, { label: 'X', value: '—' }, { label: 'Dep2', value: '1.90' }],
     altUst: [{ label: 'Alt 22.5 Oyun', value: '1.90' }, { label: 'Üst 22.5 Oyun', value: '1.90' }],
     cifteSans: NO_DRAW_CS,
@@ -138,7 +146,7 @@ export const liveMatches: Match[] = [
   {
     id: 'swi-gau', sport: 'Tenis', league: 'WTA, Wimbledon', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     team1: 'Swiatek', team2: 'Gauff', logo1: J2, logo2: J1,
-    score1: 0, score2: 1, minute: '2. Set', half: 'DA', hasStream: false,
+    score1: 0, score2: 1, minute: '2. Set', half: 'DA', hasStream: false, totalOdds: 22,
     odds: [{ label: 'Ev1', value: '1.55', trend: 'down' }, { label: 'X', value: '—' }, { label: 'Dep2', value: '2.45', trend: 'up' }],
     altUst: [{ label: 'Alt 20.5 Oyun', value: '1.85' }, { label: 'Üst 20.5 Oyun', value: '1.95' }],
     cifteSans: NO_DRAW_CS,
@@ -150,7 +158,7 @@ export const liveMatches: Match[] = [
   {
     id: 'zir-van', sport: 'Voleybol', league: 'Türkiye, Sultanlar Ligi', flag: '🇹🇷',
     team1: 'VakıfBank', team2: 'Fenerbahçe', logo1: J1, logo2: J2,
-    score1: 1, score2: 1, minute: '3. Set', half: 'DA', hasStream: true,
+    score1: 1, score2: 1, minute: '3. Set', half: 'DA', hasStream: true, totalOdds: 20,
     odds: [{ label: 'Ev1', value: '1.44' }, { label: 'X', value: '—' }, { label: 'Dep2', value: '2.75' }],
     altUst: [{ label: 'Alt 3.5 Set', value: '1.90' }, { label: 'Üst 3.5 Set', value: '1.90' }],
     cifteSans: NO_DRAW_CS,
@@ -162,7 +170,7 @@ export const liveMatches: Match[] = [
   {
     id: 'nyr-tor', sport: 'Buz Hokeyi', league: 'ABD, NHL', flag: '🇺🇸',
     team1: 'NY Rangers', team2: 'Toronto', logo1: J2, logo2: J1,
-    score1: 2, score2: 2, minute: '2. Periyot', half: 'DA', hasStream: false,
+    score1: 2, score2: 2, minute: '2. Periyot', half: 'DA', hasStream: false, totalOdds: 31,
     odds: [{ label: 'Ev1', value: '2.10' }, { label: 'X', value: '3.90' }, { label: 'Dep2', value: '2.60', trend: 'up' }],
     altUst: [{ label: 'Alt 5.5', value: '1.95' }, { label: 'Üst 5.5', value: '1.85', trend: 'up' }],
     cifteSans: [{ label: '1X', value: '1.55' }, { label: '12', value: '1.30' }, { label: 'X2', value: '1.65' }],
