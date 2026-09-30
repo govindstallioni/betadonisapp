@@ -126,7 +126,7 @@ function AccumulatorContent() {
     <div className="max-w-[430px] mx-auto bg-[#edf1f7] min-h-screen">
 
       {/* Header */}
-      <div className="bg-white px-4 pt-4 pb-3 border-b border-[#e8ecf1] flex items-center">
+      <div className="bg-white px-4 pt-4 pb-3 border-b border-[#e8ecf1] flex items-center sticky top-0 z-30">
         <button type="button" onClick={() => router.back()} className="w-8 h-8 flex items-center justify-center flex-shrink-0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m15 18-6-6 6-6"/>

@@ -28,16 +28,21 @@ export default function LoginScreen() {
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
-      {/* Animated hero */}
-      <div className="relative h-[220px] overflow-hidden">
+      {/* Back button — fixed so it stays put on scroll (task 10) rather than
+          scrolling away with the decorative hero underneath it. */}
+      <div className="fixed top-3 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 px-3 pointer-events-none">
         <button
           onClick={() => router.back()}
-          className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center"
+          className="pointer-events-auto w-9 h-9 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m15 18-6-6 6-6" />
           </svg>
         </button>
+      </div>
+
+      {/* Animated hero */}
+      <div className="relative h-[220px] overflow-hidden">
         <AuthHero variant="login" />
       </div>
 

@@ -123,7 +123,7 @@ function LinkRow({ icon, label }: { icon: React.ReactNode; label: string }) {
 
 function FormHeader({ title, subtitle, onBack }: { title: string; subtitle: string; onBack: () => void }) {
   return (
-    <div className="bg-white px-4 pt-4 pb-3">
+    <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-30">
       <div className="flex items-center">
         <button onClick={onBack} className="w-8 h-8 flex items-center justify-center">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
@@ -299,11 +299,16 @@ export default function RegisterScreen() {
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
-      {/* Animated hero */}
-      <div className="relative h-[240px] overflow-hidden">
-        <button onClick={() => router.back()} className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
+      {/* Back button — fixed so it stays put on scroll (task 10) rather than
+          scrolling away with the decorative hero underneath it. */}
+      <div className="fixed top-3 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 px-3 pointer-events-none">
+        <button onClick={() => router.back()} className="pointer-events-auto w-9 h-9 rounded-full bg-black/20 backdrop-blur-sm flex items-center justify-center">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
         </button>
+      </div>
+
+      {/* Animated hero */}
+      <div className="relative h-[240px] overflow-hidden">
         <AuthHero variant="register" />
       </div>
 

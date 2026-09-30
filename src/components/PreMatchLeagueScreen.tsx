@@ -146,7 +146,7 @@ export default function PreMatchLeagueScreen() {
     <div className="max-w-[430px] mx-auto bg-[#edf1f7] min-h-screen">
 
       {/* ── Header ── */}
-      <div className="bg-white px-4 pt-3 pb-2 flex items-center gap-2 shadow-sm">
+      <div className="bg-white px-4 pt-3 pb-2 flex items-center gap-2 shadow-sm sticky top-0 z-30">
         <button onClick={() => { if (searchOpen) { setSearchOpen(false); setSearchQuery('') } else router.back() }}
           className="w-8 h-8 flex items-center justify-center flex-shrink-0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

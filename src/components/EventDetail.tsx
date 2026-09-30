@@ -129,25 +129,26 @@ export default function EventDetail({ event }: EventDetailProps) {
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
+      {/* Top bar — fixed so it stays put on scroll (task 10) rather than
+          scrolling away with the hero banner underneath it. */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 flex items-center justify-between px-4 pt-4 pointer-events-none">
+        <button onClick={() => router.back()} className="pointer-events-auto w-9 h-9 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+        <button className="pointer-events-auto w-9 h-9 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+        </button>
+      </div>
+
       {/* Hero Banner */}
       <div className="relative h-[180px] overflow-hidden">
         <img src="/events/bannerbg.jpg" alt="" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-        {/* Top bar */}
-        <div className="relative z-10 flex items-center justify-between px-4 pt-4">
-          <button onClick={() => router.back()} className="w-9 h-9 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-          </button>
-          <button className="w-9 h-9 rounded-full bg-black/30 flex items-center justify-center backdrop-blur-sm">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <path d="M21 21l-4.35-4.35" />
-            </svg>
-          </button>
-        </div>
 
         {/* Event title */}
         <div className="absolute bottom-5 left-4 z-10">

@@ -7,6 +7,7 @@ import { useAuth } from './AuthProvider'
 import { useAccountPanel } from './AccountPanelProvider'
 import { useMessages } from './MessagesProvider'
 import { useNotifications } from './NotificationsProvider'
+import { useSecurity } from './SecurityProvider'
 import ConfirmDialog from './ConfirmDialog'
 
 const fmtBalance = (n: number) => `${n.toFixed(2).replace('.', ',')} ₺`
@@ -21,6 +22,17 @@ function Badge({ count }: { count: number }) {
   )
 }
 
+// Red exclamation badge (task 13): flags an incomplete profile — which, by
+// SecurityProvider's own default data, is also true for every newly
+// registered user (Adres starts blank on purpose).
+function ExclamationBadge() {
+  return (
+    <span className="absolute -top-[2px] -right-[2px] w-[14px] h-[14px] rounded-full bg-[#e74c3c] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white leading-none">
+      !
+    </span>
+  )
+}
+
 export default function Header() {
   const { theme, toggleTheme } = useTheme()
   const darkMode = theme === 'dark'
@@ -28,6 +40,8 @@ export default function Header() {
   const { open: openAccountPanel } = useAccountPanel()
   const { unreadCount: unreadMessages } = useMessages()
   const { unreadCount: unreadNotifications } = useNotifications()
+  const { loaded: securityLoaded, items: securityItems } = useSecurity()
+  const profileIncomplete = securityLoaded && !securityItems.find(i => i.key === 'profile')?.done
   const [confirmLogout, setConfirmLogout] = useState(false)
 
   return (
@@ -85,11 +99,12 @@ export default function Header() {
             </>
           )}
 
-          <Link href="/settings" aria-label="Ayarlar" className="w-8 h-8 flex items-center justify-center" suppressHydrationWarning>
+          <Link href="/settings" aria-label="Ayarlar" className="relative w-8 h-8 flex items-center justify-center" suppressHydrationWarning>
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={darkMode ? '#e4e8ec' : '#1a2332'} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
               <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
             </svg>
+            {loaded && isLoggedIn && profileIncomplete && <ExclamationBadge />}
           </Link>
 
           <button onClick={openAccountPanel} aria-label="Hesabım" className="w-8 h-8 flex items-center justify-center">

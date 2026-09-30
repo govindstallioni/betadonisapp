@@ -17,7 +17,7 @@ export default function ForgotPasswordScreen() {
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
-      <div className="flex items-center px-4 pt-4 pb-2">
+      <div className="flex items-center px-4 pt-4 pb-2 bg-bg sticky top-0 z-30">
         <button onClick={() => router.back()} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5" aria-label="Geri">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="m15 18-6-6 6-6" />

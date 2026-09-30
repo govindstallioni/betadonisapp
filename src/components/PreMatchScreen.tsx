@@ -217,7 +217,7 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
       <OnboardingTour />
       {/* Header */}
-      <div className="bg-white px-4 pt-4 pb-3">
+      <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-30">
         {searchOpen ? (
           /* Search bar mode */
           <div className="flex items-center gap-2">

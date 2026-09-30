@@ -24,6 +24,13 @@ function GameThumb({ game, w = 'w-[110px]' }: { game: { name: string; provider: 
         {game.promo && (
           <span className="absolute top-1.5 left-1.5 bg-[#e74c3c] text-white text-[7px] font-bold px-[5px] py-[2px] rounded uppercase">Promo</span>
         )}
+        <FavoriteStar
+          size={13}
+          inactiveStroke="#fff"
+          activeColor="#f5b301"
+          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[20px] h-[20px] rounded-full bg-black/40"
+          item={{ type: 'game', id: `slot-${game.name}`, title: game.name, subtitle: game.provider, image: game.image, href: gameHref(game.name, game.image, game.provider) }}
+        />
       </div>
       <p className="text-[10px] font-semibold text-[#1a2332] mt-[4px] leading-tight truncate">{game.name}</p>
       <p className="text-[8px] text-[#737B8C] leading-tight truncate">{game.provider}</p>
@@ -179,6 +186,13 @@ export default function SlotsScreen() {
                   <Link key={i} href={gameHref(g.name, g.image, g.provider)} className="flex-shrink-0 w-[100px]">
                     <div className="relative w-full aspect-[1/1] rounded-lg overflow-hidden">
                       <img src={g.image} alt={g.name} className="w-full h-full object-cover" onError={artFallback(g.name, g.provider)} />
+                      <FavoriteStar
+                        size={12}
+                        inactiveStroke="#fff"
+                        activeColor="#f5b301"
+                        className="absolute top-1 right-1 flex items-center justify-center w-[18px] h-[18px] rounded-full bg-black/40"
+                        item={{ type: 'game', id: `slot-${g.name}`, title: g.name, subtitle: g.provider, image: g.image, href: gameHref(g.name, g.image, g.provider) }}
+                      />
                     </div>
                     <p className="text-[9px] font-semibold text-white mt-[3px] leading-tight truncate">{g.name}</p>
                   </Link>
@@ -213,6 +227,13 @@ export default function SlotsScreen() {
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-[#e8ecf1]">
                   <img src={g.image} alt={g.name} className="w-full h-full object-cover" onError={artFallback(g.name, g.provider)} />
                   <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-[#22c55e] text-[10px] font-bold px-[6px] py-[2px] rounded-md tabular-nums">{g.mult}</span>
+                  <FavoriteStar
+                    size={13}
+                    inactiveStroke="#fff"
+                    activeColor="#f5b301"
+                    className="absolute top-1.5 right-1.5 flex items-center justify-center w-[20px] h-[20px] rounded-full bg-black/40"
+                    item={{ type: 'game', id: `slot-${g.name}`, title: g.name, subtitle: g.provider, image: g.image, href: gameHref(g.name, g.image, g.provider) }}
+                  />
                 </div>
                 <p className="text-[10px] font-semibold text-[#1a2332] mt-[4px] leading-tight truncate">{g.name}</p>
                 <p className="text-[8px] text-[#737B8C] leading-tight truncate">{g.provider}</p>

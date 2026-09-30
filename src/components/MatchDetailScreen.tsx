@@ -593,6 +593,22 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   const router = useRouter()
   const match = matchId ? getMatchById(matchId) : defaultMatch
 
+  // The filter-pills/sub-tabs bar sticks right below the header bar (task 8):
+  // both stay fixed while only the market list scrolls, matching the
+  // reference clip. The header's height varies (live score row, leagueSub
+  // pill) so the second sticky block's offset is measured, not hard-coded.
+  const headerRef = useRef<HTMLDivElement>(null)
+  const [headerHeight, setHeaderHeight] = useState(0)
+  useEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    const measure = () => setHeaderHeight(el.offsetHeight)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   const [activeFilter, setActiveFilter] = useState(0)
   const [activeSubTab, setActiveSubTab] = useState(0)
   // Defaults to the first 4 markets of whichever tab is active — see the
@@ -642,8 +658,20 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
     ? activeFilter
     : (availableFilters[0]?.i ?? 0)
 
-  const visibleMarkets = sportMarkets.filter(m => m.tabs.includes(safeFilter))
-  const visibleIndices = visibleMarkets.map(m => allMarkets.indexOf(m))
+  const unorderedVisibleMarkets = sportMarkets.filter(m => m.tabs.includes(safeFilter))
+  const visibleIndices = unorderedVisibleMarkets.map(m => allMarkets.indexOf(m))
+
+  // Pin-to-top (task 14 fix): most-recently-pinned market first, then
+  // everything else in its normal order. Titles are unique per market, so
+  // this survives switching filter tabs without needing per-tab state.
+  const [pinnedTitles, setPinnedTitles] = useState<string[]>([])
+  const togglePin = (title: string) => {
+    setPinnedTitles(prev => prev.includes(title) ? prev.filter(t => t !== title) : [title, ...prev])
+  }
+  const visibleMarkets = [
+    ...pinnedTitles.map(t => unorderedVisibleMarkets.find(m => m.title === t)).filter((m): m is Market => !!m),
+    ...unorderedVisibleMarkets.filter(m => !pinnedTitles.includes(m.title)),
+  ]
 
   // Re-default whenever the active market-category tab changes. Live matches
   // keep task 19's "first 4 open"; pre-match opens only the match-result market
@@ -696,8 +724,10 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative pb-20">
 
-      {/* ── Header bar ── */}
-      <div className="bg-[#2c3e50]">
+      {/* ── Header bar — sticky so the score stays visible while the market
+          list below is scrolled (task 8: "top score area should remain
+          fixed"); the big hero score below scrolls away as normal. ── */}
+      <div ref={headerRef} className="bg-[#2c3e50] sticky top-0 z-40">
         <div className="flex items-center justify-between px-3 pt-3 pb-2">
           <button onClick={() => router.back()} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -732,6 +762,31 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
             </button>
           </div>
         </div>
+
+        {/* Compact score row — the part of the header that stays pinned once
+            the full hero (big logos/score) has scrolled out of view. */}
+        <div className="flex items-center justify-center gap-[6px] px-3 pb-2">
+          <img src={match.logo1} alt="" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+          <span className="text-[11px] font-semibold text-white truncate max-w-[80px]">{match.team1}</span>
+          {match.isLive && match.score1 !== undefined ? (
+            <span className="flex items-center gap-[6px] flex-shrink-0 px-1">
+              <span className="text-[13px] font-extrabold text-white leading-none">{match.score1}</span>
+              <span className="text-[11px] font-bold text-white/30 leading-none">:</span>
+              <span className="text-[13px] font-extrabold text-white leading-none">{match.score2}</span>
+            </span>
+          ) : (
+            <span className="text-[10px] font-bold text-white/50 flex-shrink-0 px-1">vs</span>
+          )}
+          <span className="text-[11px] font-semibold text-white truncate max-w-[80px]">{match.team2}</span>
+          <img src={match.logo2} alt="" className="w-[16px] h-[16px] object-contain flex-shrink-0" />
+          {match.isLive && (
+            <span className="flex items-center gap-1 ml-1 flex-shrink-0">
+              <span className="w-[5px] h-[5px] rounded-full bg-[#e74c3c] animate-pulse-dot" />
+              <span className="text-[9px] text-[#e74c3c] font-semibold">{match.minute}</span>
+            </span>
+          )}
+        </div>
+
         {match.leagueSub && (
           <div className="flex items-center justify-center pb-2.5">
             <div className="bg-white/10 rounded-full px-3 py-[3px]">
@@ -941,53 +996,58 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
         </div>
       </div>
 
-      {/* ── Filter pills ── */}
-      <div className="bg-white px-4 py-3">
-        <div className="flex gap-[8px] overflow-x-auto scrollbar-hide">
-          {availableFilters.map(({ label, i }) => (
-            <button
-              key={label}
-              onClick={() => setActiveFilter(i)}
-              className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-[14px] py-[8px] text-[11px] font-medium transition-all ${
-                safeFilter === i
-                  ? 'bg-[#0E8FCF] text-white'
-                  : 'bg-white text-[#1a2332] border border-[#d0d5dd]'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+      {/* ── Filter pills + sub-tabs — sticky, stacked right below the header
+          bar (task 8): the reference clip keeps this whole cluster fixed
+          while only the market list scrolls beneath it. ── */}
+      <div className="sticky z-30" style={{ top: headerHeight }}>
+        {/* Filter pills */}
+        <div className="bg-white px-4 py-3">
+          <div className="flex gap-[8px] overflow-x-auto scrollbar-hide">
+            {availableFilters.map(({ label, i }) => (
+              <button
+                key={label}
+                onClick={() => setActiveFilter(i)}
+                className={`flex-shrink-0 flex items-center gap-1.5 rounded-full px-[14px] py-[8px] text-[11px] font-medium transition-all ${
+                  safeFilter === i
+                    ? 'bg-[#0E8FCF] text-white'
+                    : 'bg-white text-[#1a2332] border border-[#d0d5dd]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* ── Sub-tabs ── */}
-      <div className="bg-white border-b border-[#e8ecf1]">
-        <div className="flex items-center px-4 overflow-x-auto scrollbar-hide">
-          <button
-            onClick={toggleAllMarkets}
-            aria-label={allVisibleExpanded ? 'Tümünü Kapat' : 'Tümünü Aç'}
-            aria-pressed={allVisibleExpanded}
-            className="flex-shrink-0 pr-3 py-3"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={allVisibleExpanded ? '#0E8FCF' : '#737B8C'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
-              <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-            </svg>
-          </button>
-          {subTabs.map((tab, i) => (
+        {/* Sub-tabs */}
+        <div className="bg-white border-b border-[#e8ecf1]">
+          <div className="flex items-center px-4 overflow-x-auto scrollbar-hide">
             <button
-              key={tab}
-              onClick={() => setActiveSubTab(i)}
-              className={`flex-shrink-0 px-3 py-3 text-[11px] font-medium relative whitespace-nowrap transition-colors ${
-                activeSubTab === i ? 'text-[#1a2332]' : 'text-[#737B8C]'
-              }`}
+              onClick={toggleAllMarkets}
+              aria-label={allVisibleExpanded ? 'Tümünü Kapat' : 'Tümünü Aç'}
+              aria-pressed={allVisibleExpanded}
+              className="flex-shrink-0 pr-3 py-3"
             >
-              {tab}
-              {activeSubTab === i && (
-                <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#27ae60] rounded-full" />
-              )}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={allVisibleExpanded ? '#0E8FCF' : '#737B8C'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
             </button>
-          ))}
+            {subTabs.map((tab, i) => (
+              <button
+                key={tab}
+                onClick={() => setActiveSubTab(i)}
+                className={`flex-shrink-0 px-3 py-3 text-[11px] font-medium relative whitespace-nowrap transition-colors ${
+                  activeSubTab === i ? 'text-[#1a2332]' : 'text-[#737B8C]'
+                }`}
+              >
+                {tab}
+                {activeSubTab === i && (
+                  <span className="absolute bottom-0 left-3 right-3 h-[2.5px] bg-[#27ae60] rounded-full" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -1022,13 +1082,19 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
                       >
                         <span className="text-[8px] text-[#94a3b8] font-bold leading-none">i</span>
                       </button>
-                      <button onClick={() => toggleMarket(globalIdx)} className="flex items-center gap-2">
+                      <button
+                        onClick={() => togglePin(market.title)}
+                        aria-label={pinnedTitles.includes(market.title) ? `${market.title} sabitlemesini kaldır` : `${market.title} üste sabitle`}
+                        aria-pressed={pinnedTitles.includes(market.title)}
+                      >
                         <svg
                           width="14" height="14" viewBox="0 0 24 24" fill="none"
-                          stroke={market.pinned ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                          stroke={pinnedTitles.includes(market.title) ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                         >
                           <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
                         </svg>
+                      </button>
+                      <button onClick={() => toggleMarket(globalIdx)}>
                         <svg
                           width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                           className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
