@@ -32,9 +32,11 @@ export default function SonKazananlar() {
       if (!el) return
       const card = el.querySelector('[data-card]') as HTMLElement
       if (!card) return
-      const cardWidth = card.offsetWidth + 8 // gap-[8px]
+      const cardWidth = card.offsetWidth + 4 // gap-[4px]
       indexRef.current = (indexRef.current + 1) % winners.length
-      el.scrollTo({ left: indexRef.current * cardWidth, behavior: 'smooth' })
+      const maxScroll = el.scrollWidth - el.clientWidth
+      const target = Math.min(indexRef.current * cardWidth, maxScroll)
+      el.scrollTo({ left: target, behavior: 'smooth' })
     }, 2000)
     return () => clearInterval(interval)
   }, [])
@@ -44,8 +46,7 @@ export default function SonKazananlar() {
       <SectionHeader title="Son Kazananlar" badge="Casino" />
       <div
         ref={scrollRef}
-        className="flex gap-[4px] overflow-x-auto scrollbar-hide"
-        style={{ scrollSnapType: 'x mandatory' }}
+        className="flex gap-[4px] overflow-x-auto scrollbar-hide -mx-4 px-4"
       >
         {winners.map((w, i) => (
           <Link
@@ -53,7 +54,6 @@ export default function SonKazananlar() {
             key={i}
             data-card
             className="flex-shrink-0 flex items-center gap-[8px] bg-white border border-[#e8ecf0] rounded-xl px-[10px] py-[8px] w-[155px] cursor-pointer hover:border-[#0E8FCF] transition-colors"
-            style={{ scrollSnapAlign: 'start' }}
           >
             {/* Game thumbnail */}
             <div className="w-[38px] h-[38px] rounded-lg overflow-hidden flex-shrink-0">
