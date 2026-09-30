@@ -44,7 +44,7 @@ export default function SonKazananlar() {
       <SectionHeader title="Son Kazananlar" badge="Casino" />
       <div
         ref={scrollRef}
-        className="flex gap-[4px] overflow-x-auto scrollbar-hide -mx-4 px-4"
+        className="flex gap-[4px] overflow-x-auto scrollbar-hide"
         style={{ scrollSnapType: 'x mandatory' }}
       >
         {winners.map((w, i) => (
