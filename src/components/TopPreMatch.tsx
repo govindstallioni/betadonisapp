@@ -67,7 +67,7 @@ export default function TopPreMatch() {
   return (
     <div>
       <SectionHeader title="En iyi Maç Öncesi" badge="Spor" showAll href="/prematch" count={preMatches.length} />
-      <div ref={scrollRef} className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
+      <div ref={scrollRef} className="flex gap-[10px] overflow-x-auto scrollbar-hide -mr-3 scroll-smooth">
         {preMatches.map((match) => (
           <PreMatchCard key={match.id} match={match} className="flex-shrink-0 w-[85%]" />
         ))}

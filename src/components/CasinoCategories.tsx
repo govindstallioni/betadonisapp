@@ -100,13 +100,13 @@ export default function CasinoCategories() {
   return (
     <div>
       <SectionHeader title="Kategoriler" badge="Casino Oyunları" showAll href="/slots/tumu" />
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
         {categories.map((cat) => (
           <Link
             key={cat.name}
             href={`/slots/${cat.slug}`}
-            className="flex-shrink-0 w-[80px] rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform relative overflow-hidden block"
-            style={!cat.image ? { background: cat.bg } : undefined}
+            className="flex-shrink-0 w-[calc((100%-30px)/4)] rounded-2xl cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform relative overflow-hidden block"
+            style={{ scrollSnapAlign: 'start', ...(!cat.image ? { background: cat.bg } : {}) }}
           >
             {cat.image && (
               <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />

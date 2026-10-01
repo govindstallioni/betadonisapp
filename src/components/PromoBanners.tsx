@@ -20,12 +20,13 @@ const promos = [
 
 export default function PromoBanners() {
   return (
-    <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
+    <div className="flex gap-[10px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
       {promos.map((p) => (
         <Link
           key={p.title}
           href={p.href}
-          className="flex-shrink-0 w-[80px] cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
+          className="flex-shrink-0 w-[calc((100%-30px)/4)] cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
+          style={{ scrollSnapAlign: 'start' }}
         >
           <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100">
             <img

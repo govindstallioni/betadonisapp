@@ -151,7 +151,7 @@ export default function LiveBets() {
   return (
     <div>
       <SectionHeader title="En iyi CANLI BAHİS" badge="Spor" showAll count={161} href="/live" />
-      <div ref={scrollRef} className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 scroll-smooth">
+      <div ref={scrollRef} className="flex gap-[10px] overflow-x-auto scrollbar-hide -mr-3 scroll-smooth">
         {liveMatches.map((match, i) => (
           <Link
             key={i}

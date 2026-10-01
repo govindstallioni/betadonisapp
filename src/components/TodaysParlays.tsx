@@ -6,7 +6,7 @@ import { liveAccumulators, prematchAccumulators, SportIcon, type Accumulator } f
 
 function ParlayCard({ item, href }: { item: Accumulator; href: string }) {
   return (
-    <Link href={href} className="flex-shrink-0 w-[190px] bg-white rounded-xl border border-[#e8ecf1] shadow-sm px-3 py-[10px] block">
+    <Link href={href} className="flex-shrink-0 w-[calc((100%-10px)/2)] bg-white rounded-xl border border-[#e8ecf1] shadow-sm px-3 py-[10px] block" style={{ scrollSnapAlign: 'start' }}>
       <div className="flex items-center gap-[3px] mb-[6px]">
         {item.sports.map((s, i) => <SportIcon key={i} emoji={s} />)}
       </div>
@@ -25,14 +25,14 @@ export default function TodaysParlays() {
       <div className="pt-1">
         <SectionHeader title="Bugünün Canlı Kombinesi" badge="Spor" showAll href="/kupon/accumulator?tab=live" count={liveAccumulators.length} />
       </div>
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 pb-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide pb-4" style={{ scrollSnapType: 'x mandatory' }}>
         {liveAccumulators.map((item) => <ParlayCard key={item.id} item={item} href="/kupon/accumulator?tab=live" />)}
       </div>
 
       <div className="pt-1">
         <SectionHeader title="Bugünün Maç Öncesi Kombinesi" badge="Spor" showAll href="/kupon/accumulator?tab=prematch" count={prematchAccumulators.length} />
       </div>
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4 pb-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide pb-4" style={{ scrollSnapType: 'x mandatory' }}>
         {prematchAccumulators.map((item) => <ParlayCard key={item.id} item={item} href="/kupon/accumulator?tab=prematch" />)}
       </div>
     </>

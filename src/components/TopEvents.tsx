@@ -101,9 +101,9 @@ export default function TopEvents() {
   return (
     <div>
       <SectionHeader title="Öne Çıkan Etkinlikler" />
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
         {chunks.map((chunk, ci) => (
-          <div key={ci} className="flex-shrink-0 w-[95%] flex flex-col gap-[6px]">
+          <div key={ci} className="flex-shrink-0 w-full flex flex-col gap-[6px]" style={{ scrollSnapAlign: 'start' }}>
             {chunk.map((event, i) => (
               <div
                 key={i}

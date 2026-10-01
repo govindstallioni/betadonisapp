@@ -40,7 +40,7 @@ function HomeContent() {
         <Header />
         <div className="bg-white"><CategoryTabs /></div>
       </div>
-      <main className="px-4 pb-24">
+      <main className="px-3 pb-24">
         {/* Sports section chooser — only on the "Sporlar" view (task 24 item 8) */}
         {sportsOnly && <div className="mt-3"><SportsTabStrip /></div>}
         <div className="mt-2"><QuickFilters /></div>

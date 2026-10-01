@@ -19,11 +19,11 @@ export default function TopTournaments() {
   return (
     <div>
       <SectionHeader title="CANLI Turnuvalar" badge="Esports" showAll count={total} href={ESPORTS_HREF} />
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mr-3">
         {chunks.map((chunk, ci) => (
           <div
             key={ci}
-            className="flex-shrink-0 w-[90%] bg-white rounded-2xl overflow-hidden border border-[#e8ecf1]"
+            className="flex-shrink-0 w-[85%] bg-white rounded-2xl overflow-hidden border border-[#e8ecf1]"
           >
             {chunk.map((t, i) => (
               <Link

@@ -32,12 +32,12 @@ export default function SonKazananlar() {
       if (!el) return
       const card = el.querySelector('[data-card]') as HTMLElement
       if (!card) return
-      const cardWidth = card.offsetWidth + 4 // gap-[4px]
+      const cardWidth = card.offsetWidth + 8 // gap-[8px]
       indexRef.current = (indexRef.current + 1) % winners.length
       const maxScroll = el.scrollWidth - el.clientWidth
       const target = Math.min(indexRef.current * cardWidth, maxScroll)
       el.scrollTo({ left: target, behavior: 'smooth' })
-    }, 2000)
+    }, 3000)
     return () => clearInterval(interval)
   }, [])
 
@@ -46,17 +46,19 @@ export default function SonKazananlar() {
       <SectionHeader title="Son Kazananlar" badge="Casino" />
       <div
         ref={scrollRef}
-        className="flex gap-[4px] overflow-x-auto scrollbar-hide -mx-4 px-4"
+        className="flex gap-[8px] overflow-x-auto scrollbar-hide"
+        style={{ scrollSnapType: 'x mandatory' }}
       >
         {winners.map((w, i) => (
           <Link
             href={gameHref(w.game, w.image)}
             key={i}
             data-card
-            className="flex-shrink-0 flex items-center gap-[8px] bg-white border border-[#e8ecf0] rounded-xl px-[10px] py-[8px] w-[155px] cursor-pointer hover:border-[#0E8FCF] transition-colors"
+            className="flex-shrink-0 flex items-center gap-[10px] bg-white border border-[#e8ecf0] rounded-xl px-[12px] py-[10px] w-[calc((100%-8px)/2)] cursor-pointer hover:border-[#0E8FCF] transition-colors"
+            style={{ scrollSnapAlign: 'start' }}
           >
             {/* Game thumbnail */}
-            <div className="w-[38px] h-[38px] rounded-lg overflow-hidden flex-shrink-0">
+            <div className="w-[46px] h-[46px] rounded-lg overflow-hidden flex-shrink-0">
               <img src={w.image} alt={w.game} className="w-full h-full object-cover" />
             </div>
 
@@ -64,12 +66,12 @@ export default function SonKazananlar() {
             <div className="w-px self-stretch bg-[#e8ecf0] flex-shrink-0" />
 
             {/* Info */}
-            <div className="flex flex-col gap-[2px] min-w-0">
-              <span className="text-[10px] font-semibold text-[#1a2332] truncate">{w.user}</span>
-              <span className="text-[11px] font-black text-[#16a34a] leading-none tabular-nums truncate">
+            <div className="flex flex-col gap-[3px] min-w-0">
+              <span className="text-[11px] font-semibold text-[#1a2332] truncate">{w.user}</span>
+              <span className="text-[12px] font-black text-[#16a34a] leading-none tabular-nums truncate">
                 ₺ {formatAmount(w.amount)}
               </span>
-              <span className="text-[9px] text-[#6b7280] truncate">{w.game}</span>
+              <span className="text-[10px] text-[#6b7280] truncate">{w.game}</span>
             </div>
           </Link>
         ))}

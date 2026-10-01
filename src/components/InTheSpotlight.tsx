@@ -92,12 +92,13 @@ export default function InTheSpotlight() {
   return (
     <div>
       <SectionHeader title="Günün Öne Çıkanları" badge="Canlı Casino Oyunları" showAll href="/live-casino" />
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-4 px-4">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
         {spotlightGames.map((game) => (
           <Link
             href={gameHref(game.name, game.image, game.provider)}
             key={game.name}
-            className="block flex-shrink-0 w-[70%] rounded-2xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform relative overflow-hidden"
+            className="block flex-shrink-0 w-full rounded-2xl cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform relative overflow-hidden"
+            style={{ scrollSnapAlign: 'start' }}
           >
             <img src={game.image} alt={game.name} className="absolute inset-0 w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

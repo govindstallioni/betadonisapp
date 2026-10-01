@@ -41,9 +41,9 @@ function hrefFor(cat: Cat) {
 export default function GameCategories() {
   return (
     <div className="bg-white rounded-xl px-2.5 py-2.5 shadow-sm border border-[#f0f2f5]">
-      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide -mx-0.5 px-0.5">
+      <div className="flex gap-[10px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
         {categories.map((cat) => (
-          <Link href={hrefFor(cat)} key={cat.name} className="flex flex-col items-center gap-[5px] flex-shrink-0 w-[52px] active:opacity-70 transition-opacity">
+          <Link href={hrefFor(cat)} key={cat.name} className="flex flex-col items-center gap-[5px] flex-shrink-0 w-[calc((100%-40px)/5)] active:opacity-70 transition-opacity" style={{ scrollSnapAlign: 'start' }}>
             {cat.image ? (
               <div className="w-[46px] h-[46px] rounded-full overflow-hidden border border-[#f0f2f5]">
                 <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
