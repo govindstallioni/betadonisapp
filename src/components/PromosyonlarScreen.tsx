@@ -74,7 +74,7 @@ export default function PromosyonlarScreen({ focusId }: { focusId?: string }) {
               )}
               <span className="absolute top-3 right-3 z-10 bg-white/20 backdrop-blur text-white text-[9px] font-bold px-2 py-[3px] rounded-full">{p.tag}</span>
               <span className="relative w-9 h-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center mb-2.5">{p.icon}</span>
-              <p className={`relative text-[16px] font-extrabold text-white leading-tight drop-shadow ${p.image ? 'max-w-[55%]' : 'max-w-[75%]'}`}>{p.title}</p>
+              <p className={`relative text-[16px] font-extrabold text-white leading-tight drop-shadow ${p.image ? 'max-w-[65%]' : 'max-w-[75%]'}`}>{p.title}</p>
               <p className={`relative text-[11px] text-white/85 mt-1.5 leading-snug drop-shadow ${p.image ? 'max-w-[55%]' : 'max-w-[85%]'}`}>{p.desc}</p>
             </div>
             <div className="flex items-center gap-2 px-4 py-3">

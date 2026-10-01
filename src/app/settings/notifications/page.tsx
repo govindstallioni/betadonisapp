@@ -78,9 +78,9 @@ export default function NotificationSettingsPage() {
       </div>
 
       <div className="px-4 pt-4">
-        {/* Hepsini seçmek */}
+        {/* Tümü Seç */}
         <div className="bg-white rounded-2xl px-4 py-3.5 flex items-center justify-between shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <span className="text-[15px] font-medium text-[#2b3a55]">Hepsini seçmek</span>
+          <span className="text-[15px] font-medium text-[#2b3a55]">Tümü Seç</span>
           <Toggle value={allOn} onChange={setAll} />
         </div>
 

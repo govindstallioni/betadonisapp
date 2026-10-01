@@ -37,6 +37,12 @@ export default function CanliBahisScreen() {
   const [favOnly, setFavOnly] = useState(false)
   const [countryFilters, setCountryFilters] = useState<Set<string>>(new Set())
   const [countrySheetOpen, setCountrySheetOpen] = useState(false)
+  // Pin-to-top (task 21): available in every layout — most-recently-pinned
+  // match first, everything else keeps its normal order behind the pins.
+  const [pinnedIds, setPinnedIds] = useState<string[]>([])
+  const togglePin = (id: string) => {
+    setPinnedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev]))
+  }
 
   const flagOptions = flagOptionsFrom(liveMatches)
 
@@ -48,7 +54,7 @@ export default function CanliBahisScreen() {
     })
   }
 
-  const matches = liveMatches.filter((m) => {
+  const filteredMatches = liveMatches.filter((m) => {
     if (activeSport !== m.sport) return false
     if (shortcut !== 'Tümü' && !m.league.includes(shortcut)) return false
     if (streamOnly && !m.hasStream) return false
@@ -56,6 +62,10 @@ export default function CanliBahisScreen() {
     if (countryFilters.size > 0 && !countryFilters.has(m.flag)) return false
     return true
   })
+  const matches = [
+    ...pinnedIds.map((id) => filteredMatches.find((m) => m.id === id)).filter((m): m is NonNullable<typeof m> => !!m),
+    ...filteredMatches.filter((m) => !pinnedIds.includes(m.id)),
+  ]
 
   return (
     <div className="max-w-[430px] mx-auto bg-[#edf1f7] min-h-screen pb-24">
@@ -178,11 +188,11 @@ export default function CanliBahisScreen() {
             <p className="text-[12px] text-[#94a3b8]">Bu filtreyle canlı etkinlik yok.</p>
           </div>
         ) : layout === 'list' ? (
-          <LiveListView matches={matches} market={market} />
+          <LiveListView matches={matches} market={market} pinnedIds={pinnedIds} onTogglePin={togglePin} />
         ) : (
           <div className={layout === 'grid' ? 'grid grid-cols-2 gap-[8px]' : 'flex flex-col gap-[10px]'}>
             {matches.map((m) => (
-              <MatchCard key={m.id} match={m} compact={layout === 'grid'} market={market} />
+              <MatchCard key={m.id} match={m} compact={layout === 'grid'} market={market} pinned={pinnedIds.includes(m.id)} onTogglePin={() => togglePin(m.id)} />
             ))}
           </div>
         )}

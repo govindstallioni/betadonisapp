@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import SlideUpBubble from '@/components/SlideUpBubble'
 import {
-  loadWithdrawals, addWithdrawal, makeRef, fmtDay, fmtTime, fmtFull, fmtAmount,
+  loadWithdrawals, addWithdrawal, cancelWithdrawal, makeRef, fmtDay, fmtTime, fmtFull, fmtAmount,
   WITHDRAW_STATUS_LABEL, WITHDRAW_STATUS_LINE, WITHDRAW_STATUS_COLOR,
   type Withdrawal,
 } from '@/data/withdrawals'
@@ -111,7 +111,22 @@ export default function WithdrawScreen() {
   const [history, setHistory] = useState<Withdrawal[]>([])
   const [shown, setShown] = useState(PAGE)
   const [explain, setExplain] = useState<Withdrawal | null>(null)
+  // Pending-request cancel (task 12): a confirm step, then the existing
+  // AÇIKLAMA sheet reopens on the now-cancelled record as the "design
+  // compatible warning" — same red status box every other cancelled row uses.
+  const [cancelConfirm, setCancelConfirm] = useState<Withdrawal | null>(null)
   useEffect(() => { setHistory(loadWithdrawals()) }, [])
+
+  const confirmCancel = () => {
+    if (!cancelConfirm) return
+    const updated = cancelWithdrawal(cancelConfirm.id)
+    if (updated) {
+      adjustBalance(cancelConfirm.amount) // credit the debited amount back
+      setHistory(loadWithdrawals())
+      setExplain(updated)
+    }
+    setCancelConfirm(null)
+  }
 
   const amt = Number(amount) || 0
   const min = selected?.min ?? 0
@@ -201,6 +216,7 @@ export default function WithdrawScreen() {
             onMore={() => setShown(s => s + PAGE)}
             onExplain={setExplain}
             onOpenMethods={() => setView('picker')}
+            onCancelRequest={setCancelConfirm}
           />
         )}
 
@@ -222,22 +238,35 @@ export default function WithdrawScreen() {
       </div>
 
       {explain && <ExplainSheet item={explain} onClose={() => setExplain(null)} />}
+      {cancelConfirm && (
+        <CancelConfirmSheet
+          item={cancelConfirm}
+          onConfirm={confirmCancel}
+          onClose={() => setCancelConfirm(null)}
+        />
+      )}
     </div>
   )
 }
 
 // ── Landing (paracekme.png) ─────────────────────────────────────────────────
 
-function Landing({ balance, history, shown, onMore, onExplain, onOpenMethods }: {
+function Landing({ balance, history, shown, onMore, onExplain, onOpenMethods, onCancelRequest }: {
   balance: number
   history: Withdrawal[]
   shown: number
   onMore: () => void
   onExplain: (w: Withdrawal) => void
   onOpenMethods: () => void
+  onCancelRequest: (w: Withdrawal) => void
 }) {
-  const visible = history.slice(0, shown)
-  const hasMore = history.length > shown
+  // Pending requests get their own section (task 12) with a cancel action;
+  // everything else — approved, and cancelled (by us or by finance) — stays
+  // in "Son Para Çekme" below so a cancelled row isn't listed twice.
+  const pending = history.filter(w => w.status === 'pending')
+  const rest = history.filter(w => w.status !== 'pending')
+  const visible = rest.slice(0, shown)
+  const hasMore = rest.length > shown
 
   return (
     <>
@@ -269,6 +298,24 @@ function Landing({ balance, history, shown, onMore, onExplain, onOpenMethods }: 
           <path d="m9 18 6-6-6-6" />
         </svg>
       </button>
+
+      {/* Bekleyen Para Çekme Talepleri (task 12) */}
+      {pending.length > 0 && (
+        <>
+          <div className="bg-white rounded-xl border border-[#e8ecf1] px-3 py-3 flex items-center gap-3">
+            <span className="w-9 h-9 rounded-full bg-[#fef5e7] flex items-center justify-center flex-shrink-0 text-[#f39c12]">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
+            </span>
+            <div className="min-w-0">
+              <p className="text-[13px] font-bold text-[#1a2332] leading-tight">Bekleyen Para Çekme Talepleri</p>
+              <p className="text-[10px] text-[#737B8C] mt-[2px]">İncelenen talepleriniz — isterseniz iptal edebilirsiniz.</p>
+            </div>
+          </div>
+          {pending.map(w => (
+            <PendingCard key={w.id} item={w} onExplain={() => onExplain(w)} onCancel={() => onCancelRequest(w)} />
+          ))}
+        </>
+      )}
 
       {/* Son Para Çekme */}
       <div className="bg-white rounded-xl border border-[#e8ecf1] px-3 py-3 flex items-center gap-3">
@@ -350,6 +397,98 @@ function HistoryCard({ item, onExplain }: { item: Withdrawal; onExplain: () => v
         </button>
       </div>
     </div>
+  )
+}
+
+/** Same card as HistoryCard, but the AÇIKLAMA button is joined by "İptal Et"
+ *  — the only place a pending request can be cancelled (task 12). */
+function PendingCard({ item, onExplain, onCancel }: { item: Withdrawal; onExplain: () => void; onCancel: () => void }) {
+  const color = WITHDRAW_STATUS_COLOR[item.status]
+  return (
+    <div className="bg-white rounded-xl border border-[#e8ecf1] px-3 py-3">
+      <div className="flex items-start gap-3">
+        <MethodLogo name={item.method} logo={logoFor(item.method)} size={80} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-[9px] font-semibold text-[#737B8C] bg-[#f1f5f9] rounded px-1.5 py-[2px]">{item.methodType}</span>
+            <span className="text-[15px] font-extrabold text-[#1a2332] tabular-nums">{fmtAmount(item.amount)}</span>
+            <span className="text-[10px] text-[#737B8C]">TRY</span>
+          </div>
+          <div className="flex items-center gap-3 mt-1">
+            <span className="flex items-center gap-1 text-[10px] text-[#737B8C]">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4.5" width="18" height="16" rx="2.5" /><path d="M3 9h18M8 2.5v4M16 2.5v4" /></svg>
+              <span className="tabular-nums">{fmtDay(item.at)}</span>
+            </span>
+            <span className="flex items-center gap-1 text-[10px] text-[#737B8C]">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm.51 5H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" /></svg>
+              <span className="tabular-nums">{fmtTime(item.at)}</span>
+            </span>
+          </div>
+          <p className="flex items-center gap-1 mt-1.5 text-[10px] leading-tight" style={{ color }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="flex-shrink-0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
+            {WITHDRAW_STATUS_LINE[item.status]}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 mt-2.5">
+        <span
+          className="flex-1 rounded-lg py-[7px] flex items-center justify-center gap-1.5 text-[11px] font-semibold"
+          style={{ backgroundColor: `${color}1f`, color }}
+        >
+          <span className="w-[14px] h-[14px] rounded-full flex items-center justify-center text-white text-[9px] font-bold" style={{ backgroundColor: color }}>!</span>
+          {WITHDRAW_STATUS_LABEL[item.status]}
+        </span>
+        <button
+          onClick={onExplain}
+          className="flex-1 rounded-lg py-[7px] flex items-center justify-center gap-1.5 text-[11px] font-semibold bg-[#edf5ff] text-[#0E8FCF] active:scale-[0.99] transition-transform"
+        >
+          <span className="w-[14px] h-[14px] rounded-full bg-[#0E8FCF] flex items-center justify-center text-white text-[9px] font-bold">i</span>
+          AÇIKLAMA
+        </button>
+      </div>
+      <button
+        onClick={onCancel}
+        className="w-full mt-2 rounded-lg py-[7px] flex items-center justify-center gap-1.5 text-[11px] font-semibold bg-[#fdecea] text-[#e74c3c] active:scale-[0.99] transition-transform"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+        Talebi İptal Et
+      </button>
+    </div>
+  )
+}
+
+function CancelConfirmSheet({ item, onConfirm, onClose }: { item: Withdrawal; onConfirm: () => void; onClose: () => void }) {
+  return (
+    <SlideUpBubble onClose={onClose}>
+      <div className="px-5 pt-5 pb-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-[16px] font-bold text-[#1a2332]">Talebi İptal Et</h2>
+            <p className="text-[11px] text-[#737B8C] mt-0.5">{item.method} · {item.methodType}</p>
+          </div>
+          <button onClick={onClose} aria-label="Kapat" className="w-8 h-8 rounded-full bg-[#f1f5f9] flex items-center justify-center flex-shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div className="mt-4 rounded-xl px-3.5 py-3 bg-[#fdecea] flex items-start gap-2.5">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#e74c3c" className="flex-shrink-0 mt-[1px]"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" /></svg>
+          <p className="text-[11px] text-[#c0392b] leading-relaxed">
+            <span className="font-bold">{fmtAmount(item.amount)} TRY</span> tutarındaki bu para çekme talebini iptal etmek üzeresiniz. Tutar iptal onayınızla birlikte bakiyenize geri aktarılacaktır. Bu işlem geri alınamaz.
+          </p>
+        </div>
+
+        <div className="flex gap-2.5 mt-5">
+          <button onClick={onClose} className="flex-1 py-[12px] rounded-xl border border-[#e8ecf1] text-[12px] font-semibold text-[#1a2332]">
+            Vazgeç
+          </button>
+          <button onClick={onConfirm} className="flex-1 py-[12px] rounded-xl bg-[#e74c3c] text-white text-[12px] font-bold hover:bg-[#c0392b] transition-colors">
+            Evet, İptal Et
+          </button>
+        </div>
+      </div>
+    </SlideUpBubble>
   )
 }
 

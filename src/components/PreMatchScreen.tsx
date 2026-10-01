@@ -179,6 +179,12 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
   const [countryFilters, setCountryFilters] = useState<Set<string>>(new Set())
   const [countrySheetOpen, setCountrySheetOpen] = useState(false)
   const router = useRouter()
+  // Pin-to-top (task 21): available in every layout — most-recently-pinned
+  // match first, everything else keeps its normal order behind the pins.
+  const [pinnedIds, setPinnedIds] = useState<string[]>([])
+  const togglePin = (id: string) => {
+    setPinnedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev]))
+  }
 
   const sportMatches = preMatches.filter(m => m.sport === activeSport)
   // Region options come from the whole fixture set, not just the active sport
@@ -189,7 +195,11 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
   const byRegion = countryFilters.size > 0
     ? sportMatches.filter(m => countryFilters.has(m.flag))
     : sportMatches
-  const listMatches = listTab === 'popular' ? byRegion.filter(m => m.popular) : byRegion
+  const filteredListMatches = listTab === 'popular' ? byRegion.filter(m => m.popular) : byRegion
+  const listMatches = [
+    ...pinnedIds.map((id) => filteredListMatches.find((m) => m.id === id)).filter((m): m is NonNullable<typeof m> => !!m),
+    ...filteredListMatches.filter((m) => !pinnedIds.includes(m.id)),
+  ]
 
   function toggleCountry(flag: string) {
     setCountryFilters(prev => {
@@ -378,11 +388,11 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
                 <p className="text-[12px] text-[#94a3b8]">Bu filtreyle karşılaşma yok.</p>
               </div>
             ) : layout === 'list' ? (
-              <PreMatchListView matches={listMatches} />
+              <PreMatchListView matches={listMatches} pinnedIds={pinnedIds} onTogglePin={togglePin} />
             ) : (
               <div className={layout === 'grid' ? 'grid grid-cols-2 gap-[8px]' : 'flex flex-col gap-[10px]'}>
                 {listMatches.map((m) => (
-                  <PreMatchCard key={m.id} match={m} compact={layout === 'grid'} />
+                  <PreMatchCard key={m.id} match={m} compact={layout === 'grid'} pinned={pinnedIds.includes(m.id)} onTogglePin={() => togglePin(m.id)} />
                 ))}
               </div>
             )}

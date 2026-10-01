@@ -27,7 +27,7 @@ export const MARKET_CONFIG: Record<OddsMarket, { label: string; pick: (m: MultiM
 // Reusable single match card in the ls1.png style. Renders full-width so it
 // works both in a single-column stack and inside a 2-column grid. Odds pills
 // are wired to the global betslip; the whole card links to the match detail.
-export default function MatchCard({ match, compact = false, market = 'MS' }: { match: Match; compact?: boolean; market?: OddsMarket }) {
+export default function MatchCard({ match, compact = false, market = 'MS', pinned = false, onTogglePin }: { match: Match; compact?: boolean; market?: OddsMarket; pinned?: boolean; onTogglePin?: () => void }) {
   const { has, toggle } = useBetSlip()
   const [expanded, setExpanded] = useState(false)
   const sub = halfText(match.half)
@@ -52,6 +52,21 @@ export default function MatchCard({ match, compact = false, market = 'MS' }: { m
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" />
             </svg>
+          )}
+          {onTogglePin && (
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label={pinned ? 'Üste sabitlemeyi kaldır' : 'Üste sabitle'}
+              aria-pressed={pinned}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTogglePin() }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onTogglePin() } }}
+              className="flex-shrink-0 flex items-center justify-center -m-1 p-1 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors cursor-pointer"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={pinned ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
+              </svg>
+            </span>
           )}
           <NotifyBell size={12} />
           <LiveTag />

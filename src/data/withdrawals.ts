@@ -84,34 +84,70 @@ const SEED: { daysAgo: number; hour: number; minute: number; method: string; met
 
 function seeded(): Withdrawal[] {
   const now = Date.now()
-  return SEED.map((s, i) => {
-    const d = new Date(now - s.daysAgo * DAY)
-    d.setHours(s.hour, s.minute, 0, 0)
-    return {
-      id: 'BW-' + String(4200000 + i * 10781),
-      method: s.method,
-      methodType: s.methodType,
-      amount: s.amount,
-      at: d.getTime(),
-      status: s.status,
-      note: s.note,
-      details: s.details,
-    }
-  })
+  return [
+    demoPending(),
+    ...SEED.map((s, i) => {
+      const d = new Date(now - s.daysAgo * DAY)
+      d.setHours(s.hour, s.minute, 0, 0)
+      return {
+        id: 'BW-' + String(4200000 + i * 10781),
+        method: s.method,
+        methodType: s.methodType,
+        amount: s.amount,
+        at: d.getTime(),
+        status: s.status,
+        note: s.note,
+        details: s.details,
+      }
+    }),
+  ]
 }
+
+const DEMO_PENDING_ID = 'BW-DEMO-PENDING'
+const MIGRATION_KEY = 'bta_withdrawals_demo_pending_added'
 
 export function loadWithdrawals(): Withdrawal[] {
   try {
     const raw = localStorage.getItem(KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed)) return parsed as Withdrawal[]
+      if (Array.isArray(parsed)) {
+        // One-time migration for browsers that already saved a withdrawal
+        // list before the demo pending request existed (task 12) — without
+        // this, "Bekleyen Para Çekme Talepleri" never appears for them since
+        // the seed only runs on a brand-new, empty localStorage.
+        if (!localStorage.getItem(MIGRATION_KEY)) {
+          localStorage.setItem(MIGRATION_KEY, '1')
+          if (!parsed.some((w: Withdrawal) => w.id === DEMO_PENDING_ID)) {
+            const list = [demoPending(), ...parsed] as Withdrawal[]
+            saveWithdrawals(list)
+            return list
+          }
+        }
+        return parsed as Withdrawal[]
+      }
     }
+    localStorage.setItem(MIGRATION_KEY, '1')
     const s = seeded()
     saveWithdrawals(s)
     return s
   } catch {
     return []
+  }
+}
+
+function demoPending(): Withdrawal {
+  const d = new Date()
+  d.setHours(9, 15, 0, 0)
+  return {
+    id: DEMO_PENDING_ID,
+    method: 'Papara (MPAY)',
+    methodType: 'Online Papara',
+    amount: 1000,
+    at: d.getTime(),
+    status: 'pending',
+    note: 'Talebiniz alındı ve finans ekibimiz tarafından inceleniyor. Onaylandığında tutar hesabınıza aktarılacaktır.',
+    details: { 'Hesap Sahibi': 'Ahmet Yılmaz', 'Papara Numarası': '1234567890' },
   }
 }
 
@@ -123,6 +159,18 @@ export function addWithdrawal(w: Withdrawal) {
   const all = loadWithdrawals()
   all.unshift(w)
   saveWithdrawals(all)
+}
+
+/** User-initiated cancel of a still-pending request (task 12) — distinct from
+ *  the seeded "cancelled by finance team" rows, which keep their own note. */
+export function cancelWithdrawal(id: string) {
+  const all = loadWithdrawals()
+  const w = all.find(x => x.id === id)
+  if (!w || w.status !== 'pending') return null
+  w.status = 'cancelled'
+  w.note = 'Bu talep sizin tarafınızdan iptal edilmiştir. Tutar bakiyenize geri aktarılmıştır.'
+  saveWithdrawals(all)
+  return w
 }
 
 export function makeRef() {

@@ -194,14 +194,14 @@ export default function GameScreen() {
 
         {/* Similar games */}
         <p className="text-[13px] font-bold text-[#1a2332] mt-5 mb-2 px-1">Benzer Oyunlar</p>
-        <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2">
+        <div className="flex gap-[8px] overflow-x-auto scrollbar-hide pb-2" style={{ scrollSnapType: 'x mandatory' }}>
           {SIMILAR.filter(g => g.name !== name).map(g => (
-            <Link key={g.name} href={gameHref(g.name, g.image, g.provider)} className="flex-shrink-0 w-[92px] active:opacity-70 transition-opacity">
-              <div className="w-[92px] h-[92px] rounded-xl overflow-hidden border border-[#e8ecf1]">
+            <Link key={g.name} href={gameHref(g.name, g.image, g.provider)} style={{ scrollSnapAlign: 'start' }} className="flex-shrink-0 w-[calc((100%-16px)/3)] active:opacity-70 transition-opacity">
+              <div className="w-full aspect-square rounded-xl overflow-hidden border border-[#e8ecf1]">
                 <img src={g.image} alt={g.name} className="w-full h-full object-cover" />
               </div>
-              <p className="text-[10px] font-semibold text-[#1a2332] mt-1.5 leading-tight line-clamp-1">{g.name}</p>
-              <p className="text-[9px] text-[#737B8C] leading-tight truncate">{g.provider}</p>
+              <p className="text-[9px] font-semibold text-[#1a2332] mt-1 leading-tight line-clamp-1">{g.name}</p>
+              <p className="text-[8px] text-[#737B8C] leading-tight truncate">{g.provider}</p>
             </Link>
           ))}
         </div>

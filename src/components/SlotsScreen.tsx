@@ -16,24 +16,24 @@ import {
 import { artFallback } from './placeholderGameArt'
 
 // ── Small game card (used by horizontal rails) ──────────────────────────────
-function GameThumb({ game, w = 'w-[110px]' }: { game: { name: string; provider: string; image: string; promo?: boolean }; w?: string }) {
+function GameThumb({ game, w = 'w-[110px]', compact = false }: { game: { name: string; provider: string; image: string; promo?: boolean }; w?: string; compact?: boolean }) {
   return (
-    <Link href={gameHref(game.name, game.image, game.provider)} className={`flex-shrink-0 ${w}`}>
+    <Link href={gameHref(game.name, game.image, game.provider)} style={{ scrollSnapAlign: 'start' }} className={`flex-shrink-0 ${w}`}>
       <div className="relative w-full aspect-[1/1] rounded-xl overflow-hidden border border-[#e8ecf1]">
         <img src={game.image} alt={game.name} className="w-full h-full object-cover" onError={artFallback(game.name, game.provider)} />
         {game.promo && (
-          <span className="absolute top-1.5 left-1.5 bg-[#e74c3c] text-white text-[7px] font-bold px-[5px] py-[2px] rounded uppercase">Promo</span>
+          <span className={`absolute bg-[#e74c3c] text-white font-bold rounded uppercase ${compact ? 'top-1 left-1 text-[6px] px-[4px] py-[1px]' : 'top-1.5 left-1.5 text-[7px] px-[5px] py-[2px]'}`}>Promo</span>
         )}
         <FavoriteStar
-          size={13}
+          size={compact ? 11 : 13}
           inactiveStroke="#fff"
           activeColor="#f5b301"
-          className="absolute top-1.5 right-1.5 flex items-center justify-center w-[20px] h-[20px] rounded-full bg-black/40"
+          className={`absolute flex items-center justify-center rounded-full bg-black/40 ${compact ? 'top-1 right-1 w-[17px] h-[17px]' : 'top-1.5 right-1.5 w-[20px] h-[20px]'}`}
           item={{ type: 'game', id: `slot-${game.name}`, title: game.name, subtitle: game.provider, image: game.image, href: gameHref(game.name, game.image, game.provider) }}
         />
       </div>
-      <p className="text-[10px] font-semibold text-[#1a2332] mt-[4px] leading-tight truncate">{game.name}</p>
-      <p className="text-[8px] text-[#737B8C] leading-tight truncate">{game.provider}</p>
+      <p className={`font-semibold text-[#1a2332] leading-tight truncate ${compact ? 'text-[9px] mt-[3px]' : 'text-[10px] mt-[4px]'}`}>{game.name}</p>
+      <p className={`text-[#737B8C] leading-tight truncate ${compact ? 'text-[7px]' : 'text-[8px]'}`}>{game.provider}</p>
     </Link>
   )
 }
@@ -155,16 +155,20 @@ export default function SlotsScreen() {
           <div className="px-4 pt-1">
             <SectionHeader title="Popüler Slotlar" badge="Casino" showAll href="/slots/populer" count={countFor('populer')} />
           </div>
-          <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
-            {popularSlots.map((g, i) => <GameThumb key={i} game={g} />)}
+          <div className="px-4 pb-4">
+            <div className="flex gap-[8px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {popularSlots.map((g, i) => <GameThumb key={i} game={g} w="w-[calc((100%-16px)/3)]" compact />)}
+            </div>
           </div>
 
           {/* ── Sizin için Seçilen ── */}
           <div className="px-4 pt-1">
             <SectionHeader title="Sizin için Seçilen" showAll href="/slots/sizin-icin-secilen" count={countFor('sizin-icin-secilen')} />
           </div>
-          <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
-            {forYouGames.map((g, i) => <GameThumb key={i} game={g} w="w-[150px]" />)}
+          <div className="px-4 pb-4">
+            <div className="flex gap-[8px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {forYouGames.map((g, i) => <GameThumb key={i} game={g} w="w-[calc((100%-16px)/3)]" compact />)}
+            </div>
           </div>
 
           {/* ── Ayın Sağlayıcısı ── */}
@@ -205,40 +209,44 @@ export default function SlotsScreen() {
           <div className="px-4 pt-1">
             <SectionHeader title="Kategoriler" showAll href="/slots/tumu" />
           </div>
-          <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
-            {kategoriler.map((cat) => (
-              <Link key={cat.name} href={`/slots/${cat.slug}`} className="flex-shrink-0 w-[84px] rounded-2xl relative overflow-hidden cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform">
-                <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-                <div className="relative z-10 h-[110px] flex flex-col justify-end px-[6px] pb-[8px]">
-                  <span className="text-[10px] font-semibold text-white leading-tight text-center" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{cat.name}</span>
-                </div>
-              </Link>
-            ))}
+          <div className="px-4 pb-4">
+            <div className="flex gap-[10px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {kategoriler.map((cat) => (
+                <Link key={cat.name} href={`/slots/${cat.slug}`} style={{ scrollSnapAlign: 'start' }} className="flex-shrink-0 w-[calc((100%-30px)/4)] rounded-2xl relative overflow-hidden cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform">
+                  <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+                  <div className="relative z-10 h-[110px] flex flex-col justify-end px-[6px] pb-[8px]">
+                    <span className="text-[10px] font-semibold text-white leading-tight text-center" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{cat.name}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
 
           {/* ── Efsane Çarpanlar ── */}
           <div className="px-4 pt-1">
             <SectionHeader title="Efsane Çarpanlar" badge="Casino" showAll href="/slots/efsane-carpanlar" count={countFor('efsane-carpanlar')} />
           </div>
-          <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-8">
-            {crashGames.map((g, i) => (
-              <Link key={i} href={gameHref(g.name, g.image, g.provider)} className="flex-shrink-0 w-[120px]">
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-[#e8ecf1]">
-                  <img src={g.image} alt={g.name} className="w-full h-full object-cover" onError={artFallback(g.name, g.provider)} />
-                  <span className="absolute bottom-1.5 left-1.5 bg-black/70 text-[#22c55e] text-[10px] font-bold px-[6px] py-[2px] rounded-md tabular-nums">{g.mult}</span>
-                  <FavoriteStar
-                    size={13}
-                    inactiveStroke="#fff"
-                    activeColor="#f5b301"
-                    className="absolute top-1.5 right-1.5 flex items-center justify-center w-[20px] h-[20px] rounded-full bg-black/40"
-                    item={{ type: 'game', id: `slot-${g.name}`, title: g.name, subtitle: g.provider, image: g.image, href: gameHref(g.name, g.image, g.provider) }}
-                  />
-                </div>
-                <p className="text-[10px] font-semibold text-[#1a2332] mt-[4px] leading-tight truncate">{g.name}</p>
-                <p className="text-[8px] text-[#737B8C] leading-tight truncate">{g.provider}</p>
-              </Link>
-            ))}
+          <div className="px-4 pb-8">
+            <div className="flex gap-[8px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {crashGames.map((g, i) => (
+                <Link key={i} href={gameHref(g.name, g.image, g.provider)} style={{ scrollSnapAlign: 'start' }} className="flex-shrink-0 w-[calc((100%-16px)/3)]">
+                  <div className="relative w-full aspect-square rounded-xl overflow-hidden border border-[#e8ecf1]">
+                    <img src={g.image} alt={g.name} className="w-full h-full object-cover" onError={artFallback(g.name, g.provider)} />
+                    <span className="absolute bottom-1 left-1 bg-black/70 text-[#22c55e] text-[8px] font-bold px-[4px] py-[1px] rounded-md tabular-nums">{g.mult}</span>
+                    <FavoriteStar
+                      size={11}
+                      inactiveStroke="#fff"
+                      activeColor="#f5b301"
+                      className="absolute top-1 right-1 flex items-center justify-center w-[17px] h-[17px] rounded-full bg-black/40"
+                      item={{ type: 'game', id: `slot-${g.name}`, title: g.name, subtitle: g.provider, image: g.image, href: gameHref(g.name, g.image, g.provider) }}
+                    />
+                  </div>
+                  <p className="text-[9px] font-semibold text-[#1a2332] mt-[3px] leading-tight truncate">{g.name}</p>
+                  <p className="text-[7px] text-[#737B8C] leading-tight truncate">{g.provider}</p>
+                </Link>
+              ))}
+            </div>
           </div>
         </>
       )}

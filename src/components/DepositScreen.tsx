@@ -82,12 +82,38 @@ export default function DepositScreen() {
   const [showGroups, setShowGroups] = useState(false)
   const [showWheelUnlock, setShowWheelUnlock] = useState(false)
 
+  // ── Method-specific fields (task 11: each method type has its own form —
+  // bank transfers collect sender/receiver phone + TC kimlik + doğum tarihi +
+  // şifre per the reference (cepbank.png), e-wallets just their account
+  // number, crypto just the sending wallet address. ──
+  const [senderPhone, setSenderPhone] = useState('')
+  const [receiverPhone, setReceiverPhone] = useState('')
+  const [tcNo, setTcNo] = useState('')
+  const [birthDay, setBirthDay] = useState('')
+  const [birthMonth, setBirthMonth] = useState('')
+  const [birthYear, setBirthYear] = useState('')
+  const [password, setPassword] = useState('')
+  const [walletAccountNo, setWalletAccountNo] = useState('')
+  const [cryptoAddress, setCryptoAddress] = useState('')
+
+  const resetMethodFields = () => {
+    setSenderPhone(''); setReceiverPhone(''); setTcNo(''); setBirthDay(''); setBirthMonth(''); setBirthYear(''); setPassword('')
+    setWalletAccountNo(''); setCryptoAddress('')
+  }
+  const selectMethod = (m: Method) => { resetMethodFields(); setSelected(m) }
+
+  const methodFieldsValid =
+    !selected ? false :
+    selected.type === 'bank' ? !!(senderPhone && receiverPhone && tcNo.length === 11 && birthDay && birthMonth && birthYear && password) :
+    selected.type === 'ewallet' ? !!walletAccountNo :
+    !!cryptoAddress
+
   const amt = Number(amount) || 0
   // The reference prints a different Min per method, so validate against the
   // selected method's own floor rather than one global MIN for every card.
   const minAmt = selected ? selected.min : MIN
   const maxAmt = selected ? selected.max : MAX
-  const valid = amt >= minAmt && amt <= maxAmt
+  const valid = amt >= minAmt && amt <= maxAmt && methodFieldsValid
   const inRange = QUICK.filter(v => v >= minAmt && v <= maxAmt)
   const quicks = inRange.length >= 3 ? inRange : [minAmt, minAmt * 2, minAmt * 5].filter(v => v <= maxAmt)
 
@@ -106,7 +132,7 @@ export default function DepositScreen() {
     setDone({ ref, amount: amt, method: selected.name, adc })
   }
 
-  const reset = () => { setSelected(null); setAmount(''); setBonus(0); setDone(null) }
+  const reset = () => { setSelected(null); setAmount(''); setBonus(0); setDone(null); resetMethodFields() }
 
   // ── Success view ──
   if (done) {
@@ -153,7 +179,46 @@ export default function DepositScreen() {
               <p className="text-[13px] font-semibold text-[#1a2332]">{selected.name}</p>
               <p className="text-[10px] text-[#737B8C]">({selected.typeLabel}) · Min {fmt(selected.min)} ₺ · Max {fmt(selected.max)} ₺</p>
             </div>
-            <button onClick={() => setSelected(null)} className="text-[11px] font-semibold text-[#0E8FCF]">Değiştir</button>
+            <button onClick={() => { resetMethodFields(); setSelected(null) }} className="text-[11px] font-semibold text-[#0E8FCF]">Değiştir</button>
+          </div>
+
+          {/* Method-specific fields (task 11) — bank transfers, e-wallets and
+              crypto each collect different information before the amount. */}
+          <div className="bg-white rounded-xl border border-[#e8ecf1] px-4 py-4 flex flex-col gap-3">
+            {selected.type === 'bank' && (
+              <>
+                <FormField label="Gönderen Cep" value={senderPhone} onChange={setSenderPhone} placeholder="05XX XXX XX XX" inputMode="tel" />
+                <FormField label="Alıcı Cep" value={receiverPhone} onChange={setReceiverPhone} placeholder="05XX XXX XX XX" inputMode="tel" />
+                <FormField label="Alıcı TC Kimlik No" value={tcNo} onChange={v => setTcNo(v.replace(/\D/g, '').slice(0, 11))} placeholder="Alıcı TC Kimlik No" inputMode="numeric" />
+                <div>
+                  <label className="text-[11px] font-medium text-[#737B8C]">Doğum Tarihi</label>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <select value={birthDay} onChange={e => setBirthDay(e.target.value)} className="flex-1 border-b-2 border-[#e8ecf1] focus:border-[#0E8FCF] pb-1.5 text-[13px] text-[#1a2332] bg-transparent outline-none">
+                      <option value="">Gün</option>
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                    <select value={birthMonth} onChange={e => setBirthMonth(e.target.value)} className="flex-1 border-b-2 border-[#e8ecf1] focus:border-[#0E8FCF] pb-1.5 text-[13px] text-[#1a2332] bg-transparent outline-none">
+                      <option value="">Ay</option>
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map(mo => <option key={mo} value={mo}>{mo}</option>)}
+                    </select>
+                    <select value={birthYear} onChange={e => setBirthYear(e.target.value)} className="flex-1 border-b-2 border-[#e8ecf1] focus:border-[#0E8FCF] pb-1.5 text-[13px] text-[#1a2332] bg-transparent outline-none">
+                      <option value="">Yıl</option>
+                      {Array.from({ length: 80 }, (_, i) => new Date().getFullYear() - 18 - i).map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <FormField label="Şifre" value={password} onChange={setPassword} placeholder="Şifre" type="password" />
+              </>
+            )}
+            {selected.type === 'ewallet' && (
+              <FormField label={`${selected.name.split(' ')[0]} Hesap Numarası`} value={walletAccountNo} onChange={setWalletAccountNo} placeholder={`${selected.name.split(' ')[0]} Hesap Numarası`} inputMode="numeric" />
+            )}
+            {selected.type === 'crypto' && (
+              <>
+                <FormField label="Gönderen Cüzdan Adresi" value={cryptoAddress} onChange={setCryptoAddress} placeholder="Cüzdan Adresi" />
+                <p className="text-[10px] text-[#737B8C] leading-relaxed -mt-1">Yatırımınızı onaylamak için para gönderdiğiniz cüzdan adresini girin.</p>
+              </>
+            )}
           </div>
 
           {/* Amount */}
@@ -268,7 +333,7 @@ export default function DepositScreen() {
               <p className="text-[9px] text-[#737B8C] mt-1">Ücret: <span className="font-medium text-[#1a2332]">{method.fee}</span></p>
               <p className="text-[8px] text-[#94a3b8] leading-tight mt-[2px]">Min {fmtRef(method.min)} TRY<br />Max {method.max.toFixed(2)} TRY</p>
               <button
-                onClick={() => setSelected(method)}
+                onClick={() => selectMethod(method)}
                 className="w-full mt-2.5 py-[7px] rounded-lg bg-[#0E8FCF] text-white text-[10px] font-bold active:scale-95 transition-transform"
               >
                 Para Yatırma
@@ -320,6 +385,29 @@ function Line({ k, v, vColor, last }: { k: string; v: string; vColor?: string; l
     <div className={`flex items-center justify-between px-4 py-3 ${!last ? 'border-b border-[#f0f2f5]' : ''}`}>
       <span className="text-[12px] text-[#737B8C]">{k}</span>
       <span className="text-[12px] font-bold" style={{ color: vColor || 'var(--color-text-primary)' }}>{v}</span>
+    </div>
+  )
+}
+
+function FormField({ label, value, onChange, placeholder, type = 'text', inputMode }: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  type?: 'text' | 'password'
+  inputMode?: 'text' | 'tel' | 'numeric'
+}) {
+  return (
+    <div>
+      <label className="text-[11px] font-medium text-[#737B8C]">{label}</label>
+      <input
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        type={type}
+        inputMode={inputMode}
+        className="w-full mt-1.5 border-b-2 border-[#e8ecf1] focus:border-[#0E8FCF] pb-1.5 text-[13px] text-[#1a2332] bg-transparent outline-none placeholder-[#c0c8d4]"
+      />
     </div>
   )
 }

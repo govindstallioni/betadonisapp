@@ -17,7 +17,7 @@ import MarketsExpand from './MarketsExpand'
 // live score/minute, and no live-only affordances at all. Pre-match odds are
 // fixed until kick-off, so they never flash green/red and carry no trend arrow;
 // `hasStream` shows a neutral "İZLE" tag, never the red pulsing CANLI pill.
-export default function PreMatchCard({ match, className = '', compact = false }: { match: PreMatch; className?: string; compact?: boolean }) {
+export default function PreMatchCard({ match, className = '', compact = false, pinned = false, onTogglePin }: { match: PreMatch; className?: string; compact?: boolean; pinned?: boolean; onTogglePin?: () => void }) {
   const { has, toggle } = useBetSlip()
   const [expanded, setExpanded] = useState(false)
 
@@ -35,6 +35,21 @@ export default function PreMatchCard({ match, className = '', compact = false }:
           <span className="text-[10px] text-[#737B8C] font-medium truncate max-w-[110px]">{match.league}</span>
         </div>
         <div className="flex items-center gap-[6px] flex-shrink-0">
+          {onTogglePin && (
+            <span
+              role="button"
+              tabIndex={0}
+              aria-label={pinned ? 'Üste sabitlemeyi kaldır' : 'Üste sabitle'}
+              aria-pressed={pinned}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTogglePin() }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onTogglePin() } }}
+              className="flex-shrink-0 flex items-center justify-center -m-1 p-1 rounded-full hover:bg-black/5 active:bg-black/10 transition-colors cursor-pointer"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={pinned ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
+              </svg>
+            </span>
+          )}
           <NotifyBell size={12} />
           {match.hasStream && <StreamTag />}
           <FavoriteStar

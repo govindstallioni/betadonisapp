@@ -15,7 +15,7 @@ const promos = [
   { title: 'Gates of Olympus 1000', image: '/promotions/07.png', href: gameHref('Gates of Olympus 1000', '/promotions/07.png', 'Pragmatic Play') },
   { title: 'Big Bass Splash', image: '/promotions/08.png', href: gameHref('Big Bass Splash', '/promotions/08.png', 'Pragmatic Play') },
   { title: 'Sweet Bonanza', image: '/promotions/09.png', href: gameHref('Sweet Bonanza', '/promotions/09.png', 'Pragmatic Play') },
-  { title: 'Telegram- Abone ol', image: '/promotions/10.png', href: promo('telegram') },
+  { title: 'Abone Ol', image: '/promotions/10.png', href: promo('telegram') },
 ]
 
 export default function PromoBanners() {

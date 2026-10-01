@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import NotifyBell from '@/components/NotifyBell'
 import FavoriteStar from '@/components/FavoriteStar'
+import { useFavorites } from '@/components/FavoritesProvider'
 import { useBetSlip } from '@/components/BetSlipProvider'
 import { MATCH_RESULT } from '@/data/markets'
 import OddLock, { isSuspended } from '@/components/OddLock'
@@ -615,6 +616,27 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   // effect below, which recomputes this whenever the active tab changes.
   const [expandedMarkets, setExpandedMarkets] = useState<Set<number>>(new Set())
   const { has, toggle } = useBetSlip()
+  const { isFav, toggle: toggleFav } = useFavorites()
+
+  // ── 3-dot "Ayarlar" bottom sheet (task 18: 1xBet-style bet settings,
+  // excluding İstatistikler and Oran değişiklikleri per the brief) ──
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [showInfoBlocks, setShowInfoBlocks] = useState(true)
+  const [hideSuspendedMarkets, setHideSuspendedMarkets] = useState(false)
+  const [compactMarketView, setCompactMarketView] = useState(false)
+  const favItem = {
+    type: 'event' as const,
+    id: match.id,
+    title: `${match.team1} - ${match.team2}`,
+    subtitle: match.league,
+    href: `/match?id=${match.id}`,
+    logo1: match.logo1,
+    logo2: match.logo2,
+    score1: match.isLive ? match.score1 : undefined,
+    score2: match.isLive ? match.score2 : undefined,
+    isLive: match.isLive,
+  }
+  const matchIsFav = isFav('event', match.id)
 
   // ── Hero swipeable panel (Genel Bakış / Saha / İstatistik) ──
   // Matches with a live stream open straight on the Saha (broadcast) slide,
@@ -668,10 +690,15 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
   const togglePin = (title: string) => {
     setPinnedTitles(prev => prev.includes(title) ? prev.filter(t => t !== title) : [title, ...prev])
   }
-  const visibleMarkets = [
+  const orderedVisibleMarkets = [
     ...pinnedTitles.map(t => unorderedVisibleMarkets.find(m => m.title === t)).filter((m): m is Market => !!m),
     ...unorderedVisibleMarkets.filter(m => !pinnedTitles.includes(m.title)),
   ]
+  // "Pazar ayarları" (Ayarlar sheet): optionally hide markets whose every odd is suspended.
+  const marketFullySuspended = (m: Market) => m.rows.length > 0 && m.rows.every(row => row.every(odd => isSuspended(odd.value)))
+  const visibleMarkets = hideSuspendedMarkets
+    ? orderedVisibleMarkets.filter(m => !marketFullySuspended(m))
+    : orderedVisibleMarkets
 
   // Re-default whenever the active market-category tab changes. Live matches
   // keep task 19's "first 4 open"; pre-match opens only the match-result market
@@ -707,6 +734,8 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
       return new Set([...prev, ...visibleIndices])
     })
   }
+  // "Tüm pazarları büyüt" (Ayarlar sheet): always expands, never collapses.
+  const expandAllMarkets = () => setExpandedMarkets(prev => new Set([...prev, ...visibleIndices]))
 
   // Stable id per outcome so the same pick dedupes across market tabs and screens.
   const oddId = (marketTitle: string, label: string) => `${match.id}::${marketTitle}::${label}`
@@ -741,21 +770,10 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
               inactiveStroke="white"
               activeColor="#f5b301"
               className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-              item={{
-                type: 'event',
-                id: match.id,
-                title: `${match.team1} - ${match.team2}`,
-                subtitle: match.league,
-                href: `/match?id=${match.id}`,
-                logo1: match.logo1,
-                logo2: match.logo2,
-                score1: match.isLive ? match.score1 : undefined,
-                score2: match.isLive ? match.score2 : undefined,
-                isLive: match.isLive,
-              }}
+              item={favItem}
             />
             <NotifyBell size={18} stroke="white" className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors" />
-            <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
+            <button onClick={() => setSettingsOpen(true)} aria-label="Ayarlar" className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
                 <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
               </svg>
@@ -796,7 +814,9 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
         )}
       </div>
 
-      {/* ── Hero banner (swipeable: Genel Bakış / Saha / İstatistik) ── */}
+      {/* ── Hero banner (swipeable: Genel Bakış / Saha / İstatistik) — hidden
+          when "Bilgi blokları ayarları" is turned off from the Ayarlar sheet. ── */}
+      {showInfoBlocks && (
       <div className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img src="/events/bannerbg.jpg" alt="" className="w-full h-full object-cover" />
@@ -995,6 +1015,7 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
           ))}
         </div>
       </div>
+      )}
 
       {/* ── Filter pills + sub-tabs — sticky, stacked right below the header
           bar (task 8): the reference clip keeps this whole cluster fixed
@@ -1114,7 +1135,7 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
                   {isOpen && market.rows.length > 0 && (
                     <div className="pb-3 flex flex-col gap-[6px]">
                       {market.rows.map((row, ri) => (
-                        <div key={ri} className="flex gap-[6px]">
+                        <div key={ri} className={compactMarketView ? 'flex flex-col gap-[4px]' : 'flex gap-[6px]'}>
                           {row.map((odd, oi) => {
                             const locked = isSuspended(odd.value)
                             const sel = !locked && has(oddId(market.title, odd.label))
@@ -1123,16 +1144,35 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
                                 key={oi}
                                 disabled={locked}
                                 onClick={() => { if (!locked) pickOdd(market.title, odd) }}
-                                className={`flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all ${
-                                  locked
-                                    ? 'bg-[#f4f6f9] border border-[#eef1f5] cursor-default justify-center'
-                                    : sel
-                                      ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)] active:scale-[0.97]'
-                                      : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8] active:scale-[0.97]'
-                                }`}
+                                className={
+                                  compactMarketView
+                                    ? `w-full rounded-lg py-[8px] px-3 flex items-center justify-between transition-all ${
+                                        locked
+                                          ? 'bg-[#f4f6f9] border border-[#eef1f5] cursor-default'
+                                          : sel
+                                            ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)] active:scale-[0.98]'
+                                            : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8] active:scale-[0.98]'
+                                      }`
+                                    : `flex-1 rounded-lg py-[10px] px-3 flex flex-col items-center gap-[3px] transition-all ${
+                                        locked
+                                          ? 'bg-[#f4f6f9] border border-[#eef1f5] cursor-default justify-center'
+                                          : sel
+                                            ? 'bg-[#0E8FCF] border border-[#0E8FCF] shadow-[0_2px_8px_rgba(14,143,207,0.3)] active:scale-[0.97]'
+                                            : 'bg-[#edf5ff] border border-[#e8ecf1] hover:border-[#c8d8e8] active:scale-[0.97]'
+                                      }`
+                                }
                               >
                                 {locked ? (
                                   <OddLock size={13} />
+                                ) : compactMarketView ? (
+                                  <>
+                                    <span className={`text-[10px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
+                                      {odd.label}
+                                    </span>
+                                    <span className={`text-[12px] font-bold leading-none ${sel ? 'text-white' : 'text-[#1a2332]'}`}>
+                                      {formatOdd(odd.value)}
+                                    </span>
+                                  </>
                                 ) : (
                                   <>
                                     <span className={`text-[9px] font-medium ${sel ? 'text-white/70' : 'text-[#737B8C]'}`}>
@@ -1156,6 +1196,75 @@ export default function MatchDetailScreen({ matchId }: { matchId?: string }) {
           </div>
         )}
       </div>
+
+      {/* ── "Ayarlar" bottom sheet (task 18: 1xBet-style 3-dot bet settings,
+          everything except İstatistikler and Oran değişiklikleri). ── */}
+      {settingsOpen && (
+        <>
+          <div className="fixed inset-0 z-[70] bg-black/40" onClick={() => setSettingsOpen(false)} />
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[80] bg-white rounded-t-2xl" style={{ maxHeight: '75vh', display: 'flex', flexDirection: 'column' }}>
+            <div className="flex justify-center pt-3 pb-1 flex-shrink-0"><div className="w-10 h-1 rounded-full bg-[#e2e8f0]" /></div>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[#f0f2f5] flex-shrink-0">
+              <h3 className="text-[14px] font-bold text-[#1a2332]">Ayarlar</h3>
+              <button onClick={() => setSettingsOpen(false)} className="w-7 h-7 flex items-center justify-center rounded-full bg-black/5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1">
+              {/* Bilgi blokları ayarları — shows/hides the swipeable hero panel. */}
+              <button onClick={() => setShowInfoBlocks(v => !v)} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 border-b border-[#f0f2f5] text-left">
+                <span className="flex items-center gap-3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="4" rx="1" /><rect x="3" y="10" width="18" height="4" rx="1" /><rect x="3" y="16" width="18" height="4" rx="1" /></svg>
+                  <span className="text-[13px] text-[#1a2332] font-medium">Bilgi blokları ayarları</span>
+                </span>
+                <span className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${showInfoBlocks ? 'bg-[#0E8FCF]' : 'bg-[#e2e8f0]'}`}>
+                  <span className={`absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-transform ${showInfoBlocks ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
+                </span>
+              </button>
+
+              {/* Pazar ayarları — hides markets whose every odd is suspended. */}
+              <button onClick={() => setHideSuspendedMarkets(v => !v)} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 border-b border-[#f0f2f5] text-left">
+                <span className="flex items-center gap-3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                  <span className="text-[13px] text-[#1a2332] font-medium">Pazar ayarları</span>
+                </span>
+                <span className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${hideSuspendedMarkets ? 'bg-[#0E8FCF]' : 'bg-[#e2e8f0]'}`}>
+                  <span className={`absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-transform ${hideSuspendedMarkets ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
+                </span>
+              </button>
+
+              {/* Pazar görünümünü değiştir — toggles the odds-box vs odds-list layout. */}
+              <button onClick={() => setCompactMarketView(v => !v)} className="w-full flex items-center justify-between gap-3 px-4 py-3.5 border-b border-[#f0f2f5] text-left">
+                <span className="flex items-center gap-3">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" /></svg>
+                  <span className="text-[13px] text-[#1a2332] font-medium">Pazar görünümünü değiştir</span>
+                </span>
+                <span className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${compactMarketView ? 'bg-[#0E8FCF]' : 'bg-[#e2e8f0]'}`}>
+                  <span className={`absolute top-[2px] w-4 h-4 rounded-full bg-white shadow transition-transform ${compactMarketView ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
+                </span>
+              </button>
+
+              {/* Tüm pazarları büyüt — one-shot action, same effect as "Tümünü Aç". */}
+              <button onClick={() => { expandAllMarkets(); setSettingsOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-[#f0f2f5] text-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+                <span className="text-[13px] text-[#1a2332] font-medium">Tüm pazarları büyüt</span>
+              </button>
+
+              {/* Favorilerime ekle — toggles this fixture in the global favorites store. */}
+              <button onClick={() => { toggleFav(favItem); setSettingsOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-[#f0f2f5] text-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill={matchIsFav ? '#f5b301' : 'none'} stroke={matchIsFav ? '#f5b301' : '#737B8C'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                <span className="text-[13px] text-[#1a2332] font-medium">{matchIsFav ? 'Favorilerimden çıkar' : 'Favorilerime ekle'}</span>
+              </button>
+
+              {/* Bildirimler — same destination as the header bell icon. */}
+              <button onClick={() => { setSettingsOpen(false); router.push('/settings/notifications') }} className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+                <span className="text-[13px] text-[#1a2332] font-medium">Bildirimler</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
 
     </div>
   )

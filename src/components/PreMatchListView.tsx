@@ -22,7 +22,7 @@ function groupByLeague(matches: PreMatch[]) {
   return groups
 }
 
-export default function PreMatchListView({ matches }: { matches: PreMatch[] }) {
+export default function PreMatchListView({ matches, pinnedIds, onTogglePin }: { matches: PreMatch[]; pinnedIds?: string[]; onTogglePin?: (id: string) => void }) {
   const { has, toggle } = useBetSlip()
 
   return (
@@ -52,6 +52,22 @@ export default function PreMatchListView({ matches }: { matches: PreMatch[] }) {
               >
                 <p className="text-[9px] text-[#737B8C] mb-[4px]">{m.date}, {m.time}</p>
                 <div className="flex items-center gap-[8px]">
+                  {/* Pin to top */}
+                  {onTogglePin && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label={pinnedIds?.includes(m.id) ? 'Üste sabitlemeyi kaldır' : 'Üste sabitle'}
+                      aria-pressed={pinnedIds?.includes(m.id)}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onTogglePin(m.id) }}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); onTogglePin(m.id) } }}
+                      className="flex-shrink-0 flex items-center justify-center w-[18px] h-[18px] rounded-full hover:bg-black/5 active:bg-black/10 transition-colors cursor-pointer"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={pinnedIds?.includes(m.id) ? '#0E8FCF' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 17v5M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z" />
+                      </svg>
+                    </span>
+                  )}
                   {/* Stream tile */}
                   <div className={`w-[30px] h-[30px] rounded-md flex items-center justify-center flex-shrink-0 ${m.hasStream ? 'bg-[#0E8FCF]' : 'bg-[#f1f5f9]'}`}>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={m.hasStream ? '#fff' : '#c0c8d4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

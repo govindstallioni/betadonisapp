@@ -30,30 +30,32 @@ const providers = [
 ]
 
 // ── Live table card ─────────────────────────────────────────────────────────
-export function TableCard({ t, w = 'w-full' }: { t: Table; w?: string }) {
+export function TableCard({ t, w = 'w-full', compact = false }: { t: Table; w?: string; compact?: boolean }) {
   return (
-    <Link href={gameHref(t.name, t.image, t.provider)} className={`flex-shrink-0 ${w} bg-white rounded-xl overflow-hidden border border-[#e8ecf1] block`}>
+    <Link href={gameHref(t.name, t.image, t.provider)} style={{ scrollSnapAlign: 'start' }} className={`flex-shrink-0 ${w} bg-white rounded-xl overflow-hidden border border-[#e8ecf1] block`}>
       <div className="relative w-full aspect-[1/1] overflow-hidden">
         <img src={t.image} alt={t.name} className="w-full h-full object-cover" onError={artFallback(t.name, t.provider)} />
         {/* CANLI badge */}
-        <span className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-[#e74c3c] rounded px-[5px] py-[2px]">
+        <span className={`absolute top-1 left-1 flex items-center gap-1 bg-[#e74c3c] rounded ${compact ? 'px-[4px] py-[1px]' : 'px-[5px] py-[2px]'}`}>
           <span className="w-1 h-1 rounded-full bg-white animate-pulse-dot" />
-          <span className="text-white text-[7px] font-bold uppercase tracking-wide">Canlı</span>
+          <span className={`text-white font-bold uppercase tracking-wide ${compact ? 'text-[6px]' : 'text-[7px]'}`}>Canlı</span>
         </span>
         {/* Players online */}
-        <span className="absolute top-1.5 right-1.5 flex items-center gap-[3px] bg-black/60 rounded px-[5px] py-[2px]">
-          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><circle cx="12" cy="12" r="3" /><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /></svg>
-          <span className="text-white text-[8px] font-bold tabular-nums">{t.players.toLocaleString('tr-TR')}</span>
-        </span>
-        {t.promo && <span className="absolute bottom-1.5 left-1.5 bg-[#f59e0b] text-white text-[7px] font-bold px-[5px] py-[2px] rounded uppercase">Promo</span>}
+        {!compact && (
+          <span className="absolute top-1.5 right-1.5 flex items-center gap-[3px] bg-black/60 rounded px-[5px] py-[2px]">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><circle cx="12" cy="12" r="3" /><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /></svg>
+            <span className="text-white text-[8px] font-bold tabular-nums">{t.players.toLocaleString('tr-TR')}</span>
+          </span>
+        )}
+        {t.promo && <span className={`absolute bottom-1 left-1 bg-[#f59e0b] text-white font-bold rounded uppercase ${compact ? 'text-[6px] px-[4px] py-[1px]' : 'text-[7px] px-[5px] py-[2px]'}`}>Promo</span>}
       </div>
-      <div className="px-2.5 py-2">
-        <p className="text-[11px] font-semibold text-[#1a2332] leading-tight truncate">{t.name}</p>
-        <p className="text-[8px] text-[#737B8C] leading-tight truncate mt-[1px]">{t.dealer ? `${t.dealer} · ` : ''}{t.provider}</p>
-        <div className="flex items-center justify-between gap-1 mt-1.5">
-          <span className="text-[8px] font-semibold text-[#0E8FCF] bg-[#edf5ff] rounded px-[5px] py-[2px]">Min {t.minBet}</span>
+      <div className={compact ? 'px-[6px] py-[5px]' : 'px-2.5 py-2'}>
+        <p className={`font-semibold text-[#1a2332] leading-tight truncate ${compact ? 'text-[9px]' : 'text-[11px]'}`}>{t.name}</p>
+        <p className={`text-[#737B8C] leading-tight truncate mt-[1px] ${compact ? 'text-[7px]' : 'text-[8px]'}`}>{t.dealer ? `${t.dealer} · ` : ''}{t.provider}</p>
+        <div className={`flex items-center justify-between gap-1 ${compact ? 'mt-1' : 'mt-1.5'}`}>
+          <span className={`font-semibold text-[#0E8FCF] bg-[#edf5ff] rounded ${compact ? 'text-[7px] px-[4px] py-[1px]' : 'text-[8px] px-[5px] py-[2px]'}`}>Min {t.minBet}</span>
           <FavoriteStar
-            size={14}
+            size={compact ? 11 : 14}
             inactiveStroke="#94a3b8"
             activeColor="#0E8FCF"
             className="flex-shrink-0"
@@ -159,29 +161,36 @@ export default function LiveCasinoScreen() {
 
           {/* ── Popüler Masalar ── */}
           <div className="px-4 pt-1"><SectionHeader title="Popüler Masalar" badge="Canli Casino" showAll href="/live-casino/tumu" /></div>
-          <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
-            {popular.map((t, i) => <TableCard key={i} t={t} w="w-[150px]" />)}
+          <div className="px-4 pb-4">
+            <div className="flex gap-[8px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {popular.map((t, i) => <TableCard key={i} t={t} w="w-[calc((100%-16px)/3)]" compact />)}
+            </div>
           </div>
 
           {/* ── Oyun Şovları ── */}
           <div className="px-4 pt-1"><SectionHeader title="Oyun Şovları" badge="Canli Casino" showAll href="/live-casino/oyun-sovlari" /></div>
-          <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
-            {gameShows.map((t, i) => <TableCard key={i} t={t} w="w-[160px]" />)}
+          <div className="px-4 pb-4">
+            <div className="flex gap-[8px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {gameShows.map((t, i) => <TableCard key={i} t={t} w="w-[calc((100%-16px)/3)]" compact />)}
+            </div>
           </div>
 
           {/* ── Kategoriler ── */}
           <div className="px-4 pt-1"><SectionHeader title="Kategoriler" showAll href="/live-casino/tumu" /></div>
-          <div className="flex gap-[10px] overflow-x-auto scrollbar-hide px-4 pb-4">
-            {kategoriler.map((cat, idx) => (
-              <button key={cat.name} onClick={() => { const slug = CATEGORY_SLUGS.find(c => c.label === cat.name)?.slug; if (slug) router.push(`/live-casino/${slug}`) }}
-                className="flex-shrink-0 w-[92px] rounded-2xl relative overflow-hidden cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform">
-                <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
-                <div className="relative z-10 h-[100px] flex flex-col justify-end px-[6px] pb-[8px]">
-                  <span className="text-[10px] font-semibold text-white leading-tight text-center" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{cat.name}</span>
-                </div>
-              </button>
-            ))}
+          <div className="px-4 pb-4">
+            <div className="flex gap-[10px] overflow-x-auto scrollbar-hide" style={{ scrollSnapType: 'x mandatory' }}>
+              {kategoriler.map((cat, idx) => (
+                <button key={cat.name} onClick={() => { const slug = CATEGORY_SLUGS.find(c => c.label === cat.name)?.slug; if (slug) router.push(`/live-casino/${slug}`) }}
+                  style={{ scrollSnapAlign: 'start' }}
+                  className="flex-shrink-0 w-[calc((100%-30px)/4)] rounded-2xl relative overflow-hidden cursor-pointer hover:scale-[1.03] active:scale-[0.98] transition-transform">
+                  <img src={cat.image} alt={cat.name} className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+                  <div className="relative z-10 h-[100px] flex flex-col justify-end px-[6px] pb-[8px]">
+                    <span className="text-[10px] font-semibold text-white leading-tight text-center" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{cat.name}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* ── Ayın Sağlayıcısı ── */}
