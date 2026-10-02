@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import FavoriteStar from '@/components/FavoriteStar'
 import { gameHref } from '@/components/gameHref'
@@ -39,9 +39,12 @@ function GameGrid({ games }: { games: ReturnType<typeof gamesFor> }) {
 export default function SlotCategoryScreen() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const slug = typeof params.slug === 'string' ? params.slug : Array.isArray(params.slug) ? params.slug[0] : ''
   const title = LABELS[slug]
-  const games = title ? gamesFor(slug) : []
+  // Task 25: the Sağlayıcılar directory links here with ?provider=NAME.
+  const providerFilter = searchParams.get('provider')
+  const games = title ? gamesFor(slug).filter(g => !providerFilter || g.provider === providerFilter) : []
   // Task 16: search is scoped to the "Tümü" (All) page — it already lists
   // every slot, so it's the one place a within-page search makes sense.
   const isAllGames = slug === 'tumu'
@@ -83,7 +86,7 @@ export default function SlotCategoryScreen() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
             </button>
             <div className="flex-1 text-center">
-              <h1 className="text-[16px] font-bold text-[#1a2332] leading-tight">{title ?? 'Kategori'}</h1>
+              <h1 className="text-[16px] font-bold text-[#1a2332] leading-tight">{providerFilter ?? (title ?? 'Kategori')}</h1>
               {title && <p className="text-[10px] text-[#737B8C] leading-tight">{games.length} oyun</p>}
             </div>
             {isAllGames ? (

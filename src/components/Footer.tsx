@@ -151,7 +151,7 @@ export default function Footer() {
             <svg width="66" height="36" viewBox="0 0 72 36" role="img" aria-label={p.name}>{p.svg}</svg>
           </span>
         ))}
-        <Link href="/kupon/deposit" className="ml-auto text-[13px] text-[#1a2332] font-medium whitespace-nowrap">
+        <Link href="/kupon/deposit" className="ml-auto flex-shrink-0 rounded-full border border-[#e8ecf1] px-[14px] py-[8px] text-[12px] text-[#1a2332] font-semibold whitespace-nowrap hover:bg-[#f8fafc] active:scale-[0.97] transition-all">
           Hepsini gör &gt;
         </Link>
       </div>

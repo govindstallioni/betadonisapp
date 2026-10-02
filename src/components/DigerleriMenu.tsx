@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAdc } from './AdcProvider'
 import { fmtAdc } from '@/data/adc'
+import { ESPORTS_HREF } from '@/data/esports'
 
 // ── Shared, canonical "Diğerleri" navigation list ──────────────────────────
 // One source of truth rendered by BOTH the /digerleri page (DigerleriScreen)
@@ -31,6 +32,62 @@ const iPartner = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><pa
 const iPromo = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zm0 0h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" /></svg>
 const iAdc = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.2 14.6l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0 0 20.05 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.13 0-.23-.11-.22-.24z" /></svg>
 const iHelp = <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 0 1 4.9.75c0 1.66-2.4 1.9-2.4 3.5" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+const iEsports = <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M17.5 7h-11C4.57 7 3 8.57 3 10.5v3C3 15.43 4.57 17 6.5 17c1.1 0 2.09-.5 2.75-1.3L10.5 14h3l1.25 1.7c.66.8 1.65 1.3 2.75 1.3 1.93 0 3.5-1.57 3.5-3.5v-3C21 8.57 19.43 7 17.5 7zM9 12H7.5v1.5h-1V12H5v-1h1.5V9.5h1V11H9v1zm5.5-.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5zm2 2a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5zm0-3.5a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5zm2 1.5a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5z" /></svg>
+
+// ── Decorative right-edge visuals for the featured cards (task 24: "the icon
+// is on the left, a relevant visual on the right side ... the visual should
+// overflow/be cut off at the edge", matching menu6.png's bleeding illustration).
+// Each card clips with overflow-hidden, so positioning these partly past the
+// card's own right edge is what produces the "taşmış" cut-off look.
+const vAdc = (
+  <svg width="104" height="104" viewBox="0 0 104 104" fill="none" className="absolute -right-4 -bottom-5 opacity-90 pointer-events-none">
+    <circle cx="40" cy="64" r="30" fill="#fff" fillOpacity="0.14" />
+    <circle cx="62" cy="38" r="34" fill="#fff" fillOpacity="0.22" />
+    <circle cx="62" cy="38" r="26" fill="none" stroke="#fff" strokeOpacity="0.5" strokeWidth="2" />
+    <text x="62" y="47" textAnchor="middle" fontSize="26" fontWeight="bold" fill="#fff" fillOpacity="0.85">₳</text>
+  </svg>
+)
+const vPromo = (
+  <svg width="110" height="110" viewBox="0 0 110 110" fill="none" className="absolute -right-3 -bottom-4 opacity-90 pointer-events-none">
+    <circle cx="55" cy="55" r="46" fill="#fff" fillOpacity="0.12" />
+    <g transform="translate(28,34) rotate(-18)">
+      <path d="M0 10 L26 2 V28 L0 20 Z" fill="#fff" fillOpacity="0.9" />
+      <rect x="-7" y="10" width="7" height="10" rx="2" fill="#fff" fillOpacity="0.9" />
+      <path d="M26 2 L42 -6 V36 L26 28 Z" fill="#fff" fillOpacity="0.55" />
+      <circle cx="6" cy="34" r="2.4" fill="#fff" fillOpacity="0.8" />
+      <circle cx="14" cy="38" r="2" fill="#fff" fillOpacity="0.6" />
+      <circle cx="-2" cy="40" r="1.6" fill="#fff" fillOpacity="0.7" />
+    </g>
+  </svg>
+)
+const vLive = (
+  <svg width="108" height="108" viewBox="0 0 108 108" fill="none" className="absolute -right-4 -bottom-5 opacity-90 pointer-events-none">
+    <circle cx="54" cy="54" r="44" fill="#fff" fillOpacity="0.12" />
+    <circle cx="48" cy="48" r="13" fill="#fff" fillOpacity="0.85" />
+    <path d="M48 36c3 4 3 22 0 26M38 40c2 3 2 16 0 19M58 40c2 3 2 16 0 19" stroke="#fff" strokeOpacity="0.45" strokeWidth="2" fill="none" />
+    <circle cx="80" cy="30" r="5" fill="#fff" fillOpacity="0.5" />
+    <circle cx="86" cy="70" r="4" fill="#fff" fillOpacity="0.35" />
+  </svg>
+)
+const vVirtual = (
+  <svg width="108" height="108" viewBox="0 0 108 108" fill="none" className="absolute -right-4 -bottom-5 opacity-90 pointer-events-none">
+    <circle cx="54" cy="54" r="44" fill="#fff" fillOpacity="0.12" />
+    <rect x="26" y="42" width="56" height="30" rx="14" fill="#fff" fillOpacity="0.85" />
+    <circle cx="42" cy="57" r="6" fill="#7c3aed" />
+    <circle cx="66" cy="57" r="6" fill="#7c3aed" />
+    <rect x="48" y="52" width="12" height="4" rx="2" fill="#7c3aed" />
+  </svg>
+)
+const vEsports = (
+  <svg width="108" height="108" viewBox="0 0 108 108" fill="none" className="absolute -right-4 -bottom-5 opacity-90 pointer-events-none">
+    <circle cx="54" cy="54" r="44" fill="#fff" fillOpacity="0.12" />
+    <rect x="22" y="44" width="64" height="30" rx="15" fill="#fff" fillOpacity="0.85" />
+    <rect x="35" y="55" width="12" height="4" rx="2" fill="#1a2332" />
+    <rect x="39" y="51" width="4" height="12" rx="2" fill="#1a2332" />
+    <circle cx="65" cy="54" r="3.5" fill="#1a2332" />
+    <circle cx="74" cy="60" r="3.5" fill="#1a2332" />
+  </svg>
+)
 
 // Casino sub-menu (dropdown) items.
 const casinoChildren = [
@@ -50,19 +107,31 @@ export type DigerleriItem = {
   icon: React.ReactNode
   children?: { name: string; href: string }[]
   /** Visually featured row (gradient card instead of plain white), like the
-   *  client's reference for the Adonis Coin entry (adoniscoins.png). */
+   *  client's reference for the Adonis Coin entry (adoniscoins.png) — and,
+   *  per task 24, Promosyonlar, Live/Virtual Betting and E-Spor. */
   featured?: boolean
+  /** Tailwind gradient stops for a featured card; falls back to the cyan
+   *  Adonis Coin gradient when a featured item doesn't set its own. */
+  gradient?: string
+  /** Decorative illustration bled off the card's right edge (task 24). */
+  visual?: React.ReactNode
   /** When set, the row's desc is live and read from state at render time
    *  rather than taken from this static list. */
   live?: 'adc'
 }
 
+// Adonis Coin Kodları and Promosyonlar sit right above CANLI BAHİS (task 24);
+// Live Betting, Virtual Betting and the new E-Spor entry share the same
+// featured-card-with-bleeding-visual styling but keep their own position.
 export const digerleriItems: DigerleriItem[] = [
-  { title: 'CANLI BAHİS', desc: 'Canlı maçlarda yüksek oranlarla kazanın', href: '/live', color: '#0E8FCF', icon: iLive },
+  { title: 'Adonis Coin Kodları', desc: 'Promosyon Puanları: 0 ADC PUAN', href: '/adonis-coin', color: '#0891b2', icon: iAdc, featured: true, gradient: 'from-[#0891b2] to-[#0e7490]', visual: vAdc, live: 'adc' },
+  { title: 'Promosyonlar', desc: 'Güncel bonuslar ve özel kampanyaları keşfedin', href: '/promosyonlar', color: '#0E8FCF', icon: iPromo, featured: true, gradient: 'from-[#f59e0b] to-[#d97706]', visual: vPromo },
+  { title: 'CANLI BAHİS', desc: 'Canlı maçlarda yüksek oranlarla kazanın', href: '/live', color: '#0E8FCF', icon: iLive, featured: true, gradient: 'from-[#0E8FCF] to-[#0a5f8a]', visual: vLive },
   { title: 'Maç öncesi', desc: 'Yaklaşan etkinliklere bahis yapın', href: '/prematch', color: '#0E8FCF', icon: iCalendar },
+  { title: 'E-Spor', desc: 'Popüler e-spor liglerine bahis yapın', href: ESPORTS_HREF, color: '#16a34a', icon: iEsports, featured: true, gradient: 'from-[#16a34a] to-[#15803d]', visual: vEsports },
   { title: 'Günün Kombinesi', desc: 'Kazanç potansiyeli yüksek hazır kombineler', href: '/kupon/accumulator', color: '#27ae60', icon: iCombo },
   { title: 'Canlı Yayınlar', desc: 'Bahislerinizi canlı izlerken oynayın', href: '/live?stream=1', color: '#e74c3c', icon: iStream },
-  { title: 'SANAL BAHİS', desc: 'En iyi sanal bahis etkinlikleri', href: '/sanal-bahis', color: '#7c3aed', icon: iVirtual },
+  { title: 'SANAL BAHİS', desc: 'En iyi sanal bahis etkinlikleri', href: '/sanal-bahis', color: '#7c3aed', icon: iVirtual, featured: true, gradient: 'from-[#7c3aed] to-[#5b21b6]', visual: vVirtual },
   { title: 'Slot Oyunları', desc: 'En iyi slot oyunları', href: '/slots', color: '#ea580c', icon: iSlots },
   { title: 'Casino', desc: 'Slot, crash ve şans oyunları bir arada', color: '#6d28d9', icon: iChip, children: casinoChildren },
   { title: 'Canlı Casino', desc: 'Kendinizi casinodaymış gibi hissedin', href: '/live-casino', color: '#c026d3', icon: iCasino },
@@ -71,8 +140,6 @@ export const digerleriItems: DigerleriItem[] = [
   { title: 'Golden Race', desc: 'Kazanırken eğlenmek, kontrol sende', href: '/golden-race', color: '#d97706', icon: iHorse },
   { title: 'Şans Çarkı', desc: 'Hergün senin için nakit ödül, boş yok', href: '/sans-carki', color: '#f59e0b', icon: iWheel },
   { title: 'Ortaklık', desc: 'Finansal ekosistemin ortağı ol', href: '/ortaklik', color: '#27ae60', icon: iPartner },
-  { title: 'Adonis Coin Kodları', desc: 'Promosyon Puanları: 0 ADC PUAN', href: '/adonis-coin', color: '#0891b2', icon: iAdc, featured: true, live: 'adc' },
-  { title: 'Promosyonlar', desc: 'Güncel bonuslar ve özel kampanyaları keşfedin', href: '/promosyonlar', color: '#0E8FCF', icon: iPromo },
   { title: 'Yardım ve Destek', desc: 'SSS, canlı destek, iletişim ve şikayet', href: '/yardim', color: '#0E8FCF', icon: iHelp },
 ]
 
@@ -134,23 +201,24 @@ export default function DigerleriMenu({ onNavigate }: { onNavigate: (href: strin
           <button
             key={item.title}
             onClick={() => onNavigate(item.href!)}
-            className={`flex items-center gap-3 rounded-xl px-3 py-3 border transition-colors w-full ${
+            className={`relative flex items-center gap-3 rounded-xl px-3 py-3 border transition-colors w-full ${
               item.featured
-                ? 'border-transparent bg-gradient-to-r from-[#0891b2] to-[#0e7490] active:scale-[0.99]'
+                ? `overflow-hidden border-transparent bg-gradient-to-r ${item.gradient ?? 'from-[#0891b2] to-[#0e7490]'} active:scale-[0.99]`
                 : 'bg-white border-[#e8ecf1] hover:bg-[#f8fafc]'
             }`}
           >
+            {item.featured && item.visual}
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              className="relative w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ backgroundColor: item.featured ? 'rgba(255,255,255,0.2)' : item.color }}
             >
               {item.icon}
             </div>
-            <div className="flex-1 text-left min-w-0">
+            <div className={`relative flex-1 text-left min-w-0 ${item.featured ? 'pr-11' : ''}`}>
               <p className={`text-[12px] font-semibold leading-tight ${item.featured ? 'text-white' : 'text-[#1a2332]'}`}>{item.title}</p>
               <p className={`text-[9px] mt-[2px] ${item.featured ? 'text-white/75' : 'text-[#737B8C]'}`}>{desc}</p>
             </div>
-            <Chevron />
+            {!item.featured && <Chevron />}
           </button>
         )
       })}

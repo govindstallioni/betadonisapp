@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { TableCard } from './LiveCasinoScreen'
 import { CATEGORY_SLUGS, tablesFor } from './liveCasinoData'
@@ -10,10 +10,13 @@ import { CATEGORY_SLUGS, tablesFor } from './liveCasinoData'
 export default function LiveCasinoCategoryScreen() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const slug = typeof params.category === 'string' ? params.category : Array.isArray(params.category) ? params.category[0] : ''
   const entry = CATEGORY_SLUGS.find(c => c.slug === slug)
   const title = entry?.label
-  const tables = title ? tablesFor(slug) : []
+  // Task 25: the Sağlayıcılar directory links here with ?provider=NAME.
+  const providerFilter = searchParams.get('provider')
+  const tables = title ? tablesFor(slug).filter(t => !providerFilter || t.provider === providerFilter) : []
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative">
@@ -23,7 +26,7 @@ export default function LiveCasinoCategoryScreen() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
           </button>
           <div className="flex-1 text-center">
-            <h1 className="text-[16px] font-bold text-[#1a2332] leading-tight">{title === 'Tümü' ? 'Tüm Masalar' : (title ?? 'Kategori')}</h1>
+            <h1 className="text-[16px] font-bold text-[#1a2332] leading-tight">{providerFilter ?? (title === 'Tümü' ? 'Tüm Masalar' : (title ?? 'Kategori'))}</h1>
             {title && <p className="text-[10px] text-[#737B8C] leading-tight">{tables.length} masa</p>}
           </div>
           {/* Stays available on every category page, not just the live-casino home (task 17). */}

@@ -169,6 +169,12 @@ export default function SettingsPage() {
         {/* Uygulama Ayarları */}
         <SectionLabel label="Uygulama Ayarları" />
         <SettingsCard>
+          <SettingsRow
+            title="Giriş Sayfası Düzeni"
+            desc="Bölümleri yeniden sırala veya aç/kapat"
+            icon={<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9" rx="1" /><rect x="14" y="3" width="7" height="5" rx="1" /><rect x="14" y="12" width="7" height="9" rx="1" /><rect x="3" y="16" width="7" height="5" rx="1" /></svg>}
+            onClick={() => router.push('/settings/homepage-layout')}
+          />
           <div className="flex items-center justify-between px-3 py-3.5 border-b border-[#f0f2f5]">
             <div>
               <p className="text-[13px] font-medium text-[#1a2332] leading-tight">Anlık Bildirimler</p>

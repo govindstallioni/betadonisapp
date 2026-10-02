@@ -9,6 +9,7 @@ import { liveMatches, liveSportCats } from '@/data/liveData'
 import { RegionButton, RegionSheet, flagOptionsFrom } from './RegionFilter'
 import OnboardingTour from './OnboardingTour'
 import LiveListView from './LiveListView'
+import LiveGridView from './LiveGridView'
 
 // Popular-league shortcut chips (filter by league substring; 'Tümü' = all).
 const shortcuts = ['Tümü', 'Süper Lig', 'Premier Lig', 'La Liga', 'Bundesliga', 'Serie A', 'NBA']
@@ -42,6 +43,14 @@ export default function CanliBahisScreen() {
   const [pinnedIds, setPinnedIds] = useState<string[]>([])
   const togglePin = (id: string) => {
     setPinnedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev]))
+  }
+  // Pin a whole league's matches to the top in one tap (task 7) — the LEFT-side
+  // pin on a league card/header, distinct from the per-match pin above.
+  const togglePinLeague = (ids: string[]) => {
+    setPinnedIds((prev) => {
+      const allPinned = ids.every((id) => prev.includes(id))
+      return allPinned ? prev.filter((id) => !ids.includes(id)) : [...ids, ...prev.filter((id) => !ids.includes(id))]
+    })
   }
 
   const flagOptions = flagOptionsFrom(liveMatches)
@@ -188,11 +197,13 @@ export default function CanliBahisScreen() {
             <p className="text-[12px] text-[#94a3b8]">Bu filtreyle canlı etkinlik yok.</p>
           </div>
         ) : layout === 'list' ? (
-          <LiveListView matches={matches} market={market} pinnedIds={pinnedIds} onTogglePin={togglePin} />
+          <LiveListView matches={matches} market={market} pinnedIds={pinnedIds} onTogglePin={togglePin} onTogglePinLeague={togglePinLeague} />
+        ) : layout === 'grid' ? (
+          <LiveGridView matches={matches} market={market} pinnedIds={pinnedIds} onTogglePin={togglePin} onTogglePinLeague={togglePinLeague} />
         ) : (
-          <div className={layout === 'grid' ? 'grid grid-cols-2 gap-[8px]' : 'flex flex-col gap-[10px]'}>
+          <div className="flex flex-col gap-[10px]">
             {matches.map((m) => (
-              <MatchCard key={m.id} match={m} compact={layout === 'grid'} market={market} pinned={pinnedIds.includes(m.id)} onTogglePin={() => togglePin(m.id)} />
+              <MatchCard key={m.id} match={m} market={market} pinned={pinnedIds.includes(m.id)} onTogglePin={() => togglePin(m.id)} />
             ))}
           </div>
         )}

@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import MatchCard from './MatchCard'
+import MatchCard, { OddsMarket } from './MatchCard'
+import LiveListView from './LiveListView'
+import LiveGridView from './LiveGridView'
 import { leagueMatches } from '@/data/liveData'
 
 // Single-column live match LIST for one league (reached from the tournament
@@ -16,13 +18,31 @@ export default function LiveLeagueScreen() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [streamOnly, setStreamOnly] = useState(false)
+  // 3 bet list view options + pin-to-top (task 7: these must be present on
+  // every "league selected, bets listed" screen too, not just the main list).
+  const [layout, setLayout] = useState<'cards' | 'grid' | 'list'>('cards')
+  const [market] = useState<OddsMarket>('MS')
+  const [pinnedIds, setPinnedIds] = useState<string[]>([])
+  const togglePin = (id: string) => {
+    setPinnedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev]))
+  }
+  const togglePinLeague = (ids: string[]) => {
+    setPinnedIds((prev) => {
+      const allPinned = ids.every((id) => prev.includes(id))
+      return allPinned ? prev.filter((id) => !ids.includes(id)) : [...ids, ...prev.filter((id) => !ids.includes(id))]
+    })
+  }
 
   const base = leagueMatches(league, flag)
-  const matches = base.filter((m) => {
+  const filteredMatches = base.filter((m) => {
     if (streamOnly && !m.hasStream) return false
     if (query.trim() && !`${m.team1} ${m.team2}`.toLowerCase().includes(query.toLowerCase())) return false
     return true
   })
+  const matches = [
+    ...pinnedIds.map((id) => filteredMatches.find((m) => m.id === id)).filter((m): m is NonNullable<typeof m> => !!m),
+    ...filteredMatches.filter((m) => !pinnedIds.includes(m.id)),
+  ]
 
   return (
     <div className="max-w-[430px] mx-auto bg-[#edf1f7] min-h-screen pb-24">
@@ -55,22 +75,42 @@ export default function LiveLeagueScreen() {
         </button>
       </div>
 
-      {/* ── Live section header ── */}
-      <div className="flex items-center gap-2 px-4 pt-3 pb-2">
-        <span className="w-[6px] h-[6px] rounded-full bg-[#e74c3c] animate-pulse-dot" />
-        <span className="text-[12px] font-bold text-[#1a2332]">Canlı Etkinlikler</span>
-        <span className="text-[10px] text-[#737B8C] font-semibold">{matches.length}</span>
+      {/* ── Live section header + view toggle ── */}
+      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+        <div className="flex items-center gap-2">
+          <span className="w-[6px] h-[6px] rounded-full bg-[#e74c3c] animate-pulse-dot" />
+          <span className="text-[12px] font-bold text-[#1a2332]">Canlı Etkinlikler</span>
+          <span className="text-[10px] text-[#737B8C] font-semibold">{matches.length}</span>
+        </div>
+        <div className="flex items-center bg-white rounded-full border border-[#e8ecf1] p-[2px]">
+          {([
+            { key: 'cards', label: 'Tek sütun', icon: <><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></> },
+            { key: 'grid', label: 'İki sütun', icon: <><rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /></> },
+            { key: 'list', label: 'Liste görünümü', icon: <><rect x="3" y="4" width="18" height="4" rx="1" /><line x1="3" y1="12" x2="12" y2="12" /><line x1="3" y1="17" x2="12" y2="17" /><rect x="15" y="10.5" width="6" height="8" rx="1" /></> },
+          ] as const).map((b) => {
+            const on = layout === b.key
+            return (
+              <button key={b.key} onClick={() => setLayout(b.key)} aria-label={b.label} aria-pressed={on} className={`w-7 h-7 rounded-full flex items-center justify-center ${on ? 'bg-[#0E8FCF]' : ''}`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={on ? '#fff' : '#737B8C'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{b.icon}</svg>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      {/* ── Match list (single column) ── */}
+      {/* ── Match list ── */}
       <div className="px-3">
         {matches.length === 0 ? (
           <div className="bg-white rounded-xl py-10 text-center border border-[#e8ecf1]">
             <p className="text-[12px] text-[#94a3b8]">Bu filtreyle canlı maç yok.</p>
           </div>
+        ) : layout === 'list' ? (
+          <LiveListView matches={matches} market={market} pinnedIds={pinnedIds} onTogglePin={togglePin} onTogglePinLeague={togglePinLeague} />
+        ) : layout === 'grid' ? (
+          <LiveGridView matches={matches} market={market} pinnedIds={pinnedIds} onTogglePin={togglePin} onTogglePinLeague={togglePinLeague} />
         ) : (
           <div className="flex flex-col gap-[10px]">
-            {matches.map((m) => <MatchCard key={m.id} match={m} />)}
+            {matches.map((m) => <MatchCard key={m.id} match={m} market={market} pinned={pinnedIds.includes(m.id)} onTogglePin={() => togglePin(m.id)} />)}
           </div>
         )}
       </div>

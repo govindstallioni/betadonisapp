@@ -85,6 +85,17 @@ export default function KuponlarimScreen() {
     .filter(b => tab === 'all' || b.status === tab)
     .sort((a, b) => sortKey(b.date).localeCompare(sortKey(a.date)))
 
+  // Expand/collapse the whole visible list in one tap (task 3).
+  const couponIds = bets.filter((b): b is Bet => 'legs' in b).map(b => b.id)
+  const allExpanded = couponIds.length > 0 && couponIds.every(id => openBets.has(id))
+  function toggleAllBets() {
+    setOpenBets(() => {
+      const next = allExpanded ? new Set<string>() : new Set(couponIds)
+      try { localStorage.setItem(OPEN_KEY, JSON.stringify([...next])) } catch {}
+      return next
+    })
+  }
+
   const current = SECTIONS.find(s => s.key === section)!
   const noun = section === 'kupon' ? 'kupon' : 'casino'
 
@@ -105,7 +116,27 @@ export default function KuponlarimScreen() {
             <h1 className="text-[20px] font-bold text-[#1a2332]">{current.title}</h1>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
           </button>
-          <div className="w-8 h-8" />
+          <div className="flex items-center gap-[2px]">
+            {/* Tümünü Aç/Kapat (task 3) — only meaningful for coupons, which
+                are the only rows with their own expand/collapse state. */}
+            {section === 'kupon' && couponIds.length > 0 && (
+              <button
+                onClick={toggleAllBets}
+                aria-label={allExpanded ? 'Tümünü Kapat' : 'Tümünü Aç'}
+                aria-pressed={allExpanded}
+                className="w-8 h-8 flex items-center justify-center"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {allExpanded ? <path d="M18 15 12 9l-6 6" /> : <path d="M6 9l6 6 6-6" />}
+                  <path d="M4 20h16" strokeOpacity="0.4" />
+                </svg>
+              </button>
+            )}
+            {/* Hareketlerim (task 3) — shortcut to the Transactions page. */}
+            <Link href="/history" aria-label="Hareketlerim" className="w-8 h-8 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5" /><path d="M3 9h18M8 2.5v4M16 2.5v4M8 14h2M8 17h5" /></svg>
+            </Link>
+          </div>
         </div>
 
         {/* Hepsi / Kazanmış / Bekleyenler + Filtrele */}

@@ -87,3 +87,26 @@ export function tablesFor(slug: string): Table[] {
   const all = [...allTables, ...gameShows]
   return entry.label === 'Tümü' ? all : all.filter(t => t.category === entry.label)
 }
+
+// Task 25: shared here (not local to LiveCasinoScreen.tsx) so the dedicated
+// /live-casino/kategoriler and /live-casino/saglayicilar pages can import
+// them too.
+export const kategoriler = [
+  { name: 'Rulet', image: '/canli-casino/roulette.webp' },
+  { name: 'Blackjack', image: '/canli-casino/blackjack-a.webp' },
+  { name: 'Bakara', image: '/canli-casino/baccarat-a.webp' },
+  { name: 'Poker', image: '/canli-casino/poker.webp' },
+  { name: 'Dragon Tiger', image: '/canli-casino/emperor-dragon-tiger.webp' },
+  { name: 'Oyun Şovları', image: '/canli-casino/crazy-time.webp' },
+]
+
+export const providers = [
+  { name: 'Evolution', logo: '/providers/provider1.png', tables: 214 },
+  { name: 'Pragmatic Play Live', logo: '/providers/pragmatic.png', tables: 96 },
+  { name: 'Ezugi', logo: '/providers/provider2.png', tables: 74 },
+  { name: 'Playtech', logo: '/providers/provider3.png', tables: 58 },
+  { name: 'Vivo Gaming', logo: '', tables: 33 },
+  { name: 'Atmosfera', logo: '', tables: 21 },
+  { name: 'Absolute Live', logo: '', tables: 18 },
+  { name: 'LuckyStreak', logo: '', tables: 12 },
+]

@@ -7,27 +7,7 @@ import SectionHeader from '@/components/SectionHeader'
 import FavoriteStar from '@/components/FavoriteStar'
 import { gameHref } from './gameHref'
 import { artFallback } from './placeholderGameArt'
-import { type Table, categoryChips, CATEGORY_SLUGS, allTables, gameShows } from './liveCasinoData'
-
-const kategoriler = [
-  { name: 'Rulet', image: '/canli-casino/roulette.webp' },
-  { name: 'Blackjack', image: '/canli-casino/blackjack-a.webp' },
-  { name: 'Bakara', image: '/canli-casino/baccarat-a.webp' },
-  { name: 'Poker', image: '/canli-casino/poker.webp' },
-  { name: 'Dragon Tiger', image: '/canli-casino/emperor-dragon-tiger.webp' },
-  { name: 'Oyun Şovları', image: '/canli-casino/crazy-time.webp' },
-]
-
-const providers = [
-  { name: 'Evolution', logo: '/providers/provider1.png', tables: 214 },
-  { name: 'Pragmatic Play Live', logo: '/providers/pragmatic.png', tables: 96 },
-  { name: 'Ezugi', logo: '/providers/provider2.png', tables: 74 },
-  { name: 'Playtech', logo: '/providers/provider3.png', tables: 58 },
-  { name: 'Vivo Gaming', logo: '', tables: 33 },
-  { name: 'Atmosfera', logo: '', tables: 21 },
-  { name: 'Absolute Live', logo: '', tables: 18 },
-  { name: 'LuckyStreak', logo: '', tables: 12 },
-]
+import { type Table, categoryChips, CATEGORY_SLUGS, allTables, gameShows, kategoriler, providers } from './liveCasinoData'
 
 // ── Live table card ─────────────────────────────────────────────────────────
 export function TableCard({ t, w = 'w-full', compact = false }: { t: Table; w?: string; compact?: boolean }) {
@@ -147,6 +127,28 @@ export default function LiveCasinoScreen() {
         <>
           {/* Task 30: the promo-card strip that sat here is removed per the
               client's marked reference (canlicasino.png). */}
+
+          {/* ── Favorilerim / Kategoriler / Sağlayıcılar shortcut bar (task 25) ── */}
+          <div className="grid grid-cols-3 gap-[8px] px-4 pt-3">
+            <Link href="/favorites" className="flex flex-col items-center gap-[5px] bg-white rounded-xl border border-[#e8ecf1] py-[10px] active:scale-[0.98] transition-transform">
+              <span className="w-8 h-8 rounded-full bg-[#edf5ff] flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+              </span>
+              <span className="text-[10px] font-semibold text-[#1a2332]">Favorilerim</span>
+            </Link>
+            <Link href="/live-casino/kategoriler" className="flex flex-col items-center gap-[5px] bg-white rounded-xl border border-[#e8ecf1] py-[10px] active:scale-[0.98] transition-transform">
+              <span className="w-8 h-8 rounded-full bg-[#edf5ff] flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+              </span>
+              <span className="text-[10px] font-semibold text-[#1a2332]">Kategoriler</span>
+            </Link>
+            <Link href="/live-casino/saglayicilar" className="flex flex-col items-center gap-[5px] bg-white rounded-xl border border-[#e8ecf1] py-[10px] active:scale-[0.98] transition-transform">
+              <span className="w-8 h-8 rounded-full bg-[#edf5ff] flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+              </span>
+              <span className="text-[10px] font-semibold text-[#1a2332]">Sağlayıcılar</span>
+            </Link>
+          </div>
 
           {/* ── Category chips + Providers ── */}
           <div className="flex gap-[6px] overflow-x-auto scrollbar-hide px-4 pt-3 pb-3 items-center">

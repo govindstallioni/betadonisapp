@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import MatchCard from './MatchCard'
 import PreMatchCard from './PreMatchCard'
 import PreMatchListView from './PreMatchListView'
+import PreMatchGridView from './PreMatchGridView'
 import SectionHeader from './SectionHeader'
 import { SPORT_ICONS } from './sportIcons'
 import { liveMatches } from '@/data/liveData'
@@ -184,6 +185,13 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
   const [pinnedIds, setPinnedIds] = useState<string[]>([])
   const togglePin = (id: string) => {
     setPinnedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [id, ...prev]))
+  }
+  // Pin a whole league's matches to the top in one tap (task 7).
+  const togglePinLeague = (ids: string[]) => {
+    setPinnedIds((prev) => {
+      const allPinned = ids.every((id) => prev.includes(id))
+      return allPinned ? prev.filter((id) => !ids.includes(id)) : [...ids, ...prev.filter((id) => !ids.includes(id))]
+    })
   }
 
   const sportMatches = preMatches.filter(m => m.sport === activeSport)
@@ -388,11 +396,13 @@ export default function PreMatchScreen({ initialTab = 1 }: PreMatchScreenProps) 
                 <p className="text-[12px] text-[#94a3b8]">Bu filtreyle karşılaşma yok.</p>
               </div>
             ) : layout === 'list' ? (
-              <PreMatchListView matches={listMatches} pinnedIds={pinnedIds} onTogglePin={togglePin} />
+              <PreMatchListView matches={listMatches} pinnedIds={pinnedIds} onTogglePin={togglePin} onTogglePinLeague={togglePinLeague} />
+            ) : layout === 'grid' ? (
+              <PreMatchGridView matches={listMatches} pinnedIds={pinnedIds} onTogglePin={togglePin} onTogglePinLeague={togglePinLeague} />
             ) : (
-              <div className={layout === 'grid' ? 'grid grid-cols-2 gap-[8px]' : 'flex flex-col gap-[10px]'}>
+              <div className="flex flex-col gap-[10px]">
                 {listMatches.map((m) => (
-                  <PreMatchCard key={m.id} match={m} compact={layout === 'grid'} pinned={pinnedIds.includes(m.id)} onTogglePin={() => togglePin(m.id)} />
+                  <PreMatchCard key={m.id} match={m} pinned={pinnedIds.includes(m.id)} onTogglePin={() => togglePin(m.id)} />
                 ))}
               </div>
             )}

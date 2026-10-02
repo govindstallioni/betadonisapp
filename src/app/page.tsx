@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/Header'
@@ -28,11 +28,47 @@ import EnsonKazananlar from '@/components/EnsonKazananlar'
 import CarkiKazananlar from '@/components/CarkiKazananlar'
 import BottomNav from '@/components/BottomNav'
 import Footer from '@/components/Footer'
+import { DEFAULT_ORDER, blockDef, loadHomepageLayout, visibleBlockIds, type HomepageLayout } from '@/data/homepageLayout'
+
+// Task 2: the homepage blocks below render from this map, keyed by id, so
+// "Giriş Sayfası Düzeni" (Settings) can reorder and show/hide them — see
+// src/data/homepageLayout.ts for the id list and src/components/settings/
+// HomepageLayoutScreen.tsx for the editor itself.
+const BLOCK_RENDERERS: Record<string, () => React.ReactNode> = {
+  promo: () => <PromoBanners />,
+  adc: () => <AdcCard />,
+  callme: () => <CallMeCard />,
+  megajackpot: () => <MegaJackpot />,
+  topevents: () => <TopEvents />,
+  sonkazananlar: () => <SonKazananlar />,
+  livebets: () => <LiveBets />,
+  toppreMatch: () => <TopPreMatch />,
+  todaysparlays: () => <TodaysParlays />,
+  gamecategories: () => <GameCategories />,
+  carkikazananlar: () => <CarkiKazananlar />,
+  toptournaments: () => <TopTournaments />,
+  topproviders: () => <TopProviders />,
+  ensonkazananlar: () => <EnsonKazananlar />,
+  casinocategories: () => <CasinoCategories />,
+  inthespotlight: () => <InTheSpotlight />,
+  selectedforyou: () => <SelectedForYou />,
+  dailywheel: () => <Link href="/sans-carki" className="block"><DailyWheel /></Link>,
+  virtualbets: () => <VirtualBets />,
+}
 
 function HomeContent() {
   // "Sporlar" tab navigates to /?view=sports — like 1xBet, only the sports
   // betting sections stay; casino / slots / virtual sections are hidden.
   const sportsOnly = useSearchParams().get('view') === 'sports'
+
+  // Layout is read from localStorage after mount (static export + per-device
+  // preference, same hydration-safe pattern as Favorites/Withdrawals): the
+  // default order renders first so SSR/first paint never mismatch, then the
+  // user's saved order swaps in once available.
+  const [layout, setLayout] = useState<HomepageLayout>({ order: DEFAULT_ORDER, hidden: [] })
+  useEffect(() => { setLayout(loadHomepageLayout()) }, [])
+
+  const ids = visibleBlockIds(layout, sportsOnly)
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative" style={{ overflowX: 'clip' }}>
@@ -44,29 +80,9 @@ function HomeContent() {
         {/* Sports section chooser — only on the "Sporlar" view (task 24 item 8) */}
         {sportsOnly && <div className="mt-3"><SportsTabStrip /></div>}
         <div className="mt-2"><QuickFilters /></div>
-        {!sportsOnly && <div className="mt-3"><PromoBanners /></div>}
-        <div className="mt-3"><AdcCard /></div>
-        <div className="mt-3"><CallMeCard /></div>
-        {!sportsOnly && <div className="mt-4"><MegaJackpot /></div>}
-        {!sportsOnly && <div className="mt-4"><TopEvents /></div>}
-        {!sportsOnly && <div className="mt-4"><SonKazananlar /></div>}
-        <div className="mt-5"><LiveBets /></div>
-        <div className="mt-3"><TopPreMatch /></div>
-        <div className="mt-3"><TodaysParlays /></div>
-        {!sportsOnly && <div className="mt-3"><GameCategories /></div>}
-        {!sportsOnly && <div className="mt-3"><CarkiKazananlar /></div>}
-        {!sportsOnly && <div className="mt-3"><TopTournaments /></div>}
-        {!sportsOnly && (
-          <>
-            <div className="mt-3"><TopProviders /></div>
-            <div className="mt-3"><EnsonKazananlar /></div>
-            <div className="mt-4"><CasinoCategories /></div>
-            <div className="mt-4"><InTheSpotlight /></div>
-            <div className="mt-4"><SelectedForYou /></div>
-            <Link href="/sans-carki" className="block mt-3"><DailyWheel /></Link>
-            <div className="mt-3"><VirtualBets /></div>
-          </>
-        )}
+        {ids.map(id => (
+          <div key={id} className={blockDef(id)?.mt ?? 'mt-3'}>{BLOCK_RENDERERS[id]()}</div>
+        ))}
         <Footer />
       </main>
       <BottomNav />
