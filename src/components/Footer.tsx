@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import Flag from './Flag'
+import LanguageModal, { useLanguage } from './LanguageSelector'
 import { openLiveSupport } from './LiveSupportWidget'
 
 // ── Site footer (work3 task 16, footer.png) ─────────────────────────────────
@@ -91,22 +91,25 @@ function Chevron({ open }: { open: boolean }) {
 }
 
 export default function Footer() {
-  const router = useRouter()
   const [open, setOpen] = useState<Record<string, boolean>>({ products: true })
+  const [langOpen, setLangOpen] = useState(false)
+  const { lang } = useLanguage()
 
   return (
     <footer className="@container mt-6 pt-4 pb-6 border-t border-[#e8ecf1]">
       {/* Language + live support */}
       <div className="grid grid-cols-2 gap-[10px]">
-        <Link
-          href="/settings"
+        <button
+          onClick={() => setLangOpen(true)}
+          aria-haspopup="dialog"
           className="h-[44px] rounded-xl bg-white border border-[#e8ecf1] flex items-center justify-center gap-[10px] text-[14px] font-medium text-[#1a2332]"
         >
-          <Flag emoji="🇹🇷" size={26} />
-          Türkçe
-        </Link>
+          <Flag emoji={lang.flag} size={26} />
+          {lang.label}
+        </button>
+        <LanguageModal open={langOpen} onClose={() => setLangOpen(false)} />
         <button
-          onClick={() => { if (!openLiveSupport()) router.push('/hesap/mesajlar') }}
+          onClick={() => { openLiveSupport() }}
           className="h-[44px] rounded-xl bg-white border border-[#e8ecf1] flex items-center justify-center gap-[10px] text-[14px] font-medium text-[#1a2332]"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

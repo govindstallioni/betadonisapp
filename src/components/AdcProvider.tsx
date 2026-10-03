@@ -7,7 +7,7 @@ import {
   type AdcCode, type AdcTx, type AdcTxType,
 } from '@/data/adc'
 import {
-  ACTIVITY_KEEP_MS, CASINO_LAUNCH_AMOUNT, EMPTY_ACTIVITY, QUESTS, REFERRAL_REWARD,
+  ACTIVITY_KEEP_MS, CASINO_LAUNCH_AMOUNT, EMPTY_ACTIVITY, PROFILE_REWARD, QUESTS, REFERRAL_REWARD,
   SOCIAL_PLATFORMS, SOCIAL_REVIEW_MS, dayStr, periodKey, questProgress,
   type AdcActivity, type Invite, type SocialPlatform, type SocialSubmission,
 } from '@/data/adcQuests'
@@ -24,6 +24,8 @@ import {
 // here from the screens that produce it (login, bet slip, casino game).
 
 const STORAGE_KEY = 'bta_adc'
+/** Key in `claims` that records the one-off profile reward (task 33). */
+export const PROFILE_CLAIM_KEY = 'profile-reward'
 
 export interface AdcState {
   /** Spendable now. */
@@ -72,6 +74,8 @@ interface AdcContextValue extends AdcState {
   recordCasinoPlay: (game: string) => void
   /** Claims a completed quest's reward. Returns the ADC credited (0 if not claimable). */
   claimQuest: (questId: string) => number
+  /** Credits the one-off profile-completion reward. A no-op once claimed. */
+  claimProfileReward: () => void
   /** Sends a social share for review. Returns an error message, or null on success. */
   submitSocial: (s: SocialInput) => string | null
   /** Records a friend invite. */
@@ -88,6 +92,7 @@ const AdcContext = createContext<AdcContextValue>({
   recordBet: () => {},
   recordCasinoPlay: () => {},
   claimQuest: () => 0,
+  claimProfileReward: () => {},
   submitSocial: () => null,
   addInvite: () => {},
 })
@@ -290,6 +295,19 @@ export default function AdcProvider({ children }: { children: React.ReactNode })
     return credited
   }, [])
 
+  // Guarded inside the updater so a double-fired effect can't credit twice.
+  const claimProfileReward = useCallback(() => {
+    setState(s => {
+      if (s.claims[PROFILE_CLAIM_KEY]) return s
+      return {
+        ...s,
+        available: s.available + PROFILE_REWARD,
+        claims: { ...s.claims, [PROFILE_CLAIM_KEY]: 'done' },
+        transactions: [tx('quest', PROFILE_REWARD, 'Profil bilgileri tamamlandı'), ...s.transactions],
+      }
+    })
+  }, [])
+
   const submitSocial = useCallback((input: SocialInput) => {
     const platform = SOCIAL_PLATFORMS.find(p => p.id === input.platform)
     if (!platform) return 'Platform seçin.'
@@ -332,7 +350,7 @@ export default function AdcProvider({ children }: { children: React.ReactNode })
   return (
     <AdcContext.Provider value={{
       ...state, loaded, accrueDeposit, qualifyBet, redeem, markCodeUsed,
-      recordBet, recordCasinoPlay, claimQuest, submitSocial, addInvite,
+      recordBet, recordCasinoPlay, claimQuest, claimProfileReward, submitSocial, addInvite,
     }}>
       {children}
     </AdcContext.Provider>

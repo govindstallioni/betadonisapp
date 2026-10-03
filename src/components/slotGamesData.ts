@@ -111,15 +111,52 @@ const generalTags = ['yeni-oyunlar', 'masa-oyunlari', 'video-slots', 'video-poke
 
 const general: Game[] = generalNames.map((g, i) => ({ ...g, tag: generalTags[i % generalTags.length] }))
 
-export const ALL_GAMES: Game[] = [...popular, ...forYou, ...crash, ...providerOfMonth, ...general]
+// ── Casino sub-categories (v6.6 task 29) ────────────────────────────────────
+// "Casino Slot Makineleri" and the instant/crash-style families that get their
+// own pages under /slots/[slug]. There is no box art for the instant games in
+// public/casino, so those entries point at a path that doesn't exist on
+// purpose — artFallback() paints a generated tile for them.
+export type CasinoSubcategory = { slug: string; label: string; emoji: string; from: string; to: string; image?: string }
+
+export const CASINO_SUBCATEGORIES: CasinoSubcategory[] = [
+  { slug: 'casino-slot-makineleri', label: 'Casino Slot Makineleri', emoji: '🎰', from: '#ea580c', to: '#f59e0b', image: '/casino/gates-of-olympus.webp' },
+  { slug: 'crash-oyunlari', label: 'Crash Oyunları', emoji: '🚀', from: '#e74c3c', to: '#c026d3', image: '/casino/aviator.webp' },
+  { slug: 'chicken-road', label: 'Chicken Road', emoji: '🐔', from: '#f59e0b', to: '#84cc16' },
+  { slug: 'plinko', label: 'Plinko', emoji: '🔮', from: '#7c3aed', to: '#0E8FCF' },
+  { slug: 'piyango', label: 'Piyango', emoji: '🎟️', from: '#0891b2', to: '#27ae60' },
+  { slug: 'mines', label: 'Mines', emoji: '💣', from: '#1a2332', to: '#475569' },
+]
+
+const instantGames: Game[] = [
+  { name: 'Spaceman', provider: 'Pragmatic Play', image: '/casino/spaceman.webp', tag: 'crash-oyunlari' },
+  { name: 'JetX', provider: 'SmartSoft', image: '/casino/jetx.webp', tag: 'crash-oyunlari' },
+  { name: 'Aviatrix', provider: 'Aviatrix', image: '/casino/aviatrix.webp', tag: 'crash-oyunlari' },
+  { name: 'Chicken Road', provider: 'InOut Games', image: '/casino/chicken-road.webp', promo: true, tag: 'chicken-road' },
+  { name: 'Chicken Road 2', provider: 'InOut Games', image: '/casino/chicken-road-2.webp', tag: 'chicken-road' },
+  { name: 'Plinko', provider: 'Spribe', image: '/casino/plinko.webp', promo: true, tag: 'plinko' },
+  { name: 'Plinko XY', provider: 'BGaming', image: '/casino/plinko-xy.webp', tag: 'plinko' },
+  { name: 'Keno', provider: 'Spribe', image: '/casino/keno.webp', tag: 'piyango' },
+  { name: 'Mini Keno', provider: 'Spribe', image: '/casino/mini-keno.webp', tag: 'piyango' },
+  { name: 'Mines', provider: 'Spribe', image: '/casino/mines.webp', promo: true, tag: 'mines' },
+  { name: 'Gold Mines', provider: 'BGaming', image: '/casino/gold-mines.webp', tag: 'mines' },
+]
+
+export const ALL_GAMES: Game[] = [...popular, ...forYou, ...crash, ...providerOfMonth, ...general, ...instantGames]
 
 export const crashGames = crash
 export const popularSlots = popular
 export const forYouGames = forYou
 export const monthProviderGames = providerOfMonth
 
+// Tags that make up the "Casino Slot Makineleri" page: every real slot title,
+// i.e. everything except the crash/instant families.
+const SLOT_MACHINE_TAGS = new Set(['populer', 'sizin-icin-secilen', 'saglayici-pragmatic-play', 'yeni-oyunlar', 'video-slots', 'jackpot', 'megaways'])
+
 export function gamesFor(slug: string): Game[] {
   if (slug === 'tumu') return ALL_GAMES
+  if (slug === 'casino-slot-makineleri') return ALL_GAMES.filter(g => SLOT_MACHINE_TAGS.has(g.tag))
+  // The Aviator-style titles live under their rail tag, so fold them in.
+  if (slug === 'crash-oyunlari') return ALL_GAMES.filter(g => g.tag === 'crash-oyunlari' || g.tag === 'efsane-carpanlar')
   // "Provider of the month" page: every game from that provider, not just the curated rail.
   if (slug === 'saglayici-pragmatic-play') return ALL_GAMES.filter(g => g.provider === 'Pragmatic Play')
   return ALL_GAMES.filter(g => g.tag === slug)
@@ -151,4 +188,5 @@ export const EXTRA_CATEGORY_LABELS: Record<string, string> = {
   'sizin-icin-secilen': 'Sizin için Seçilen',
   'efsane-carpanlar': 'Efsane Çarpanlar',
   'saglayici-pragmatic-play': 'Pragmatic Play',
+  ...Object.fromEntries(CASINO_SUBCATEGORIES.map(c => [c.slug, c.label])),
 }

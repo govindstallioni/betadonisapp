@@ -5,8 +5,11 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { useBetSlip } from '@/components/BetSlipProvider'
+import { CASINO_SUBCATEGORIES } from '@/components/slotGamesData'
 import DigerleriMenu, { iWheel, iSlots } from '@/components/DigerleriMenu'
 import SecurityBanner from '@/components/SecurityBanner'
+import { useSecurity } from '@/components/SecurityProvider'
+import { useMessages } from '@/components/MessagesProvider'
 
 // ── Bottom nav items ───────────────────────────────────────────
 
@@ -114,6 +117,7 @@ const trendItems = [
   { title: 'SANAL BAHİS', desc: 'En iyi sanal bahis etkinlikleri', href: '#', color: '#7c3aed', icon: iVirtual },
   { title: 'Slot Oyunları', desc: 'En iyi slot oyunları', href: '/slots', color: '#ea580c', icon: iSlots },
   { title: 'Canlı Casino', desc: 'Kendinizi casinodaymış gibi hissedin', href: '/live-casino', color: '#c026d3', icon: iCasino },
+  { title: 'Casino Slot Makineleri', desc: 'Crash, Chicken Road, Plinko, Mines ve daha fazlası', href: '/slots/casino-slot-makineleri', color: '#ea580c', icon: <span className="text-[18px] leading-none">🎰</span> },
   { title: 'Poker', desc: 'Şans değil, tamamen strateji', href: '#', color: '#1a2332', icon: iPoker },
   { title: 'Canlı Oyunlar', desc: 'Her saniye yeni kazanç', href: '#', color: '#0891b2', icon: iDice },
   { title: 'Golden Race', desc: 'Kazanırken eğlenmek, kontrol sende', href: '#', color: '#d97706', icon: iHorse },
@@ -159,6 +163,8 @@ const slotItems = [
   { title: 'Jackpot Oyunları', desc: 'Büyük ikramiyeli slotlar', href: '/slots', color: '#f59e0b', icon: iJackpot },
   { title: 'Yeni Slotlar', desc: 'Yeni eklenen slot oyunları', href: '/slots', color: '#7c3aed', icon: iNew },
   { title: 'Megaways', desc: 'Binlerce kazanma şansı', href: '/slots', color: '#0E8FCF', icon: iMegaways },
+  // Casino sub-categories (task 29) — each opens its own /slots/[slug] page.
+  ...CASINO_SUBCATEGORIES.map((c) => ({ title: c.label, desc: c.slug === 'casino-slot-makineleri' ? 'Tüm casino slot makineleri' : `${c.label} oyunları`, href: `/slots/${c.slug}`, color: c.from, icon: <span className="text-[18px] leading-none">{c.emoji}</span> })),
 ]
 
 // ── Diğerleri (account) ────────────────────────────────────────
@@ -204,8 +210,13 @@ export default function BottomNav() {
   const [activeMenuTab, setActiveMenuTab] = useState(0)
   const pathname = usePathname()
   const router = useRouter()
-  const { isLoggedIn } = useAuth()
+  const { loaded: authLoaded, isLoggedIn } = useAuth()
   const { open: openBetSlip, count: slipCount } = useBetSlip()
+  // Same rule the top Header uses for its gear badge: an incomplete profile,
+  // which is also what every newly registered member starts with.
+  const { loaded: securityLoaded, items: securityItems } = useSecurity()
+  const profileIncomplete = securityLoaded && !securityItems.find(i => i.key === 'profile')?.done
+  const { unreadCount: unreadMessages } = useMessages()
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.search.includes('menu=open')) {
@@ -259,19 +270,40 @@ export default function BottomNav() {
           {/* Header */}
           <div className="bg-white px-4 pt-4 pb-3 border-b border-[#e8ecf1]">
             <div className="flex items-center justify-between mb-3">
+              <div className="w-[84px] flex items-center">
               <button onClick={() => setMenuOpen(false)} className="w-9 h-9 flex items-center justify-center rounded-full bg-black/5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2.5" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
               <h2 className="text-[16px] font-bold text-[#1a2332]">Menü</h2>
-              <button onClick={() => navigateFromMenu('/settings')} className="w-9 h-9 flex items-center justify-center rounded-full bg-black/5">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+              <div className="w-[84px] flex items-center justify-end gap-2">
+                {/* My Messages (task 35) — left of the gear */}
+                {authLoaded && isLoggedIn && (
+                  <button onClick={() => navigateFromMenu('/hesap/mesajlar')} aria-label="Mesajlarım" className="relative w-9 h-9 flex items-center justify-center rounded-full bg-black/5">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" />
+                    </svg>
+                    {unreadMessages > 0 && (
+                      <span className="absolute -top-[2px] -right-[2px] min-w-[16px] h-[16px] px-[3px] rounded-full bg-[#e74c3c] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white leading-none">
+                        {unreadMessages > 9 ? '9+' : unreadMessages}
+                      </span>
+                    )}
+                  </button>
+                )}
+                <button onClick={() => navigateFromMenu('/settings')} aria-label="Ayarlar" className="relative w-9 h-9 flex items-center justify-center rounded-full bg-black/5">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
                   <circle cx="12" cy="12" r="3" />
-                </svg>
-              </button>
+                  </svg>
+                  {/* Red exclamation for new members / incomplete profile (task 35) */}
+                  {authLoaded && isLoggedIn && profileIncomplete && (
+                    <span className="absolute -top-[2px] -right-[2px] w-[14px] h-[14px] rounded-full bg-[#e74c3c] text-white text-[9px] font-bold flex items-center justify-center border-2 border-white leading-none">!</span>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Auth / balance buttons */}

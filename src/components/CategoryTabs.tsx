@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import SlotsQuickPopup from '@/components/SlotsQuickPopup'
 
 // Each tab navigates to its section route.
 const tabs = [
@@ -15,6 +16,7 @@ const tabs = [
 
 export default function CategoryTabs() {
   const [active, setActive] = useState('top')
+  const [slotsOpen, setSlotsOpen] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -24,12 +26,15 @@ export default function CategoryTabs() {
   }, [searchParams])
 
   const handleClick = (tab: typeof tabs[number]) => {
+    // Slotlar opens the shortcut popup instead of navigating (task 29).
+    if (tab.id === 'slotlar') { setSlotsOpen(true); return }
     setActive(tab.id)
     router.push(tab.href)
   }
 
   return (
     <div className="flex items-end justify-between overflow-x-auto scrollbar-hide px-[10px] py-[10px]">
+      <SlotsQuickPopup open={slotsOpen} onClose={() => setSlotsOpen(false)} />
       {tabs.map((tab) => (
         <button
           key={tab.id}

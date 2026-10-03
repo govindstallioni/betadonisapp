@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSecurity } from '@/components/SecurityProvider'
 import Link from 'next/link'
+import { LANGUAGES, useLanguage } from '@/components/LanguageSelector'
 
 // ── Section data ───────────────────────────────────────────────
 
@@ -82,11 +83,10 @@ export default function SettingsPage() {
   const [smsOffers, setSmsOffers] = useState(false)
   const [phoneMarketing, setPhoneMarketing] = useState(false)
   const [theme, setTheme] = useState(0)
-  const [language, setLanguage] = useState(0)
+  const { code: langCode, set: setLangCode } = useLanguage()
   const [cacheToast, setCacheToast] = useState(false)
 
   const themes = ['Gündüz Modu', 'Koyu Mod', 'Gece Modu']
-  const languages = ['Türkçe', 'İngilizce', 'Almanca', 'Rusça', 'İsveçce']
 
   const handleRow = (href: string) => {
     if (href === 'cache') {
@@ -201,12 +201,12 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between px-3 py-3">
             <p className="text-[13px] font-medium text-[#1a2332]">Dil Seçimi</p>
             <select
-              value={language}
-              onChange={e => setLanguage(Number(e.target.value))}
+              value={langCode}
+              onChange={e => setLangCode(e.target.value as typeof langCode)}
               className="text-[12px] font-medium text-[#1a2332] bg-[#edf5ff] border border-[#e8ecf1] rounded-lg px-[10px] py-[6px] outline-none cursor-pointer"
             >
-              {languages.map((lang, i) => (
-                <option key={lang} value={i}>{lang}</option>
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>{l.label}</option>
               ))}
             </select>
           </div>

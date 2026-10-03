@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AuthHero from '@/components/AuthHero'
 import { useAuth } from '@/components/AuthProvider'
+import { verifyLogin } from '@/components/authStore'
+import { NoticeBubble, useNotice } from '@/components/AuthWidgets'
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('')
@@ -12,22 +14,34 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false)
   const [usernameFocused, setUsernameFocused] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  const notice = useNotice()
   const router = useRouter()
   const { login } = useAuth()
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username.trim() || !password.trim()) {
-      setError(true)
+      setError('Kullanıcı adı ve şifre gerekli.')
+      notice.show('warn', 'Lütfen kullanıcı adı ve şifrenizi girin.')
       return
     }
-    setError(false)
-    login(username)
+    setBusy(true)
+    const acc = await verifyLogin(username, password)
+    setBusy(false)
+    if (!acc) {
+      setError('Kullanıcı adı veya şifre hatalı.')
+      notice.show('error', 'Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.')
+      return
+    }
+    setError('')
+    login(acc.username)
     router.push('/')
   }
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
+      <NoticeBubble notice={notice.notice} onClose={notice.hide} />
       {/* Back button — fixed so it stays put on scroll (task 10) rather than
           scrolling away with the decorative hero underneath it. */}
       <div className="fixed top-3 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 px-3 pointer-events-none">
@@ -90,6 +104,7 @@ export default function LoginScreen() {
               onChange={(e) => setPassword(e.target.value)}
               onFocus={() => setPasswordFocused(true)}
               onBlur={() => setPasswordFocused(false)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleLogin() }}
               placeholder="Şifrenizi giriniz"
               className="flex-1 text-[13px] text-[#1a2332] bg-transparent outline-none placeholder-[#b0b8c4]"
             />
@@ -121,15 +136,15 @@ export default function LoginScreen() {
         {error && (
           <div className="mt-3 px-3 py-2.5 bg-[#fef2f2] border border-[#e74c3c]/30 rounded-xl flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#e74c3c"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" /></svg>
-            <span className="text-[10px] text-[#b91c1c] font-medium flex-1">Kullanıcı adı veya şifre hatalı.</span>
-            <button onClick={() => setError(false)} className="text-[#b91c1c]">
+            <span className="text-[10px] text-[#b91c1c] font-medium flex-1">{error}</span>
+            <button onClick={() => setError('')} className="text-[#b91c1c]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           </div>
         )}
 
         {/* Login button */}
-        <button onClick={handleLogin} className="w-full mt-4 py-[12px] bg-[#0E8FCF] text-white text-[13px] font-semibold rounded-xl hover:bg-[#0a7ab5] transition-colors shadow-[0_4px_12px_rgba(14,143,207,0.3)]">
+        <button onClick={handleLogin} disabled={busy} className="w-full mt-4 py-[12px] bg-[#0E8FCF] text-white text-[13px] font-semibold rounded-xl hover:bg-[#0a7ab5] disabled:opacity-60 transition-colors shadow-[0_4px_12px_rgba(14,143,207,0.3)]">
           Giriş Yap
         </button>
 
@@ -141,7 +156,7 @@ export default function LoginScreen() {
         </div>
 
         {/* Google only registration */}
-        <button className="flex items-center justify-center gap-2.5 mt-3 w-full h-[44px] rounded-xl bg-white border border-[#e8ecf1] hover:border-[#d0d5dd] hover:shadow-sm transition-all">
+        <button onClick={() => router.push('/register?method=social')} className="flex items-center justify-center gap-2.5 mt-3 w-full h-[44px] rounded-xl bg-white border border-[#e8ecf1] hover:border-[#d0d5dd] hover:shadow-sm transition-all">
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />

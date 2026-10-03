@@ -888,3 +888,9 @@ html.dark .border-\[\#e8eaef\] {
 html.dark .border-\[\#fecaca\] {
   border-color: rgba(231, 76, 60, 0.35) !important;
 }
+
+/* LiveChat launcher/window (task 27): lift it 50px so it clears the bottom
+   tab bar instead of covering the menu tab. */
+#chat-widget-container {
+  bottom: 50px !important;
+}

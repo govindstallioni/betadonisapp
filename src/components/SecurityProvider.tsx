@@ -37,10 +37,16 @@ export const SECURITY_QUESTIONS = [
  *  with the row in its warning state, as the reference shows. */
 export const REQUIRED_PROFILE_FIELDS = ['Ad', 'Soyad', 'E-posta', 'Adres', 'Şehir', 'Ülke']
 
+/** Identity fields the customer fills in once. After they are saved they are
+ *  locked and can only be changed through Canlı Destek (task 33). Kullanıcı Adı
+ *  and Para Birimi are locked from registration and live outside this list. */
+export const LOCKABLE_FIELDS = ['Ad', 'Soyad', 'Doğum Tarihi']
+
 export const DEFAULT_PROFILE: Record<string, string> = {
-  'Unvan': 'Bay',
-  'Ad': 'Ahmet',
-  'Soyad': 'Yılmaz',
+  'Unvan': '',
+  'Ad': '',
+  'Soyad': '',
+  'Doğum Tarihi': '', // ISO yyyy-mm-dd
   'E-posta': 'kullanici@betadonis.com',
   'Telefon': '',
   'Dil': 'Türkçe',
@@ -61,6 +67,8 @@ export interface SecurityState {
   twoFactor: boolean
   blockEmailLogin: boolean
   profile: Record<string, string>
+  /** Profile fields that were saved and are now read-only. */
+  locked: string[]
 }
 
 export type SecurityKey = 'phone' | 'password' | 'question' | 'twofa' | 'profile' | 'blockEmail'
@@ -100,6 +108,8 @@ interface SecurityContextValue {
   setBlockEmailLogin: (v: boolean) => void
   setSecurityQuestion: (question: string, answer: string) => void
   setProfileField: (field: string, value: string) => void
+  /** Saves a value and locks the field in one step; later edits are ignored. */
+  saveAndLockField: (field: string, value: string) => void
   recordPasswordChange: () => void
 }
 
@@ -110,6 +120,7 @@ const EMPTY: SecurityState = {
   twoFactor: false,
   blockEmailLogin: false,
   profile: DEFAULT_PROFILE,
+  locked: [],
 }
 
 const SecurityContext = createContext<SecurityContextValue>({
@@ -123,6 +134,7 @@ const SecurityContext = createContext<SecurityContextValue>({
   setBlockEmailLogin: () => {},
   setSecurityQuestion: () => {},
   setProfileField: () => {},
+  saveAndLockField: () => {},
   recordPasswordChange: () => {},
 })
 
@@ -149,6 +161,10 @@ export default function SecurityProvider({ children }: { children: React.ReactNo
             ...parsed,
             // Merge so profile fields added in a later build still appear.
             profile: { ...DEFAULT_PROFILE, ...(parsed.profile || {}) },
+            // Saved before locking existed → whatever was already filled in counts as saved.
+            locked: Array.isArray(parsed.locked)
+              ? parsed.locked
+              : LOCKABLE_FIELDS.filter(f => ((parsed.profile || {})[f] || '').trim() !== ''),
           }
         }
       }
@@ -171,7 +187,15 @@ export default function SecurityProvider({ children }: { children: React.ReactNo
     []
   )
   const setProfileField = useCallback(
-    (field: string, value: string) => setState(s => ({ ...s, profile: { ...s.profile, [field]: value } })),
+    (field: string, value: string) =>
+      setState(s => (s.locked.includes(field) ? s : { ...s, profile: { ...s.profile, [field]: value } })),
+    []
+  )
+  const saveAndLockField = useCallback(
+    (field: string, value: string) =>
+      setState(s => (s.locked.includes(field)
+        ? s
+        : { ...s, profile: { ...s.profile, [field]: value }, locked: [...s.locked, field] })),
     []
   )
   const recordPasswordChange = useCallback(() => setState(s => ({ ...s, passwordChangedAt: Date.now() })), [])
@@ -255,6 +279,7 @@ export default function SecurityProvider({ children }: { children: React.ReactNo
         setBlockEmailLogin,
         setSecurityQuestion,
         setProfileField,
+        saveAndLockField,
         recordPasswordChange,
       }}
     >

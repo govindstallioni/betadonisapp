@@ -3,20 +3,43 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { findAccount } from '@/components/authStore'
+import { FieldError, NoticeBubble, useNotice } from '@/components/AuthWidgets'
+import { validateEmail } from '@/components/authValidation'
 
 export default function ForgotPasswordScreen() {
   const router = useRouter()
   const [value, setValue] = useState('')
   const [focused, setFocused] = useState(false)
   const [sent, setSent] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const notice = useNotice()
 
-  const submit = () => {
-    if (!value.trim()) return
+  const submit = async () => {
+    const v = value.trim()
+    if (!v) return
+    // Anything with an @ must at least look like an email address.
+    if (v.includes('@')) {
+      const bad = validateEmail(v)
+      if (bad) { setError(bad); notice.show('warn', bad); return }
+    }
+    setBusy(true)
+    const acc = await findAccount(v)
+    setBusy(false)
+    if (!acc) {
+      const msg = 'Bu bilgilerle kayıtlı bir hesap bulunamadı.'
+      setError(msg)
+      notice.show('error', msg)
+      return
+    }
+    setError('')
     setSent(true)
   }
 
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
+      <NoticeBubble notice={notice.notice} onClose={notice.hide} />
       <div className="flex items-center px-4 pt-4 pb-2 bg-bg sticky top-0 z-30">
         <button onClick={() => router.back()} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5" aria-label="Geri">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,7 +61,7 @@ export default function ForgotPasswordScreen() {
                 Kullanıcı Adı veya E-posta
               </label>
               <div className={`flex items-center gap-2.5 bg-white rounded-xl px-3 h-[44px] border transition-colors ${
-                focused ? 'border-[#0E8FCF] shadow-[0_0_0_3px_rgba(14,143,207,0.1)]' : 'border-[#e0e5ec]'
+                error ? 'border-[#e74c3c]' : focused ? 'border-[#0E8FCF] shadow-[0_0_0_3px_rgba(14,143,207,0.1)]' : 'border-[#e0e5ec]'
               }`}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={focused ? '#0E8FCF' : '#b0b8c4'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
                   <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" />
@@ -46,18 +69,19 @@ export default function ForgotPasswordScreen() {
                 <input
                   type="text"
                   value={value}
-                  onChange={(e) => setValue(e.target.value)}
+                  onChange={(e) => { setValue(e.target.value); setError('') }}
                   onFocus={() => setFocused(true)}
                   onBlur={() => setFocused(false)}
                   placeholder="Kullanıcı adı veya e-posta"
                   className="flex-1 text-[13px] text-[#1a2332] bg-transparent outline-none placeholder-[#b0b8c4]"
                 />
               </div>
+              <FieldError error={error} />
             </div>
 
             <button
               onClick={submit}
-              disabled={!value.trim()}
+              disabled={!value.trim() || busy}
               className="w-full mt-5 py-[12px] bg-[#0E8FCF] text-white text-[13px] font-semibold rounded-xl hover:bg-[#0a7ab5] disabled:opacity-40 transition-colors shadow-[0_4px_12px_rgba(14,143,207,0.3)]"
             >
               Sıfırlama Bağlantısı Gönder

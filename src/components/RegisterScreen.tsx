@@ -1,17 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import AuthHero from '@/components/AuthHero'
 import { useAuth } from '@/components/AuthProvider'
-import Flag from '@/components/Flag'
-
-const chevronDown = (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-)
+import {
+  CheckboxField, CodeSelect, LegalModal, NoticeBubble, PasswordField, PasswordRules,
+  SelectField, TextField, useNotice, type Option,
+} from '@/components/AuthWidgets'
+import {
+  normalizePhone, validateEmail, validateGmail, validatePassword, validatePasswordConfirm,
+  validatePhone, validateUsername,
+} from '@/components/authValidation'
+import VerificationPopup from '@/components/VerificationPopup'
+import { useSecurity } from '@/components/SecurityProvider'
+import { useVerification } from '@/components/verificationStore'
+import { isEmailTaken, isPhoneTaken, isUsernameTaken, registerAccount } from '@/components/authStore'
 
 const docIcon = (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E8FCF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -56,68 +61,82 @@ const socialProviders = [
   { name: 'Apple', color: '#1a1a1a', border: false, active: false, icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83z" /><path d="M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg> },
 ]
 
-// ── Shared components ──────────────────────────────────────────
+// ── Dropdown options ───────────────────────────────────────────
 
-function DropdownField({ label, value, required }: { label: string; value?: string; required?: boolean }) {
-  return (
-    <button className="w-full flex items-center bg-white rounded-xl px-3 py-[2px] mt-2.5 border border-[#e8ecf1] hover:border-[#0E8FCF] transition-colors text-left">
-      <div className="flex-1 py-[6px]">
-        <span className="text-[9px] text-[#0E8FCF] font-medium block">{label}{required && ' *'}</span>
-        <span className="text-[12px] text-[#1a2332] font-medium">{value || ''}</span>
-      </div>
-      {chevronDown}
-    </button>
-  )
+const PHONE_CODES: Option[] = [
+  { value: '+90', label: 'Türkiye', flag: '🇹🇷', hint: '+90' },
+  { value: '+994', label: 'Azerbaycan', flag: '🇦🇿', hint: '+994' },
+  { value: '+49', label: 'Almanya', flag: '🇩🇪', hint: '+49' },
+  { value: '+44', label: 'Birleşik Krallık', flag: '🇬🇧', hint: '+44' },
+  { value: '+7', label: 'Rusya', flag: '🇷🇺', hint: '+7' },
+  { value: '+1', label: 'ABD', flag: '🇺🇸', hint: '+1' },
+  { value: '+33', label: 'Fransa', flag: '🇫🇷', hint: '+33' },
+  { value: '+31', label: 'Hollanda', flag: '🇳🇱', hint: '+31' },
+  { value: '+46', label: 'İsveç', flag: '🇸🇪', hint: '+46' },
+  { value: '+966', label: 'Suudi Arabistan', flag: '🇸🇦', hint: '+966' },
+]
+
+const CURRENCIES: Option[] = [
+  { value: 'TRY', label: 'Türk Lirası (TRY)' },
+  { value: 'USD', label: 'ABD Doları (USD)' },
+  { value: 'EUR', label: 'Euro (EUR)' },
+  { value: 'GBP', label: 'İngiliz Sterlini (GBP)' },
+  { value: 'USDT', label: 'Tether (USDT)' },
+]
+
+const BONUSES: Option[] = [
+  { value: 'spor', label: 'Spor bonusu' },
+  { value: 'casino', label: 'Casino bonusu' },
+  { value: 'none', label: 'Bonus istemiyorum' },
+]
+
+const COUNTRIES: Option[] = PHONE_CODES.map((c) => ({ value: c.label, label: c.label, flag: c.flag }))
+
+// ── Form state helper ──────────────────────────────────────────
+// Errors show once a field has been left (touched) or the form was submitted,
+// so the user isn't shouted at while still typing the first character.
+type Errors<T> = Partial<Record<keyof T, string>>
+// Widen inferred literals ({ terms: false } → boolean) so setters accept both values.
+type Widen<T> = { [K in keyof T]: T[K] extends boolean ? boolean : string }
+
+function useForm<I extends Record<string, string | boolean>>(init: I, validate: (v: Widen<I>) => Errors<I>) {
+  type T = Widen<I>
+  const [values, setValues] = useState<T>(init as T)
+  const [touched, setTouched] = useState<Partial<Record<keyof T, boolean>>>({})
+  const [submitted, setSubmitted] = useState(false)
+  const [server, setServer] = useState<Errors<T>>({})
+
+  const all = validate(values)
+  const set = <K extends keyof T>(k: K, v: T[K]) => {
+    setValues((p) => ({ ...p, [k]: v }))
+    setServer((p) => (p[k] ? { ...p, [k]: undefined } : p))
+  }
+  const touch = (k: keyof T) => setTouched((p) => ({ ...p, [k]: true }))
+  const err = (k: keyof T): string | undefined => server[k] ?? ((submitted || touched[k]) ? all[k] || undefined : undefined)
+
+  return { values, set, touch, err, all, setServer, markSubmitted: () => setSubmitted(true) }
 }
 
-function InputField({ label, placeholder, required, type = 'text' }: { label?: string; placeholder: string; required?: boolean; type?: string }) {
-  return (
-    <div className="mt-2.5">
-      <div className="bg-white rounded-xl px-3 py-[2px] border border-[#e8ecf1] focus-within:border-[#0E8FCF] focus-within:shadow-[0_0_0_3px_rgba(14,143,207,0.1)] transition-all">
-        {label && <span className="text-[9px] text-[#737B8C] font-medium block pt-[6px]">{label}{required && ' *'}</span>}
-        <input type={type} placeholder={placeholder} className={`w-full text-[12px] text-[#1a2332] bg-transparent outline-none placeholder-[#b0b8c4] ${label ? 'pb-[6px]' : 'py-[10px]'}`} />
-      </div>
-    </div>
-  )
-}
+const TERMS_ERROR = 'Devam etmek için onaylamanız gerekir.'
 
-function PasswordField({ label, placeholder }: { label: string; placeholder: string }) {
-  const [show, setShow] = useState(false)
-  return (
-    <div className="mt-2.5">
-      <div className="flex items-center bg-white rounded-xl px-3 py-[2px] border border-[#e8ecf1] focus-within:border-[#0E8FCF] focus-within:shadow-[0_0_0_3px_rgba(14,143,207,0.1)] transition-all">
-        <div className="flex-1 py-[6px]">
-          <span className="text-[9px] text-[#737B8C] font-medium block">{label} *</span>
-          <input type={show ? 'text' : 'password'} placeholder={placeholder} className="w-full text-[12px] text-[#1a2332] bg-transparent outline-none placeholder-[#b0b8c4]" />
-        </div>
-        <button onClick={() => setShow(!show)} className="flex-shrink-0 p-1">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#737B8C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            {show ? <><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><line x1="1" y1="1" x2="23" y2="23" /></> : <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></>}
-          </svg>
-        </button>
-      </div>
-    </div>
-  )
-}
+// ── Shared chrome ──────────────────────────────────────────────
 
-function CheckboxField({ label, checked }: { label: string; checked?: boolean }) {
-  const [isChecked, setIsChecked] = useState(checked || false)
+function LinkRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <button onClick={() => setIsChecked(!isChecked)} className="flex items-start gap-2.5 mt-2.5 text-left">
-      <div className={`w-[18px] h-[18px] rounded-[4px] flex-shrink-0 mt-0.5 flex items-center justify-center transition-colors ${isChecked ? 'bg-[#0E8FCF]' : 'border-[1.5px] border-[#c0c8d4] bg-white'}`}>
-        {isChecked && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>}
-      </div>
-      <span className="text-[10px] text-[#1a2332] leading-relaxed">{label}</span>
-    </button>
-  )
-}
-
-function LinkRow({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <button className="flex items-center gap-2.5 mt-2.5 hover:opacity-80 transition-opacity">
-      <div className="w-7 h-7 rounded-lg bg-[#edf5ff] flex items-center justify-center flex-shrink-0">{icon}</div>
+    <button type="button" onClick={onClick} className="flex items-center gap-2.5 mt-2.5 hover:opacity-80 transition-opacity">
+      <div className="w-7 h-7 rounded-lg bg-[#edf5ff] flex items-center justify-center flex-shrink-0">{docIcon}</div>
       <span className="text-[11px] text-[#0E8FCF] font-medium">{label}</span>
     </button>
+  )
+}
+
+function LegalLinks({ onOpen }: { onOpen: (slug: string) => void }) {
+  return (
+    <>
+      <LinkRow label="Şartlar ve Koşullar" onClick={() => onOpen('sartlar')} />
+      <LinkRow label="Müşteri Sözleşmesi" onClick={() => onOpen('musteri-sozlesmesi')} />
+      <LinkRow label="Gizlilik Politikası" onClick={() => onOpen('gizlilik')} />
+    </>
   )
 }
 
@@ -125,7 +144,7 @@ function FormHeader({ title, subtitle, onBack }: { title: string; subtitle: stri
   return (
     <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-30">
       <div className="flex items-center">
-        <button onClick={onBack} className="w-8 h-8 flex items-center justify-center">
+        <button onClick={onBack} aria-label="Geri" className="w-8 h-8 flex items-center justify-center">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a2332" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
         </button>
         <div className="flex-1 text-center">
@@ -138,159 +157,302 @@ function FormHeader({ title, subtitle, onBack }: { title: string; subtitle: stri
   )
 }
 
-function BottomButton() {
-  const router = useRouter()
-  const { login } = useAuth()
-  const handleRegister = () => {
-    try { localStorage.setItem('bta_welcome_bubble_pending', '1') } catch {}
-    login()
-    router.push('/')
-  }
+function SubmitBar({ onSubmit, busy }: { onSubmit: () => void; busy: boolean }) {
   return (
     <div className="sticky bottom-0 px-4 py-2 bg-bg">
-      <button onClick={handleRegister} className="w-full py-[12px] bg-[#27ae60] text-white text-[13px] font-medium rounded-xl hover:bg-[#219a52] transition-colors">Kayıt Ol</button>
+      <button onClick={onSubmit} disabled={busy} className="w-full py-[12px] bg-[#27ae60] text-white text-[13px] font-medium rounded-xl hover:bg-[#219a52] disabled:opacity-60 transition-colors">
+        {busy ? 'Kaydediliyor…' : 'Kayıt Ol'}
+      </button>
     </div>
   )
 }
 
-// ── Phone form ─────────────────────────────────────────────────
-
-function PhoneForm({ onBack }: { onBack: () => void }) {
+function FormShell({ subtitle, onBack, onSubmit, busy, notice, children }: {
+  subtitle: string; onBack: () => void; onSubmit: () => void; busy: boolean
+  notice: ReturnType<typeof useNotice>; children: React.ReactNode
+}) {
   return (
     <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
-      <FormHeader title="Kayıt" subtitle="Telefon ile" onBack={onBack} />
+      <NoticeBubble notice={notice.notice} onClose={notice.hide} />
+      <FormHeader title="Kayıt" subtitle={subtitle} onBack={onBack} />
       <div className="flex-1 overflow-y-auto px-4 pb-4">
-        <div className="rounded-2xl px-1 py-1 mt-3">
-          <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 bg-white rounded-xl px-3 py-[2px] border border-[#e8ecf1]">
-              <div className="py-[6px]">
-                <span className="text-[9px] text-[#0E8FCF] font-medium block">Kod *</span>
-                <div className="flex items-center gap-1.5">
-                  <Flag emoji="🇹🇷" size={18} />
-                  <span className="text-[12px] text-[#1a2332] font-medium">+90</span>
-                  {chevronDown}
-                </div>
-              </div>
-            </button>
-            <div className="flex-1 bg-white rounded-xl px-3 py-[2px] border border-[#e8ecf1] focus-within:border-[#0E8FCF] transition-all">
-              <input type="tel" placeholder="Telefon numarası *" className="w-full text-[12px] text-[#1a2332] py-[14px] bg-transparent outline-none placeholder-[#b0b8c4]" />
-            </div>
-          </div>
-          <InputField label="Kullanıcı Adı" placeholder="Kullanıcı adınız *" required />
-          <PasswordField label="Şifre" placeholder="Şifrenizi giriniz" />
-          <PasswordField label="Şifre Tekrar" placeholder="Şifrenizi tekrar giriniz" />
-          <DropdownField label="Para Birimi" value="Türk Lirası (TRY)" required />
-          <InputField placeholder="Promosyon kodu (isteğe bağlı)" />
-          <DropdownField label="Bonus" value="Spor bonusu" />
-        </div>
-        <LinkRow icon={docIcon} label="Şartlar ve Koşullar" />
-        <LinkRow icon={docIcon} label="Gizlilik Politikası" />
-        <CheckboxField label="18 yaşından büyük olduğumu ve şirketin şartlar ve koşullarını ve gizlilik politikasını okuduğumu ve kabul ettiğimi onaylıyorum." />
-        <CheckboxField label="Telefon yoluyla pazarlama ve promosyon teklifleri almayı kabul ediyorum." checked />
+        {children}
         <div className="flex items-center justify-center gap-1 mt-4">
           <span className="text-[11px] text-[#737B8C]">Zaten hesabınız var mı?</span>
           <Link href="/login" className="text-[11px] text-[#0E8FCF] font-medium">Giriş Yap</Link>
         </div>
       </div>
-      <BottomButton />
+      <SubmitBar onSubmit={onSubmit} busy={busy} />
     </div>
+  )
+}
+
+// Marks the account as signed in and hands off to the welcome bubble on home.
+function useFinish() {
+  const router = useRouter()
+  const { login } = useAuth()
+  return (username: string) => {
+    try { localStorage.setItem('bta_welcome_bubble_pending', '1') } catch {}
+    login(username)
+    router.push('/')
+  }
+}
+
+// ── Phone form ─────────────────────────────────────────────────
+
+function PhoneForm({ onBack }: { onBack: () => void }) {
+  const notice = useNotice()
+  const router = useRouter()
+  const { login } = useAuth()
+  const { setProfileField } = useSecurity()
+  const { markVerified } = useVerification()
+  const [legal, setLegal] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  // Set once the account exists: registration is complete, and the popup offers
+  // (optional) SMS / e-mail verification, as on the live site (registersms.png).
+  const [created, setCreated] = useState<{ phone: string; username: string } | null>(null)
+
+  // The profile stores Turkish mobiles as 05XXXXXXXXX.
+  const profilePhone = (phone: string) => (f.values.dial === '+90' ? '0' + phone.slice(3) : null)
+
+  const goHome = () => {
+    try { localStorage.setItem('bta_welcome_bubble_pending', '1') } catch {}
+    router.push('/')
+  }
+  const f = useForm(
+    { dial: '+90', phone: '', username: '', password: '', confirm: '', currency: 'TRY', promo: '', bonus: 'spor', terms: false, marketing: true },
+    (v) => ({
+      phone: validatePhone(v.dial, v.phone),
+      username: validateUsername(v.username),
+      password: validatePassword(v.password),
+      confirm: validatePasswordConfirm(v.password, v.confirm),
+      terms: v.terms ? '' : TERMS_ERROR,
+    }),
+  )
+
+  const submit = async () => {
+    f.markSubmitted()
+    if (Object.values(f.all).some(Boolean)) { notice.show('error', 'Lütfen işaretli alanları düzeltin.'); return }
+    setBusy(true)
+    const v = f.values
+    const phone = normalizePhone(v.dial, v.phone)
+    const [phoneTaken, userTaken] = await Promise.all([isPhoneTaken(phone), isUsernameTaken(v.username)])
+    if (phoneTaken || userTaken) {
+      f.setServer({
+        ...(phoneTaken ? { phone: 'Bu telefon numarası zaten kayıtlı.' } : {}),
+        ...(userTaken ? { username: 'Bu kullanıcı adı zaten alınmış.' } : {}),
+      })
+      notice.show('error', 'Kayıt tamamlanamadı. Lütfen bilgilerinizi kontrol edin.')
+      setBusy(false)
+      return
+    }
+    // Registration completes now; verification happens afterwards and is optional.
+    await registerAccount({ username: v.username, password: v.password, phone, method: 'phone', currency: v.currency })
+    login(v.username)
+    const local = profilePhone(phone)
+    if (local) setProfileField('Telefon', local)
+    setBusy(false)
+    setCreated({ phone, username: v.username })
+  }
+
+  if (created) {
+    return (
+      <VerificationPopup
+        title={<>Kayıt İşlemi<br />Tamamlanmıştır</>}
+        intro={<>Üyelik kaydınız başarıyla gerçekleşmiştir. Doğrulama kodunuz <span className="font-semibold text-[#1a2332]">{created.phone}</span> numaralı telefona gönderilmiştir.</>}
+        phone={created.phone}
+        username={created.username}
+        onClose={goHome}
+        onPhoneVerified={() => { const local = profilePhone(created.phone); if (local) markVerified('phone', local) }}
+        onEmailVerified={(email) => { setProfileField('E-posta', email); markVerified('email', email) }}
+      />
+    )
+  }
+
+  return (
+    <FormShell subtitle="Telefon ile" onBack={onBack} onSubmit={submit} busy={busy} notice={notice}>
+      <div className="rounded-2xl px-1 py-1 mt-3">
+        <div className="flex items-start gap-2">
+          <CodeSelect options={PHONE_CODES} value={f.values.dial} onChange={(x) => f.set('dial', x)} />
+          <div className="flex-1">
+            <TextField
+              placeholder="Telefon numarası *"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel-national"
+              value={f.values.phone}
+              onChange={(x) => f.set('phone', x)}
+              onBlur={() => f.touch('phone')}
+              error={f.err('phone')}
+            />
+          </div>
+        </div>
+        <TextField label="Kullanıcı Adı" placeholder="Kullanıcı adınız *" required autoComplete="username" value={f.values.username} onChange={(x) => f.set('username', x)} onBlur={() => f.touch('username')} error={f.err('username')} />
+        <PasswordField label="Şifre" placeholder="Şifrenizi giriniz" autoComplete="new-password" value={f.values.password} onChange={(x) => f.set('password', x)} onBlur={() => f.touch('password')} error={f.err('password')} />
+        <PasswordField label="Şifre Tekrar" placeholder="Şifrenizi tekrar giriniz" autoComplete="new-password" value={f.values.confirm} onChange={(x) => f.set('confirm', x)} onBlur={() => f.touch('confirm')} error={f.err('confirm')} />
+        <PasswordRules password={f.values.password} />
+        <SelectField label="Para Birimi" required options={CURRENCIES} value={f.values.currency} onChange={(x) => f.set('currency', x)} />
+        <TextField placeholder="Promosyon kodu (isteğe bağlı)" value={f.values.promo} onChange={(x) => f.set('promo', x)} />
+        <SelectField label="Bonus" options={BONUSES} value={f.values.bonus} onChange={(x) => f.set('bonus', x)} />
+      </div>
+      <LegalLinks onOpen={setLegal} />
+      <CheckboxField checked={f.values.terms} onChange={(x) => { f.set('terms', x); f.touch('terms') }} error={f.err('terms')} label="18 yaşından büyük olduğumu ve şirketin şartlar ve koşullarını ve gizlilik politikasını okuduğumu ve kabul ettiğimi onaylıyorum." />
+      <CheckboxField checked={f.values.marketing} onChange={(x) => f.set('marketing', x)} label="Telefon yoluyla pazarlama ve promosyon teklifleri almayı kabul ediyorum." />
+      <LegalModal slug={legal} onClose={() => setLegal(null)} />
+    </FormShell>
   )
 }
 
 // ── Email form ─────────────────────────────────────────────────
 
 function EmailForm({ onBack }: { onBack: () => void }) {
+  const notice = useNotice()
+  const finish = useFinish()
+  const [legal, setLegal] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const f = useForm(
+    { email: '', username: '', password: '', confirm: '', currency: 'TRY', bonus: 'spor', promo: '', terms: false },
+    (v) => ({
+      email: validateEmail(v.email),
+      username: validateUsername(v.username),
+      password: validatePassword(v.password),
+      confirm: validatePasswordConfirm(v.password, v.confirm),
+      terms: v.terms ? '' : TERMS_ERROR,
+    }),
+  )
+
+  const submit = async () => {
+    f.markSubmitted()
+    if (Object.values(f.all).some(Boolean)) { notice.show('error', 'Lütfen işaretli alanları düzeltin.'); return }
+    setBusy(true)
+    const v = f.values
+    const [mailTaken, userTaken] = await Promise.all([isEmailTaken(v.email), isUsernameTaken(v.username)])
+    if (mailTaken || userTaken) {
+      f.setServer({
+        ...(mailTaken ? { email: 'Bu e-posta adresi zaten kayıtlı.' } : {}),
+        ...(userTaken ? { username: 'Bu kullanıcı adı zaten alınmış.' } : {}),
+      })
+      notice.show('error', 'Kayıt tamamlanamadı. Lütfen bilgilerinizi kontrol edin.')
+      setBusy(false)
+      return
+    }
+    await registerAccount({ username: v.username, password: v.password, email: v.email, method: 'email', currency: v.currency })
+    finish(v.username)
+  }
+
   return (
-    <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
-      <FormHeader title="Kayıt" subtitle="E-posta ile" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        <div className="rounded-2xl px-1 py-1 mt-3">
-          <InputField label="E-posta" placeholder="E-posta adresiniz *" required />
-          <InputField label="Kullanıcı Adı" placeholder="Kullanıcı adınız *" required />
-          <PasswordField label="Şifre" placeholder="Şifrenizi giriniz" />
-          <PasswordField label="Şifre Tekrar" placeholder="Şifrenizi tekrar giriniz" />
-          {/* Password requirements */}
-          <button className="w-full flex items-center gap-2.5 bg-[#edf5ff] rounded-xl px-3 py-[10px] mt-2.5">
-            <div className="w-6 h-6 rounded-full bg-[#0E8FCF] flex items-center justify-center flex-shrink-0">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16v-4M12 8h.01" /></svg>
-            </div>
-            <span className="text-[11px] text-[#1a2332] font-medium flex-1 text-left">Şifre gereksinimleri</span>
-            {chevronDown}
-          </button>
-          <DropdownField label="Bonus" value="Spor bonusu" />
-          <InputField placeholder="Promosyon kodu (isteğe bağlı)" />
-        </div>
-        <LinkRow icon={docIcon} label="Şartlar ve Koşullar" />
-        <LinkRow icon={docIcon} label="Gizlilik Politikası" />
-        <CheckboxField label="18 yaşından büyük olduğumu ve şirketin şartlar ve koşullarını ve gizlilik politikasını okuduğumu ve kabul ettiğimi onaylıyorum." />
-        <div className="flex items-center justify-center gap-1 mt-4">
-          <span className="text-[11px] text-[#737B8C]">Zaten hesabınız var mı?</span>
-          <Link href="/login" className="text-[11px] text-[#0E8FCF] font-medium">Giriş Yap</Link>
-        </div>
+    <FormShell subtitle="E-posta ile" onBack={onBack} onSubmit={submit} busy={busy} notice={notice}>
+      <div className="rounded-2xl px-1 py-1 mt-3">
+        <TextField label="E-posta" placeholder="E-posta adresiniz *" required type="email" inputMode="email" autoComplete="email" value={f.values.email} onChange={(x) => f.set('email', x)} onBlur={() => f.touch('email')} error={f.err('email')} />
+        <TextField label="Kullanıcı Adı" placeholder="Kullanıcı adınız *" required autoComplete="username" value={f.values.username} onChange={(x) => f.set('username', x)} onBlur={() => f.touch('username')} error={f.err('username')} />
+        <PasswordField label="Şifre" placeholder="Şifrenizi giriniz" autoComplete="new-password" value={f.values.password} onChange={(x) => f.set('password', x)} onBlur={() => f.touch('password')} error={f.err('password')} />
+        <PasswordField label="Şifre Tekrar" placeholder="Şifrenizi tekrar giriniz" autoComplete="new-password" value={f.values.confirm} onChange={(x) => f.set('confirm', x)} onBlur={() => f.touch('confirm')} error={f.err('confirm')} />
+        <PasswordRules password={f.values.password} />
+        <SelectField label="Para Birimi" required options={CURRENCIES} value={f.values.currency} onChange={(x) => f.set('currency', x)} />
+        <SelectField label="Bonus" options={BONUSES} value={f.values.bonus} onChange={(x) => f.set('bonus', x)} />
+        <TextField placeholder="Promosyon kodu (isteğe bağlı)" value={f.values.promo} onChange={(x) => f.set('promo', x)} />
       </div>
-      <BottomButton />
-    </div>
+      <LegalLinks onOpen={setLegal} />
+      <CheckboxField checked={f.values.terms} onChange={(x) => { f.set('terms', x); f.touch('terms') }} error={f.err('terms')} label="18 yaşından büyük olduğumu ve şirketin şartlar ve koşullarını ve gizlilik politikasını okuduğumu ve kabul ettiğimi onaylıyorum." />
+      <LegalModal slug={legal} onClose={() => setLegal(null)} />
+    </FormShell>
   )
 }
 
 // ── Social form ────────────────────────────────────────────────
+// Only Google is live. The form stays hidden until it is picked.
 
 function SocialForm({ onBack }: { onBack: () => void }) {
-  const [inactiveAlert, setInactiveAlert] = useState(false)
+  const notice = useNotice()
+  const finish = useFinish()
+  const [selected, setSelected] = useState<string | null>(null)
+  const [legal, setLegal] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const f = useForm(
+    { email: '', country: 'Türkiye', currency: 'TRY', bonus: 'spor', promo: '', terms: false },
+    (v) => ({
+      email: validateGmail(v.email),
+      terms: v.terms ? '' : TERMS_ERROR,
+    }),
+  )
+
+  const pick = (p: (typeof socialProviders)[number]) => {
+    if (!p.active) { notice.show('warn', 'Bu seçenek şu anda aktif değildir.'); return }
+    setSelected(p.name)
+  }
+
+  const submit = async () => {
+    if (!selected) { notice.show('warn', 'Lütfen önce bir kayıt yöntemi seçin.'); return }
+    f.markSubmitted()
+    if (Object.values(f.all).some(Boolean)) { notice.show('error', 'Lütfen işaretli alanları düzeltin.'); return }
+    setBusy(true)
+    const v = f.values
+    if (await isEmailTaken(v.email)) {
+      f.setServer({ email: 'Bu Gmail hesabı zaten kayıtlı. Giriş yapmayı deneyin.' })
+      notice.show('error', 'Kayıt tamamlanamadı. Lütfen bilgilerinizi kontrol edin.')
+      setBusy(false)
+      return
+    }
+    // The username is derived from the Gmail local part, de-duplicated.
+    const base = v.email.split('@')[0].replace(/[^A-Za-z0-9_.]/g, '').slice(0, 16) || 'oyuncu'
+    let username = base
+    for (let i = 1; await isUsernameTaken(username); i++) username = `${base}${i}`
+    await registerAccount({ username, email: v.email, method: 'social', currency: v.currency })
+    finish(username)
+  }
 
   return (
-    <div className="max-w-[430px] mx-auto bg-bg min-h-screen relative flex flex-col">
-      <FormHeader title="Kayıt" subtitle="Sosyal Medya ile" onBack={onBack} />
-      <div className="flex-1 overflow-y-auto px-4 pb-4">
-        {/* Social providers */}
-        <div className="flex flex-wrap gap-2 mt-3 justify-center">
-          {socialProviders.map((p) => (
+    <FormShell subtitle="Sosyal Medya ile" onBack={onBack} onSubmit={submit} busy={busy} notice={notice}>
+      {/* Social providers */}
+      <div className="flex flex-wrap gap-2 mt-3 justify-center">
+        {socialProviders.map((p) => {
+          const isSel = selected === p.name
+          return (
             <button
               key={p.name}
-              onClick={() => { if (!p.active) setInactiveAlert(true) }}
-              className={`flex flex-col items-center gap-1 w-[52px] py-2 rounded-lg ${p.border ? 'bg-white border border-[#e8ecf1]' : ''} ${!p.active ? 'opacity-30' : ''}`}
+              onClick={() => pick(p)}
+              aria-pressed={isSel}
+              aria-disabled={!p.active}
+              className={`flex flex-col items-center gap-1 w-[52px] py-2 rounded-lg transition-all ${p.border ? 'bg-white border' : ''} ${isSel ? 'border-[#0E8FCF] ring-2 ring-[#0E8FCF]/40' : p.border ? 'border-[#e8ecf1]' : ''} ${!p.active ? 'opacity-30' : ''}`}
               style={!p.border ? { backgroundColor: p.color } : undefined}
             >
               <div className="w-6 h-6 flex items-center justify-center [&>svg]:w-[16px] [&>svg]:h-[16px]">{p.icon}</div>
               <span className={`text-[7px] font-medium leading-none ${p.border ? 'text-[#1a2332]' : 'text-white'}`}>{p.name}</span>
             </button>
-          ))}
-        </div>
-
-        {/* Inactive alert */}
-        {inactiveAlert && (
-          <div className="mt-3 px-3 py-2.5 bg-[#fef3c7] border border-[#f59e0b]/30 rounded-xl flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" /></svg>
-            <span className="text-[10px] text-[#92400e] font-medium flex-1">Bu seçenek şu anda aktif değildir.</span>
-            <button onClick={() => setInactiveAlert(false)} className="text-[#92400e]">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-            </button>
-          </div>
-        )}
-
-        <div className="rounded-2xl px-1 py-1 mt-2.5">
-          <DropdownField label="Ülke" value="Türkiye" required />
-          <DropdownField label="Para Birimi" value="Türk Lirası (TRY)" required />
-          <DropdownField label="Bonus" value="Spor bonusu" />
-          <InputField placeholder="Promosyon kodu (isteğe bağlı)" />
-        </div>
-        <LinkRow icon={docIcon} label="Şartlar ve Koşullar" />
-        <LinkRow icon={docIcon} label="Gizlilik Politikası" />
-        <CheckboxField label="18 yaşından büyük olduğumu onaylıyorum." />
-        <div className="flex items-center justify-center gap-1 mt-4">
-          <span className="text-[11px] text-[#737B8C]">Zaten hesabınız var mı?</span>
-          <Link href="/login" className="text-[11px] text-[#0E8FCF] font-medium">Giriş Yap</Link>
-        </div>
+          )
+        })}
       </div>
-      <BottomButton />
-    </div>
+
+      {!selected ? (
+        <p className="mt-4 text-center text-[11px] text-[#737B8C]">Devam etmek için Google ile kayıt yöntemini seçin.</p>
+      ) : (
+        <>
+          <div className="rounded-2xl px-1 py-1 mt-2.5">
+            <TextField label="Gmail Adresi" placeholder="ornek@gmail.com *" required type="email" inputMode="email" autoComplete="email" value={f.values.email} onChange={(x) => f.set('email', x)} onBlur={() => f.touch('email')} error={f.err('email')} />
+            <SelectField label="Ülke" required options={COUNTRIES} value={f.values.country} onChange={(x) => f.set('country', x)} />
+            <SelectField label="Para Birimi" required options={CURRENCIES} value={f.values.currency} onChange={(x) => f.set('currency', x)} />
+            <SelectField label="Bonus" options={BONUSES} value={f.values.bonus} onChange={(x) => f.set('bonus', x)} />
+            <TextField placeholder="Promosyon kodu (isteğe bağlı)" value={f.values.promo} onChange={(x) => f.set('promo', x)} />
+          </div>
+          <LegalLinks onOpen={setLegal} />
+          <CheckboxField checked={f.values.terms} onChange={(x) => { f.set('terms', x); f.touch('terms') }} error={f.err('terms')} label="18 yaşından büyük olduğumu ve şartlar ve koşulları, müşteri sözleşmesini ve gizlilik politikasını kabul ettiğimi onaylıyorum." />
+        </>
+      )}
+      <LegalModal slug={legal} onClose={() => setLegal(null)} />
+    </FormShell>
   )
 }
 
 // ── Main screen ────────────────────────────────────────────────
 
+const METHOD_PARAM: Record<string, number> = { phone: 0, email: 1, social: 2 }
+
 export default function RegisterScreen() {
-  const [activeMethod, setActiveMethod] = useState<number | null>(null)
+  // /register?method=social lets the login screen's "Gmail ile Kayıt Ol"
+  // land straight on the social form.
+  const params = useSearchParams()
+  const initial = METHOD_PARAM[params.get('method') ?? ''] ?? null
+  const [activeMethod, setActiveMethod] = useState<number | null>(initial)
   const router = useRouter()
 
   if (activeMethod === 0) return <PhoneForm onBack={() => setActiveMethod(null)} />

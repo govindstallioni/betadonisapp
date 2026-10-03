@@ -15,7 +15,7 @@
 // by the html.dark class overrides in globals.css, so a tile carries its own
 // contrast into dark mode exactly like a real logo would.
 
-export type LogoKey = 'havaleEft' | 'fast' | 'hizli' | 'papara'
+export type LogoKey = 'havaleEft' | 'fast' | 'hizli' | 'papara' | 'yapikredi' | 'ziraat' | 'akbank' | 'teb'
 
 export const LOGOS: Record<LogoKey, React.ReactNode> = {
   havaleEft: (
@@ -38,6 +38,32 @@ export const LOGOS: Record<LogoKey, React.ReactNode> = {
       <rect width="84" height="36" rx="6" fill="#1273c7" />
       <text x="42" y="17" textAnchor="middle" fill="#fff" fontSize="12" fontWeight="800" fontFamily="system-ui, sans-serif">hızlı</text>
       <text x="42" y="29" textAnchor="middle" fill="#bfe0f7" fontSize="10" fontWeight="600" fontFamily="system-ui, sans-serif">havale</text>
+    </>
+  ),
+  // Online bank transfer banks (task 36, onlinebankahavalesimenu.png).
+  yapikredi: (
+    <>
+      <rect width="84" height="36" rx="6" fill="#1e4fa1" />
+      <text x="42" y="23" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="800" fontFamily="system-ui, sans-serif">YapıKredi</text>
+    </>
+  ),
+  ziraat: (
+    <>
+      <rect width="84" height="36" rx="6" fill="#e30613" />
+      <text x="42" y="23" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="800" letterSpacing="0.6" fontFamily="system-ui, sans-serif">ZİRAAT</text>
+    </>
+  ),
+  akbank: (
+    <>
+      <rect width="84" height="36" rx="6" fill="#e30613" />
+      <text x="42" y="23" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="800" letterSpacing="0.6" fontFamily="system-ui, sans-serif">AKBANK</text>
+    </>
+  ),
+  teb: (
+    <>
+      <rect width="84" height="36" rx="6" fill="#ececec" />
+      <rect x="10" y="7" width="22" height="22" rx="3" fill="#1a9850" />
+      <text x="56" y="24" textAnchor="middle" fill="#2b2b2b" fontSize="16" fontWeight="800" fontFamily="system-ui, sans-serif">TEB</text>
     </>
   ),
   papara: (

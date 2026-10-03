@@ -1,44 +1,89 @@
 'use client'
 
+import { useEffect } from 'react'
 import Script from 'next/script'
 
-// ── LiveSupport (livesupport.com) integration ──────────────────────────────
-// Paste the embed script URL LiveSupport gives you under their dashboard's
-// Settings > Installation page (looks like a <script src="..."> tag) here.
-// Until this is filled in, "Canlı Destek" keeps falling back to the in-app
-// message inbox (/hesap/mesajlar) exactly as it does today — nothing breaks.
-export const LIVE_SUPPORT_SCRIPT_URL = ''
+// ── LiveChat (livechat.com) integration — v6.6 task 27 ─────────────────────
+// Standard LiveChat snippet: sets window.__lc.license, then the loader defines
+// window.LiveChatWidget (a queueing stub) and injects cdn.livechatinc.com's
+// tracking.js. API calls made before tracking.js finishes loading are queued
+// by the stub and replayed, so opening from the footer never races the script.
+export const LIVECHAT_LICENSE = 9481590
 
-// Only needed if LiveSupport's snippet passes the account/widget id as a
-// separate data attribute rather than baking it into the script URL itself.
-export const LIVE_SUPPORT_WIDGET_ID = ''
+const LIVECHAT_SNIPPET = `
+window.__lc = window.__lc || {};
+window.__lc.license = ${LIVECHAT_LICENSE};
+;(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n)}var e={_q:[],_h:null,_v:"2.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e}(window,document,[].slice))
+`
 
 export function isLiveSupportConfigured() {
-  return LIVE_SUPPORT_SCRIPT_URL.length > 0
+  return LIVECHAT_LICENSE > 0
 }
 
-// Mounted once in the root layout — loads LiveSupport's widget script
-// site-wide (it renders its own floating launcher) once configured above.
+// Lift the widget so it clears the bottom tab bar. LiveChat injects its own
+// container and rewrites its inline style, so a stylesheet rule can lose;
+// an inline !important set from here (and re-set on every change) cannot.
+const LIFT_PX = 50
+
+// Only the minimized launcher is lifted. An open chat is full-screen on phones,
+// so lifting it would push its header (and the minimize / close button) 50px off
+// the top of the screen.
+let chatVisibility: 'minimized' | 'maximized' | 'hidden' = 'minimized'
+
+function liftWidget() {
+  const el = document.getElementById('chat-widget-container')
+  if (!el) return
+  const want = chatVisibility === 'maximized' ? '0px' : `${LIFT_PX}px`
+  if (el.style.getPropertyValue('bottom') !== want) {
+    el.style.setProperty('bottom', want, 'important')
+  }
+}
+
+// Mounted once in the root layout — loads LiveChat site-wide.
 export default function LiveSupportWidget() {
-  if (!isLiveSupportConfigured()) return null
+  useEffect(() => {
+    type Vis = { visibility: typeof chatVisibility }
+    type LC = { on: (e: string, cb: (d: Vis) => void) => void; off: (e: string, cb: (d: Vis) => void) => void }
+    const getLc = () => (window as unknown as { LiveChatWidget?: LC }).LiveChatWidget
+    const onVisibility = (d: Vis) => { chatVisibility = d.visibility; liftWidget() }
+    // The loader script runs after hydration, so LiveChatWidget may not exist
+    // yet — retry until it does, then subscribe (once).
+    let lc: LC | undefined
+    const subscribe = () => {
+      lc = getLc()
+      if (!lc) return false
+      lc.on('visibility_changed', onVisibility)
+      return true
+    }
+    const subPoll = subscribe() ? undefined : setInterval(() => { if (subscribe()) clearInterval(subPoll) }, 200)
+    liftWidget()
+    const mo = new MutationObserver(liftWidget)
+    mo.observe(document.body, { childList: true, subtree: true })
+    const container = () => document.getElementById('chat-widget-container')
+    const attrObserver = new MutationObserver(liftWidget)
+    const poll = setInterval(() => {
+      const el = container()
+      if (el) {
+        attrObserver.observe(el, { attributes: true, attributeFilter: ['style', 'class'] })
+        clearInterval(poll)
+      }
+    }, 500)
+    return () => { clearInterval(subPoll); lc?.off('visibility_changed', onVisibility); mo.disconnect(); attrObserver.disconnect(); clearInterval(poll) }
+  }, [])
+
   return (
-    <Script
-      src={LIVE_SUPPORT_SCRIPT_URL}
-      data-widget-id={LIVE_SUPPORT_WIDGET_ID || undefined}
-      strategy="lazyOnload"
-    />
+    <Script id="livechat-loader" strategy="afterInteractive">
+      {LIVECHAT_SNIPPET}
+    </Script>
   )
 }
 
-// Opens the LiveSupport chat window via the `window.LiveSupport.open()` /
-// `window.livesupport.open()` API most live-chat embed scripts expose.
-// Returns false if the widget script isn't loaded/configured yet, so callers
-// can fall back to their own contact flow.
+// Opens the LiveChat window. Returns false only if the loader hasn't run yet
+// (e.g. clicked before hydration finished), so callers can ignore or retry.
 export function openLiveSupport(): boolean {
   if (typeof window === 'undefined') return false
-  const api = (window as unknown as { LiveSupport?: any; livesupport?: any }).LiveSupport
-    ?? (window as unknown as { livesupport?: any }).livesupport
-  if (api?.open) { api.open(); return true }
-  if (api?.show) { api.show(); return true }
-  return false
+  const api = (window as unknown as { LiveChatWidget?: { call: (m: string) => void } }).LiveChatWidget
+  if (!api) return false
+  api.call('maximize')
+  return true
 }

@@ -14,6 +14,7 @@ import {
   SLOT_CATEGORIES, gamesFor, countFor,
 } from '@/components/slotGamesData'
 import { artFallback } from './placeholderGameArt'
+import CasinoSubcategoryRail from './CasinoSubcategoryRail'
 
 // ── Small game card (used by horizontal rails) ──────────────────────────────
 function GameThumb({ game, w = 'w-[110px]', compact = false }: { game: { name: string; provider: string; image: string; promo?: boolean }; w?: string; compact?: boolean }) {
@@ -171,6 +172,14 @@ export default function SlotsScreen() {
                 </button>
               )
             })}
+          </div>
+
+          {/* ── En Çok Oynananlar — casino sub-categories (task 29) ── */}
+          <div className="px-4 pt-1">
+            <SectionHeader title="En Çok Oynananlar" badge="Casino" />
+          </div>
+          <div className="px-4 pb-4">
+            <CasinoSubcategoryRail />
           </div>
 
           {/* ── Popüler Slotlar ── */}

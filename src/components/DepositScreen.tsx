@@ -7,6 +7,8 @@ import WheelPromoModal from '@/components/WheelPromoModal'
 import { useAdc } from './AdcProvider'
 import { adcForDeposit, adcRateFor, fmtAdc } from '@/data/adc'
 import { MethodLogo, type LogoKey } from './PaymentLogos'
+import CryptoDepositForm, { CRYPTO_BY_METHOD, markTxUsed } from './CryptoDepositForm'
+import { OnlineAmountSelect, PaymentIframeModal } from './OnlineBankDeposit'
 
 // ── Payment methods ─────────────────────────────────────────────────────────
 // Task 29: names, type labels, fees and floors for the first four come from the
@@ -15,7 +17,7 @@ import { MethodLogo, type LogoKey } from './PaymentLogos'
 // sections are gone and "Para Yatırma Grupları" now filters by the reference's
 // own type vocabulary instead. The methods below the fold in that screenshot are
 // still unknown, so the rest of our list is kept as-is rather than deleted.
-type MethodType = 'bank' | 'crypto' | 'ewallet'
+type MethodType = 'bank' | 'crypto' | 'ewallet' | 'online'
 type Method = {
   id: number
   name: string
@@ -34,6 +36,13 @@ const methods: Method[] = [
   { id: 24, name: 'MPAY (FAST)', type: 'bank', typeLabel: 'Havale/Eft', logo: 'fast', fee: 'Ücretsiz', min: 250, max: 100000 },
   { id: 13, name: 'HIZLI HAVALE', type: 'bank', typeLabel: 'Havale/Eft', logo: 'hizli', fee: 'Ücretsiz', min: 500, max: 100000 },
   { id: 21, name: 'Papara (MPAY)', type: 'ewallet', typeLabel: 'Online Papara', logo: 'papara', fee: 'Ücretsiz', min: 1000, max: 100000 },
+  // ── Online bank transfer (task 36, onlinebankahavalesimenu.png) — amount picked
+  //    from a dropdown, then the bank's payment form opens in an iframe popup.
+  //    Floors/ceilings are placeholders until the client gives per-bank limits. ──
+  { id: 30, name: 'Yapı Kredi Bank', type: 'online', typeLabel: 'Online Banka Havalesi', logo: 'yapikredi', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 31, name: 'Ziraat Bank', type: 'online', typeLabel: 'Online Banka Havalesi', logo: 'ziraat', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 32, name: 'Akbank', type: 'online', typeLabel: 'Online Banka Havalesi', logo: 'akbank', fee: 'Ücretsiz', min: 250, max: 100000 },
+  { id: 33, name: 'TEB Bank', type: 'online', typeLabel: 'Online Banka Havalesi', logo: 'teb', fee: 'Ücretsiz', min: 250, max: 100000 },
   // ── Below the fold in the reference — kept from our own list, unverified ──
   { id: 1, name: 'Halk Bank', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 250, max: 100000 },
   { id: 3, name: 'Instant QR', type: 'bank', typeLabel: 'Havale/Eft', fee: 'Ücretsiz', min: 100, max: 50000 },
@@ -61,6 +70,7 @@ const MIN = 50
 const MAX = 100000
 
 const fmt = (n: number) => n.toLocaleString('tr-TR')
+const makeRef = (amt: number, methodId: number) => 'BD-' + String(amt * 7 + methodId * 131 + 100000).slice(-8)
 /** The reference grid groups with commas ("Min 2,000 TRY"), not the tr-TR dot
  *  the rest of the app uses. Only the red-boxed card block uses this. */
 const fmtRef = (n: number) => n.toLocaleString('en-US')
@@ -77,10 +87,11 @@ export default function DepositScreen() {
   const [selected, setSelected] = useState<Method | null>(null)
   const [amount, setAmount] = useState('')
   const [bonus, setBonus] = useState(0)
-  const [done, setDone] = useState<null | { ref: string; amount: number; method: string; adc: number }>(null)
+  const [done, setDone] = useState<null | { ref: string; amount: number; method: string; adc: number; tx?: string }>(null)
   const [groupFilter, setGroupFilter] = useState('Tümü')
   const [showGroups, setShowGroups] = useState(false)
   const [showWheelUnlock, setShowWheelUnlock] = useState(false)
+  const [showPay, setShowPay] = useState(false) // online bank: payment iframe popup
 
   // ── Method-specific fields (task 11: each method type has its own form —
   // bank transfers collect sender/receiver phone + TC kimlik + doğum tarihi +
@@ -94,11 +105,12 @@ export default function DepositScreen() {
   const [birthYear, setBirthYear] = useState('')
   const [password, setPassword] = useState('')
   const [walletAccountNo, setWalletAccountNo] = useState('')
-  const [cryptoAddress, setCryptoAddress] = useState('')
+  // Crypto (task 34): the chain code once it has passed verification.
+  const [cryptoTx, setCryptoTx] = useState<string | null>(null)
 
   const resetMethodFields = () => {
     setSenderPhone(''); setReceiverPhone(''); setTcNo(''); setBirthDay(''); setBirthMonth(''); setBirthYear(''); setPassword('')
-    setWalletAccountNo(''); setCryptoAddress('')
+    setWalletAccountNo(''); setCryptoTx(null)
   }
   const selectMethod = (m: Method) => { resetMethodFields(); setSelected(m) }
 
@@ -106,7 +118,8 @@ export default function DepositScreen() {
     !selected ? false :
     selected.type === 'bank' ? !!(senderPhone && receiverPhone && tcNo.length === 11 && birthDay && birthMonth && birthYear && password) :
     selected.type === 'ewallet' ? !!walletAccountNo :
-    !!cryptoAddress
+    selected.type === 'online' ? true :
+    !!cryptoTx
 
   const amt = Number(amount) || 0
   // The reference prints a different Min per method, so validate against the
@@ -119,7 +132,7 @@ export default function DepositScreen() {
 
   const confirm = () => {
     if (!selected || !valid) return
-    const ref = 'BD-' + String(amt * 7 + selected.id * 131 + 100000).slice(-8)
+    const ref = makeRef(amt, selected.id)
     // Credit the deposit (and any selected bonus %) to the live balance.
     const bonusAmt = bonus === 1 ? Math.min(amt, 5000) : bonus === 2 ? amt * 0.5 : bonus === 3 ? amt * 0.25 : 0
     adjustBalance(amt, bonusAmt)
@@ -129,10 +142,11 @@ export default function DepositScreen() {
     // would push the house cost past the brief's 0.25–1.25% ceiling. It lands
     // as "bekleyen" until a qualifying bet finalises it (see AdcProvider).
     const adc = accrueDeposit(amt)
-    setDone({ ref, amount: amt, method: selected.name, adc })
+    if (selected.type === 'crypto' && cryptoTx) markTxUsed(cryptoTx)
+    setDone({ ref, amount: amt, method: selected.name, adc, tx: selected.type === 'crypto' ? cryptoTx ?? undefined : undefined })
   }
 
-  const reset = () => { setSelected(null); setAmount(''); setBonus(0); setDone(null); resetMethodFields() }
+  const reset = () => { setSelected(null); setAmount(''); setBonus(0); setDone(null); setShowPay(false); resetMethodFields() }
 
   // ── Success view ──
   if (done) {
@@ -149,6 +163,7 @@ export default function DepositScreen() {
             <Line k="Tutar" v={`${fmt(done.amount)} ₺`} />
             <Line k="Yöntem" v={done.method} />
             <Line k="Referans No" v={done.ref} />
+            {done.tx && <Line k="İşlem Kodu" v={`${done.tx.slice(0, 8)}…${done.tx.slice(-6)}`} />}
             <Line k="Durum" v="Beklemede" vColor="#f39c12" last={done.adc === 0} />
             {done.adc > 0 && <Line k="Adonis Coin" v={`+${fmtAdc(done.adc)} ADC`} vColor="#0E8FCF" last />}
           </div>
@@ -184,6 +199,24 @@ export default function DepositScreen() {
 
           {/* Method-specific fields (task 11) — bank transfers, e-wallets and
               crypto each collect different information before the amount. */}
+          {selected.type === 'crypto' && CRYPTO_BY_METHOD[selected.id] && (
+            <CryptoDepositForm
+              cfg={CRYPTO_BY_METHOD[selected.id]}
+              amount={amount}
+              setAmount={setAmount}
+              amt={amt}
+              minAmt={minAmt}
+              maxAmt={maxAmt}
+              quicks={quicks}
+              onVerified={setCryptoTx}
+            />
+          )}
+
+          {selected.type === 'online' && (
+            <OnlineAmountSelect amount={amount} onChange={setAmount} min={minAmt} max={maxAmt} />
+          )}
+
+          {selected.type !== 'crypto' && selected.type !== 'online' && (
           <div className="bg-white rounded-xl border border-[#e8ecf1] px-4 py-4 flex flex-col gap-3">
             {selected.type === 'bank' && (
               <>
@@ -213,15 +246,11 @@ export default function DepositScreen() {
             {selected.type === 'ewallet' && (
               <FormField label={`${selected.name.split(' ')[0]} Hesap Numarası`} value={walletAccountNo} onChange={setWalletAccountNo} placeholder={`${selected.name.split(' ')[0]} Hesap Numarası`} inputMode="numeric" />
             )}
-            {selected.type === 'crypto' && (
-              <>
-                <FormField label="Gönderen Cüzdan Adresi" value={cryptoAddress} onChange={setCryptoAddress} placeholder="Cüzdan Adresi" />
-                <p className="text-[10px] text-[#737B8C] leading-relaxed -mt-1">Yatırımınızı onaylamak için para gönderdiğiniz cüzdan adresini girin.</p>
-              </>
-            )}
           </div>
+          )}
 
-          {/* Amount */}
+          {/* Amount (crypto has its own amount + conversion card above) */}
+          {selected.type !== 'crypto' && selected.type !== 'online' && (
           <div className="bg-white rounded-xl border border-[#e8ecf1] px-4 py-4">
             <label className="text-[11px] font-medium text-[#737B8C]">Yatırım Tutarı</label>
             <div className="flex items-center gap-2 mt-1.5 border-b-2 border-[#0E8FCF] pb-1.5">
@@ -263,6 +292,7 @@ export default function DepositScreen() {
               </div>
             )}
           </div>
+          )}
 
           {/* Bonus */}
           <div className="bg-white rounded-xl border border-[#e8ecf1] overflow-hidden">
@@ -283,10 +313,20 @@ export default function DepositScreen() {
               gateway rather than showing destination details on this screen. */}
         </div>
 
+        {showPay && selected.type === 'online' && (
+          <PaymentIframeModal
+            bank={selected.name}
+            amount={amt}
+            reference={makeRef(amt, selected.id)}
+            onClose={() => setShowPay(false)}
+            onSuccess={() => { setShowPay(false); confirm() }}
+          />
+        )}
+
         {/* Sticky confirm */}
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-[#e8ecf1] px-4 py-3">
-          <button onClick={confirm} disabled={!valid} className="w-full py-[13px] bg-[#0E8FCF] text-white text-[14px] font-bold rounded-xl disabled:opacity-40 hover:bg-[#0a7ab5] transition-colors">
-            {valid ? `${fmt(amt)} ₺ Yatır` : 'Para Yatır'}
+          <button onClick={selected.type === 'online' ? () => setShowPay(true) : confirm} disabled={!valid} className="w-full py-[13px] bg-[#0E8FCF] text-white text-[14px] font-bold rounded-xl disabled:opacity-40 hover:bg-[#0a7ab5] transition-colors">
+            {valid && selected.type === 'online' ? 'Para Yatırma' : valid ? `${fmt(amt)} ₺ Yatır` : selected.type === 'online' ? 'Önce tutarı seçiniz' : selected.type === 'crypto' && !cryptoTx ? 'Önce hesaplayıp işlem kodunu doğrulayın' : 'Para Yatır'}
           </button>
         </div>
       </div>

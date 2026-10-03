@@ -3,6 +3,9 @@
 // state lives in AdcProvider. Progress is derived from the activity the app
 // records (logins, placed bets, casino launches) — never typed in by hand.
 
+/** One-off reward for completing and verifying the profile (task 33). */
+export const PROFILE_REWARD = 25
+
 export type QuestTab = 'daily' | 'weekly' | 'achievement'
 export type Reset = 'day' | 'week' | 'month' | 'never'
 export type QuestMetric =

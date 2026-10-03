@@ -12,6 +12,7 @@ const SLUGS = [
   'gizlilik',
   'vip',
   'bonuslar',
+  'musteri-sozlesmesi',
 ]
 
 export function generateStaticParams() {

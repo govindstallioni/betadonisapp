@@ -5,18 +5,29 @@
 import { useParams } from 'next/navigation'
 import { PageShell } from '@/components/settings/SettingsUI'
 
-interface Section {
+export interface Section {
   heading?: string
   body: string
 }
 
-interface Doc {
+export interface Doc {
   title: string
   intro: string
   sections: Section[]
 }
 
-const docs: Record<string, Doc> = {
+// Exported so the registration screens can show these same texts in a popup.
+export const docs: Record<string, Doc> = {
+  'musteri-sozlesmesi': {
+    title: 'Müşteri Sözleşmesi',
+    intro: 'Bu sözleşme, Betadonis ile üye arasındaki hak ve yükümlülükleri düzenler. Kayıt işlemini tamamlayarak sözleşmeyi kabul etmiş olursunuz.',
+    sections: [
+      { heading: 'Hesap Sorumluluğu', body: 'Hesap bilgilerinizin gizliliğinden ve hesabınız üzerinden yapılan tüm işlemlerden siz sorumlusunuz. Şifrenizi kimseyle paylaşmayın.' },
+      { heading: 'Doğru Bilgi', body: 'Kayıt sırasında verdiğiniz kimlik ve iletişim bilgilerinin doğru ve güncel olması gerekir. Yanlış bilgi hesabın kapatılmasına yol açabilir.' },
+      { heading: 'Yasal Yaş ve Bölge', body: 'Hizmetlerimizden yalnızca 18 yaşını doldurmuş ve bulunduğu ülkede kumar oynamasına yasal engel olmayan kişiler yararlanabilir.' },
+      { heading: 'Hesap Kapatma', body: 'Sözleşme ihlali, hile veya şüpheli işlem tespit edilmesi halinde Betadonis hesabı askıya alma veya kapatma hakkını saklı tutar.' },
+    ],
+  },
   hakkinda: {
     title: 'Betadonis Hakkında',
     intro: 'Betadonis, spor bahisleri ve casino oyunlarını güvenli ve lisanslı bir ortamda bir araya getiren online eğlence platformudur.',
